@@ -43,7 +43,7 @@ export default async function CategoriesPage() {
 
   return (
     <main className="min-h-screen bg-grid">
-      <div className="max-w-4xl mx-auto px-6 py-16">
+      <div className="max-w-4xl mx-auto px-6 pt-28 pb-16">
         {/* Header */}
         <div className="mb-12">
           <Link

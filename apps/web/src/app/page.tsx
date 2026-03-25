@@ -2,6 +2,7 @@ import Link from 'next/link';
 import { getCategories, getFeaturedNews } from '@compario/database';
 import type { Category, NewsArticle } from '@compario/database';
 import { NewsCard } from '@/components/NewsCard';
+import { Header } from '@/components/Header';
 
 function CategoryIcon({ icon }: { icon: string | null }) {
   return (
@@ -95,6 +96,7 @@ async function NewsSection() {
 export default function HomePage() {
   return (
     <main className="min-h-screen bg-grid">
+      <Header />
       {/* Hero */}
       <section className="relative flex flex-col items-center justify-center text-center px-4 pt-28 pb-20 overflow-hidden">
         {/* Glow orb — max-w clamped to prevent mobile overflow */}

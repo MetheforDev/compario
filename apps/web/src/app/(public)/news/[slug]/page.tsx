@@ -82,7 +82,7 @@ export default async function NewsDetailPage({ params }: PageProps) {
   const categoryColor = primaryCategory ? (CATEGORY_COLORS[primaryCategory] ?? CATEGORY_COLORS.genel) : '';
 
   return (
-    <main className="min-h-screen bg-grid">
+    <main className={`min-h-screen bg-grid ${!article.cover_image ? 'pt-20' : ''}`}>
       {/* Cover Image */}
       {article.cover_image && (
         <div className="w-full h-[400px] sm:h-[500px] relative overflow-hidden">

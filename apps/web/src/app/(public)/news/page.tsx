@@ -49,10 +49,10 @@ export default async function NewsPage({ searchParams }: PageProps) {
   return (
     <main className="min-h-screen bg-grid">
       {/* Hero */}
-      <section className="relative px-4 pt-20 pb-12 text-center">
+      <section className="relative px-4 pt-32 pb-12 text-center">
         <div
           className="absolute top-0 left-1/2 -translate-x-1/2 w-[500px] h-[200px] rounded-full blur-[100px] opacity-10 pointer-events-none"
-          style={{ background: 'radial-gradient(ellipse, #00fff7 0%, #b724ff 100%)' }}
+          style={{ background: 'radial-gradient(ellipse, #C49A3C 0%, #8B9BAC 100%)' }}
         />
         <div className="relative z-10">
           <p className="font-mono text-[10px] text-neon-purple uppercase tracking-[0.4em] mb-4 opacity-70">
@@ -76,8 +76,8 @@ export default async function NewsPage({ searchParams }: PageProps) {
               href={`/news${cat.value ? `?category=${cat.value}` : ''}`}
               className={`px-4 py-2 rounded-full border font-mono text-xs uppercase tracking-wider transition-all ${
                 activeCategory === cat.value
-                  ? 'border-neon-cyan text-neon-cyan bg-neon-cyan/10 shadow-[0_0_10px_rgba(0,255,247,0.2)]'
-                  : 'border-[rgba(0,255,247,0.12)] text-gray-500 hover:text-neon-cyan hover:border-neon-cyan/40'
+                  ? 'border-neon-cyan text-neon-cyan bg-neon-cyan/10 shadow-[0_0_10px_rgba(196,154,60,0.2)]'
+                  : 'border-[rgba(196,154,60,0.12)] text-gray-500 hover:text-neon-cyan hover:border-neon-cyan/40'
               }`}
             >
               {cat.label}
@@ -87,7 +87,7 @@ export default async function NewsPage({ searchParams }: PageProps) {
 
         {/* Articles grid */}
         {articles.length === 0 ? (
-          <div className="text-center py-24 border border-[rgba(0,255,247,0.08)] rounded-lg">
+          <div className="text-center py-24 border border-[rgba(196,154,60,0.08)] rounded-lg">
             <p className="font-mono text-xs text-gray-600 uppercase tracking-widest">
               [ HABER BULUNAMADI ]
             </p>
