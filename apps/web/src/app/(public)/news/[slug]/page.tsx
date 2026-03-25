@@ -160,6 +160,30 @@ export default async function NewsDetailPage({ params }: PageProps) {
         {/* Divider */}
         <div className="border-t border-[rgba(0,255,247,0.08)] mb-10" />
 
+        {/* Image Gallery */}
+        {article.images && article.images.length > 0 && (
+          <div className="mb-10">
+            <h2 className="font-mono text-[10px] text-gray-600 uppercase tracking-wider mb-4">
+              Görsel Galerisi ({article.images.length})
+            </h2>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+              {article.images.map((imageUrl, index) => (
+                <div
+                  key={index}
+                  className="relative aspect-video bg-[#0c0c16] rounded overflow-hidden border border-[rgba(0,255,247,0.1)] hover:border-neon-cyan/40 transition-colors"
+                >
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img
+                    src={imageUrl}
+                    alt={`${article.title} — görsel ${index + 1}`}
+                    className="w-full h-full object-cover"
+                  />
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
         {/* Content */}
         <article>
           <MarkdownContent content={article.content} />

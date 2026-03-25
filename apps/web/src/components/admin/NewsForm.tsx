@@ -3,6 +3,7 @@
 import { useState, useTransition } from 'react';
 import { useRouter } from 'next/navigation';
 import type { NewsArticle, NewsArticleInput, Product } from '@compario/database';
+import { MarkdownContent } from '@/components/MarkdownContent';
 
 const CATEGORIES = [
   { value: 'yeni-model', label: 'Yeni Model' },
@@ -40,12 +41,14 @@ export function NewsForm({ initial = {}, products = [], action, submitLabel = 'K
   const router = useRouter();
   const [isPending, startTransition] = useTransition();
   const [error, setError] = useState<string | null>(null);
+  const [showPreview, setShowPreview] = useState(false);
 
   const [title, setTitle] = useState(initial.title ?? '');
   const [slug, setSlug] = useState(initial.slug ?? '');
   const [slugManual, setSlugManual] = useState(!!initial.slug);
   const [category, setCategory] = useState(initial.category ?? '');
   const [coverImage, setCoverImage] = useState(initial.cover_image ?? '');
+  const [imagesRaw, setImagesRaw] = useState((initial.images ?? []).join('\n'));
   const [excerpt, setExcerpt] = useState(initial.excerpt ?? '');
   const [content, setContent] = useState(initial.content ?? '');
   const [tagsRaw, setTagsRaw] = useState((initial.tags ?? []).join(', '));
@@ -59,24 +62,25 @@ export function NewsForm({ initial = {}, products = [], action, submitLabel = 'K
   const [metaDesc, setMetaDesc] = useState(initial.meta_description ?? '');
   const [relatedIds, setRelatedIds] = useState<string[]>(initial.related_product_ids ?? []);
 
+  const galleryImages = imagesRaw
+    .split('\n')
+    .map((u) => u.trim())
+    .filter(Boolean);
+
   function handleTitleChange(val: string) {
     setTitle(val);
-    if (!slugManual) {
-      setSlug(slugify(val));
-    }
+    if (!slugManual) setSlug(slugify(val));
   }
 
   function handleSubmit(publishNow?: boolean) {
-    const tags = tagsRaw
-      .split(',')
-      .map((t) => t.trim())
-      .filter(Boolean);
+    const tags = tagsRaw.split(',').map((t) => t.trim()).filter(Boolean);
 
     const payload: Partial<NewsArticleInput> = {
       title: title.trim(),
       slug: slug.trim(),
       category: category || undefined,
       cover_image: coverImage.trim() || undefined,
+      images: galleryImages.length ? galleryImages : undefined,
       excerpt: excerpt.trim() || undefined,
       content: content.trim(),
       tags,
@@ -97,9 +101,7 @@ export function NewsForm({ initial = {}, products = [], action, submitLabel = 'K
     startTransition(async () => {
       setError(null);
       const result = await action(payload);
-      if (result?.error) {
-        setError(result.error);
-      }
+      if (result?.error) setError(result.error);
     });
   }
 
@@ -157,11 +159,7 @@ export function NewsForm({ initial = {}, products = [], action, submitLabel = 'K
           {/* Category */}
           <div>
             <label className={labelClass}>Kategori</label>
-            <select
-              value={category}
-              onChange={(e) => setCategory(e.target.value)}
-              className={inputClass}
-            >
+            <select value={category} onChange={(e) => setCategory(e.target.value)} className={inputClass}>
               <option value="">Seç...</option>
               {CATEGORIES.map((c) => (
                 <option key={c.value} value={c.value}>{c.label}</option>
@@ -192,9 +190,50 @@ export function NewsForm({ initial = {}, products = [], action, submitLabel = 'K
               className={inputClass}
             />
             {coverImage && (
-              <div className="mt-2 rounded overflow-hidden border border-[rgba(0,255,247,0.1)] aspect-video relative bg-[#0c0c16]">
+              <div className="mt-2 rounded overflow-hidden border border-[rgba(0,255,247,0.1)] aspect-video bg-[#0c0c16]">
                 {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img src={coverImage} alt="preview" className="w-full h-full object-cover" />
+                <img src={coverImage} alt="kapak önizleme" className="w-full h-full object-cover" />
+              </div>
+            )}
+          </div>
+
+          {/* Image Gallery */}
+          <div>
+            <label className={labelClass}>
+              Görsel Galerisi
+              <span className="ml-2 text-gray-700 normal-case tracking-normal">
+                ({galleryImages.length} görsel)
+              </span>
+            </label>
+            <p className="font-mono text-[10px] text-gray-700 mb-2">
+              Her satıra bir URL — haber sayfasında galeri olarak gösterilir
+            </p>
+            <textarea
+              value={imagesRaw}
+              onChange={(e) => setImagesRaw(e.target.value)}
+              rows={4}
+              placeholder={`https://example.com/image1.jpg\nhttps://example.com/image2.jpg`}
+              className={`${inputClass} resize-none font-mono text-xs`}
+            />
+            {galleryImages.length > 0 && (
+              <div className="mt-3 grid grid-cols-4 gap-2">
+                {galleryImages.map((url, i) => (
+                  <div key={i} className="relative aspect-video bg-[#0c0c16] rounded overflow-hidden border border-[rgba(0,255,247,0.08)]">
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <img
+                      src={url}
+                      alt={`Galeri ${i + 1}`}
+                      className="w-full h-full object-cover"
+                      onError={(e) => {
+                        e.currentTarget.style.display = 'none';
+                        e.currentTarget.parentElement!.style.borderColor = 'rgba(255,0,110,0.4)';
+                      }}
+                    />
+                    <span className="absolute bottom-1 right-1 font-mono text-[9px] text-gray-600 bg-black/60 px-1 rounded">
+                      {i + 1}
+                    </span>
+                  </div>
+                ))}
               </div>
             )}
           </div>
@@ -216,11 +255,7 @@ export function NewsForm({ initial = {}, products = [], action, submitLabel = 'K
           {/* Status */}
           <div>
             <label className={labelClass}>Durum</label>
-            <select
-              value={status}
-              onChange={(e) => setStatus(e.target.value)}
-              className={inputClass}
-            >
+            <select value={status} onChange={(e) => setStatus(e.target.value)} className={inputClass}>
               <option value="draft">Taslak</option>
               <option value="published">Yayında</option>
               <option value="archived">Arşiv</option>
@@ -263,11 +298,8 @@ export function NewsForm({ initial = {}, products = [], action, submitLabel = 'K
                       type="checkbox"
                       checked={relatedIds.includes(p.id)}
                       onChange={(e) => {
-                        if (e.target.checked) {
-                          setRelatedIds([...relatedIds, p.id]);
-                        } else {
-                          setRelatedIds(relatedIds.filter((id) => id !== p.id));
-                        }
+                        if (e.target.checked) setRelatedIds([...relatedIds, p.id]);
+                        else setRelatedIds(relatedIds.filter((id) => id !== p.id));
                       }}
                       className="accent-[#00fff7]"
                     />
@@ -282,9 +314,7 @@ export function NewsForm({ initial = {}, products = [], action, submitLabel = 'K
 
       {/* Excerpt */}
       <div>
-        <label className={labelClass}>
-          Kısa Özet ({excerpt.length}/200)
-        </label>
+        <label className={labelClass}>Kısa Özet ({excerpt.length}/200)</label>
         <textarea
           value={excerpt}
           onChange={(e) => setExcerpt(e.target.value.slice(0, 200))}
@@ -294,17 +324,36 @@ export function NewsForm({ initial = {}, products = [], action, submitLabel = 'K
         />
       </div>
 
-      {/* Content */}
+      {/* Content with preview toggle */}
       <div>
-        <label className={labelClass}>İçerik * (Markdown)</label>
-        <textarea
-          required
-          value={content}
-          onChange={(e) => setContent(e.target.value)}
-          rows={16}
-          placeholder="# Haber başlığı&#10;&#10;Haber içeriği buraya gelecek...&#10;&#10;## Alt başlık&#10;&#10;Markdown formatında yazabilirsiniz."
-          className={`${inputClass} resize-y font-mono text-xs leading-relaxed`}
-        />
+        <div className="flex items-center justify-between mb-1.5">
+          <label className={labelClass} style={{ marginBottom: 0 }}>İçerik * (Markdown)</label>
+          <button
+            type="button"
+            onClick={() => setShowPreview((p) => !p)}
+            className="font-mono text-[10px] text-neon-cyan hover:text-neon-purple transition-colors uppercase tracking-wider"
+          >
+            {showPreview ? '📝 Düzenle' : '👁 Önizleme'}
+          </button>
+        </div>
+
+        {showPreview ? (
+          <div className="w-full min-h-[300px] bg-[#0c0c16] border border-[rgba(0,255,247,0.15)] rounded px-4 py-3">
+            <MarkdownContent content={content} />
+          </div>
+        ) : (
+          <textarea
+            required
+            value={content}
+            onChange={(e) => setContent(e.target.value)}
+            rows={16}
+            placeholder={'# Başlık\n\nHaber içeriği buraya gelecek...\n\n## Alt başlık\n\n![Görsel](https://...)'}
+            className={`${inputClass} resize-y font-mono text-xs leading-relaxed`}
+          />
+        )}
+        <p className="mt-1 font-mono text-[10px] text-gray-700">
+          Markdown destekli. Görsel: ![Alt](URL) · Kalın: **metin** · Başlık: ## Başlık
+        </p>
       </div>
 
       {/* SEO */}

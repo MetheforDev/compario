@@ -188,6 +188,7 @@ export interface Database {
           excerpt: string | null
           content: string
           cover_image: string | null
+          images: string[] | null
           category: string | null
           tags: string[] | null
           related_product_ids: string[] | null
@@ -210,6 +211,7 @@ export interface Database {
           excerpt?: string | null
           content: string
           cover_image?: string | null
+          images?: string[] | null
           category?: string | null
           tags?: string[] | null
           related_product_ids?: string[] | null
@@ -232,6 +234,7 @@ export interface Database {
           excerpt?: string | null
           content?: string
           cover_image?: string | null
+          images?: string[] | null
           category?: string | null
           tags?: string[] | null
           related_product_ids?: string[] | null

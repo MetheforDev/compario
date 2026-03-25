@@ -8,6 +8,7 @@ export interface NewsArticle {
   excerpt: string | null;
   content: string;
   cover_image: string | null;
+  images: string[] | null;
   category: string | null;
   tags: string[];
   related_product_ids: string[] | null;
