@@ -22,7 +22,7 @@ export const viewport: Viewport = {
 
 export const metadata: Metadata = {
   title: {
-    default: 'Compario - Compare Everything, Decide Better',
+    default: 'Compario — Her Şeyi Karşılaştır, En İyisine Karar Ver',
     template: '%s | Compario',
   },
   description:
@@ -40,14 +40,14 @@ export const metadata: Metadata = {
   openGraph: {
     type: 'website',
     siteName: 'Compario',
-    title: 'Compario - Compare Everything, Decide Better',
+    title: 'Compario — Her Şeyi Karşılaştır, En İyisine Karar Ver',
     description: '2026 model araçlar ve teknoloji ürünleri karşılaştırma platformu',
     locale: 'tr_TR',
   },
   twitter: {
     card: 'summary_large_image',
     title: 'Compario',
-    description: 'Compare Everything, Decide Better',
+    description: 'Her Şeyi Karşılaştır, En İyisine Karar Ver',
   },
   icons: {
     icon: [
