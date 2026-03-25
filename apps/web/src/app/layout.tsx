@@ -78,7 +78,7 @@ export default function RootLayout({
         <meta name="mobile-web-app-capable" content="yes" />
         <meta name="theme-color" content="#00fff7" />
       </head>
-      <body className="bg-[#0a0a0f] text-gray-200 font-mono antialiased">
+      <body className="bg-[#08090E] text-[#EDE8DF] font-mono antialiased">
         {children}
       </body>
     </html>

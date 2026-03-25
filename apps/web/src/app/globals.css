@@ -2,12 +2,26 @@
 @tailwind components;
 @tailwind utilities;
 
+/* ─────────────────────────────────────────────────────────
+   COMPARIO PREMIUM — Design Token
+   Primary:   Gold    #C49A3C  rgb(196,154,60)
+   Secondary: Platin  #8B9BAC  rgb(139,155,172)
+   Success:   Zümrüt  #10B981
+   BG:        Lacivert-Siyah #08090E
+───────────────────────────────────────────────────────── */
+
 :root {
-  --bg-primary: #0a0a0f;
-  --bg-secondary: #0f0f1a;
-  --bg-card: #12121f;
-  --border-dim: rgba(0, 255, 247, 0.1);
-  --border-glow: rgba(0, 255, 247, 0.4);
+  --gold:           #C49A3C;
+  --gold-dim:       rgba(196,154,60,0.12);
+  --gold-mid:       rgba(196,154,60,0.25);
+  --gold-bright:    rgba(196,154,60,0.5);
+  --platinum:       #8B9BAC;
+  --platinum-dim:   rgba(139,155,172,0.12);
+  --bg-primary:     #08090E;
+  --bg-secondary:   #0C1018;
+  --bg-card:        #101622;
+  --border-dim:     rgba(196,154,60,0.1);
+  --border-glow:    rgba(196,154,60,0.35);
 }
 
 /* Base reset */
@@ -23,66 +37,70 @@ html {
 
 body {
   background-color: var(--bg-primary);
-  color: #e0e0e0;
+  color: #EDE8DF;
   min-height: 100vh;
   overflow-x: hidden;
   max-width: 100%;
 }
 
-/* Cyberpunk grid background */
+/* Subtle luxury grid */
 .bg-grid {
-  background-image: linear-gradient(rgba(0, 255, 247, 0.03) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(0, 255, 247, 0.03) 1px, transparent 1px);
-  background-size: 40px 40px;
+  background-image:
+    linear-gradient(rgba(196,154,60,0.025) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(196,154,60,0.025) 1px, transparent 1px);
+  background-size: 60px 60px;
 }
 
-/* Neon text utilities */
+/* ─── Text glow utilities ─────────────────────────────── */
 @layer utilities {
   .text-glow-cyan {
-    text-shadow: 0 0 10px #00fff7, 0 0 30px #00fff780;
+    text-shadow: 0 0 20px rgba(196,154,60,0.7), 0 0 50px rgba(196,154,60,0.3);
   }
   .text-glow-purple {
-    text-shadow: 0 0 10px #b724ff, 0 0 30px #b724ff80;
+    text-shadow: 0 0 20px rgba(139,155,172,0.6), 0 0 40px rgba(139,155,172,0.2);
   }
   .text-glow-green {
-    text-shadow: 0 0 10px #39ff14, 0 0 30px #39ff1480;
+    text-shadow: 0 0 15px rgba(16,185,129,0.6), 0 0 30px rgba(16,185,129,0.2);
   }
   .text-glow-pink {
-    text-shadow: 0 0 10px #ff006e, 0 0 30px #ff006e80;
+    text-shadow: 0 0 15px rgba(220,38,38,0.6), 0 0 30px rgba(220,38,38,0.2);
   }
 }
 
-/* Neon card */
+/* ─── Premium components ──────────────────────────────── */
 @layer components {
+
   .card-neon {
-    @apply bg-[#12121f] border border-[rgba(0,255,247,0.12)] rounded-lg
+    @apply bg-[#101622] border border-[rgba(196,154,60,0.1)] rounded-lg
            transition-all duration-300;
   }
   .card-neon:hover {
-    @apply border-[rgba(0,255,247,0.5)];
-    box-shadow: 0 0 20px rgba(0, 255, 247, 0.1), inset 0 0 20px rgba(0, 255, 247, 0.03);
+    @apply border-[rgba(196,154,60,0.35)];
+    box-shadow: 0 0 30px rgba(196,154,60,0.08), inset 0 0 20px rgba(196,154,60,0.02);
   }
 
+  /* Gold primary button */
   .btn-neon {
     @apply px-6 py-2 rounded border border-neon-cyan text-neon-cyan font-mono text-sm
            uppercase tracking-widest transition-all duration-200;
   }
   .btn-neon:hover {
     @apply bg-neon-cyan text-black;
-    box-shadow: 0 0 20px rgba(0, 255, 247, 0.5);
+    box-shadow: 0 0 25px rgba(196,154,60,0.4);
   }
 
+  /* Platinum secondary button */
   .btn-neon-purple {
     @apply px-6 py-2 rounded border border-neon-purple text-neon-purple font-mono text-sm
            uppercase tracking-widest transition-all duration-200;
   }
   .btn-neon-purple:hover {
-    @apply bg-neon-purple text-white;
-    box-shadow: 0 0 20px rgba(183, 36, 255, 0.5);
+    @apply bg-neon-purple text-black;
+    box-shadow: 0 0 25px rgba(139,155,172,0.35);
   }
 }
 
-/* Comparison card animations */
+/* ─── Comparison card animations ─────────────────────── */
 @keyframes compareSlideLeft {
   from { opacity: 0; transform: translateX(-24px); }
   to   { opacity: 1; transform: translateX(0); }
@@ -92,23 +110,23 @@ body {
   to   { opacity: 1; transform: translateX(0); }
 }
 
-/* Scrollbar */
+/* ─── Scrollbar ──────────────────────────────────────── */
 ::-webkit-scrollbar {
-  width: 6px;
+  width: 5px;
 }
 ::-webkit-scrollbar-track {
   background: var(--bg-secondary);
 }
 ::-webkit-scrollbar-thumb {
-  background: rgba(0, 255, 247, 0.3);
+  background: rgba(196,154,60,0.25);
   border-radius: 3px;
 }
 ::-webkit-scrollbar-thumb:hover {
-  background: rgba(0, 255, 247, 0.6);
+  background: rgba(196,154,60,0.5);
 }
 
-/* Selection */
+/* ─── Selection ──────────────────────────────────────── */
 ::selection {
-  background: rgba(0, 255, 247, 0.2);
-  color: #00fff7;
+  background: rgba(196,154,60,0.2);
+  color: #C49A3C;
 }

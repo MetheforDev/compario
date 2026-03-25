@@ -53,10 +53,10 @@ function ProductCard({
   total: number;
 }) {
   const winnerBorder = product.winner
-    ? 'rgba(0,255,247,0.5)'
-    : 'rgba(0,255,247,0.12)';
+    ? 'rgba(196,154,60,0.5)'
+    : 'rgba(196,154,60,0.12)';
   const winnerShadow = product.winner
-    ? '0 0 30px rgba(0,255,247,0.12), inset 0 0 20px rgba(0,255,247,0.04)'
+    ? '0 0 30px rgba(196,154,60,0.12), inset 0 0 20px rgba(196,154,60,0.04)'
     : undefined;
 
   const roundedClass =
@@ -111,14 +111,14 @@ function ProductCard({
       )}
 
       {/* Name & Price */}
-      <div className="p-3 sm:p-4 border-b border-[rgba(0,255,247,0.06)]">
+      <div className="p-3 sm:p-4 border-b border-[rgba(196,154,60,0.06)]">
         {product.badge && (
           <span
             className="inline-block mb-1.5 px-2 py-0.5 rounded-full border font-mono text-[9px] uppercase tracking-wider"
             style={{
-              borderColor: product.winner ? 'rgba(0,255,247,0.4)' : 'rgba(183,36,255,0.3)',
-              color: product.winner ? '#00fff7' : '#b724ff',
-              background: product.winner ? 'rgba(0,255,247,0.08)' : 'rgba(183,36,255,0.08)',
+              borderColor: product.winner ? 'rgba(196,154,60,0.4)' : 'rgba(139,155,172,0.3)',
+              color: product.winner ? '#C49A3C' : '#8B9BAC',
+              background: product.winner ? 'rgba(196,154,60,0.08)' : 'rgba(139,155,172,0.08)',
             }}
           >
             {product.badge}
@@ -130,7 +130,7 @@ function ProductCard({
         {product.price && (
           <p
             className="font-orbitron text-sm sm:text-base font-black"
-            style={{ color: product.winner ? '#00fff7' : '#9ca3af' }}
+            style={{ color: product.winner ? '#C49A3C' : '#9ca3af' }}
           >
             {product.price}
           </p>
@@ -139,7 +139,7 @@ function ProductCard({
 
       {/* Specs */}
       {(product.specs?.length ?? 0) > 0 && (
-        <div className="flex-1 divide-y divide-[rgba(0,255,247,0.04)]">
+        <div className="flex-1 divide-y divide-[rgba(196,154,60,0.04)]">
           {Array.from({ length: maxSpecs }).map((_, i) => {
             const spec = product.specs?.[i];
             if (!spec) return <div key={i} className="px-3 sm:px-4 py-2.5 min-h-[42px]" />;
@@ -155,8 +155,8 @@ function ProductCard({
                 <span
                   className="font-mono text-xs font-semibold"
                   style={{
-                    color: spec.better ? '#00fff7' : '#6b7280',
-                    textShadow: spec.better ? '0 0 8px rgba(0,255,247,0.5)' : undefined,
+                    color: spec.better ? '#C49A3C' : '#6b7280',
+                    textShadow: spec.better ? '0 0 8px rgba(196,154,60,0.5)' : undefined,
                   }}
                 >
                   {!alignRight && spec.better && <span className="mr-1">▲</span>}
@@ -221,7 +221,7 @@ export function ComparisonCard({ raw }: ComparisonCardProps) {
             style={{ top: '40px' }}>
             <div
               className="w-11 h-11 rounded-full bg-[#0a0a0f] border-2 border-neon-purple flex items-center justify-center font-orbitron text-[11px] font-black text-neon-purple"
-              style={{ boxShadow: '0 0 20px rgba(183,36,255,0.6), 0 0 40px rgba(183,36,255,0.2)' }}
+              style={{ boxShadow: '0 0 20px rgba(139,155,172,0.4), 0 0 40px rgba(139,155,172,0.15)' }}
             >
               VS
             </div>
@@ -232,14 +232,14 @@ export function ComparisonCard({ raw }: ComparisonCardProps) {
       {/* Header for 3-4 products */}
       {!showVsBadge && (
         <div className="flex items-center gap-3 mb-3">
-          <div className="h-px flex-1 bg-gradient-to-r from-transparent to-[rgba(183,36,255,0.3)]" />
+          <div className="h-px flex-1 bg-gradient-to-r from-transparent to-[rgba(139,155,172,0.3)]" />
           <span
             className="font-orbitron text-[10px] uppercase tracking-[0.4em] font-black"
-            style={{ color: '#b724ff' }}
+            style={{ color: '#8B9BAC' }}
           >
             {total} ÜRÜN KARŞILAŞTIRMASI
           </span>
-          <div className="h-px flex-1 bg-gradient-to-l from-transparent to-[rgba(183,36,255,0.3)]" />
+          <div className="h-px flex-1 bg-gradient-to-l from-transparent to-[rgba(139,155,172,0.3)]" />
         </div>
       )}
 
@@ -263,11 +263,11 @@ export function ComparisonCard({ raw }: ComparisonCardProps) {
         <div
           className="rounded-b-xl px-4 py-3 text-center font-mono text-xs text-gray-500 border border-t-0"
           style={{
-            background: 'rgba(183,36,255,0.04)',
-            borderColor: 'rgba(183,36,255,0.15)',
+            background: 'rgba(139,155,172,0.04)',
+            borderColor: 'rgba(139,155,172,0.15)',
           }}
         >
-          <span className="text-neon-purple mr-1.5">◈</span>
+          <span className="text-neon-purple mr-1.5 opacity-60">◈</span>
           {verdict}
         </div>
       )}

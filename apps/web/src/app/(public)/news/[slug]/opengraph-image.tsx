@@ -5,6 +5,15 @@ export const runtime = 'nodejs'
 export const size = { width: 1200, height: 630 }
 export const contentType = 'image/png'
 
+const CATEGORY_LABELS: Record<string, string> = {
+  'yeni-model': 'Yeni Model',
+  test: 'Test & İnceleme',
+  karsilastirma: 'Karşılaştırma',
+  fiyat: 'Fiyat Güncelleme',
+  teknoloji: 'Teknoloji',
+  genel: 'Genel',
+}
+
 interface Props {
   params: { slug: string }
 }
@@ -12,15 +21,16 @@ interface Props {
 export default async function Image({ params }: Props) {
   const article = await getNewsArticleBySlug(params.slug).catch(() => null)
 
-  const title = article?.title ?? 'Compario — Oto Karşılaştırma'
-  const coverImage = article?.cover_image ?? null
-  const category = article?.category ?? null
+  const title    = article?.title ?? 'Compario — Her Şeyi Karşılaştır'
+  const cover    = article?.cover_image ?? null
+  const cat      = article?.category ?? null
+  const catLabel = cat ? (CATEGORY_LABELS[cat] ?? cat.toUpperCase()) : null
 
   const fontSize =
-    title.length > 80 ? 36
-    : title.length > 60 ? 44
-    : title.length > 40 ? 52
-    : 60
+    title.length > 80 ? 34
+    : title.length > 60 ? 42
+    : title.length > 40 ? 50
+    : 58
 
   return new ImageResponse(
     (
@@ -30,104 +40,155 @@ export default async function Image({ params }: Props) {
           height: '630px',
           display: 'flex',
           flexDirection: 'column',
-          backgroundColor: '#ffffff',
+          backgroundColor: '#08090E',
           fontFamily: '"Arial Black", "Arial", sans-serif',
           overflow: 'hidden',
+          position: 'relative',
         }}
       >
-        {/* Top section — car image */}
+        {/* ── Top: image area (420px) ─────────────────── */}
         <div
           style={{
-            flex: '0 0 378px',
+            flex: '0 0 420px',
             display: 'flex',
             position: 'relative',
             overflow: 'hidden',
-            backgroundColor: '#f0f0f0',
           }}
         >
-          {coverImage ? (
+          {cover ? (
             // eslint-disable-next-line @next/next/no-img-element
             <img
-              src={coverImage}
+              src={cover}
               alt=""
-              style={{ width: '100%', height: '378px', objectFit: 'cover' }}
+              style={{ width: '1200px', height: '420px', objectFit: 'cover' }}
             />
           ) : (
             <div
               style={{
-                width: '100%',
-                height: '378px',
-                background: 'linear-gradient(135deg, #1a1a2e 0%, #2d1b69 100%)',
+                width: '1200px',
+                height: '420px',
+                background: 'linear-gradient(135deg, #0C1018 0%, #131B28 60%, #0C1018 100%)',
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
               }}
             >
-              <span style={{ color: '#a78bfa', fontSize: '80px', fontWeight: 900 }}>🚗</span>
+              <div style={{
+                width: '100px',
+                height: '100px',
+                border: '1px solid rgba(196,154,60,0.4)',
+                borderRadius: '50%',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+              }}>
+                <div style={{
+                  width: '60px',
+                  height: '60px',
+                  border: '1px solid rgba(196,154,60,0.6)',
+                  borderRadius: '50%',
+                }} />
+              </div>
             </div>
           )}
 
-          {/* Logo badge */}
-          <div
-            style={{
-              position: 'absolute',
-              top: '20px',
-              left: '24px',
-              background: 'rgba(255,255,255,0.95)',
-              borderRadius: '10px',
-              padding: '8px 18px',
-              display: 'flex',
-              alignItems: 'center',
-              boxShadow: '0 2px 12px rgba(0,0,0,0.15)',
-            }}
-          >
-            <span style={{ fontWeight: 900, fontSize: '20px', color: '#7C3AED', letterSpacing: '-0.5px' }}>
-              COMPARIO
-            </span>
+          {/* Gradient fade to dark */}
+          <div style={{
+            position: 'absolute', bottom: 0, left: 0, right: 0,
+            height: '140px',
+            background: 'linear-gradient(to top, #08090E, transparent)',
+          }} />
+
+          {/* COMPARIO badge */}
+          <div style={{
+            position: 'absolute', top: '24px', left: '28px',
+            display: 'flex', alignItems: 'center',
+          }}>
+            <div style={{
+              width: '3px', height: '26px', background: '#C49A3C',
+              borderRadius: '2px', marginRight: '10px',
+            }} />
+            <div style={{
+              background: 'rgba(8,9,14,0.9)',
+              borderRadius: '6px',
+              padding: '8px 16px',
+              border: '1px solid rgba(196,154,60,0.35)',
+              display: 'flex', alignItems: 'center',
+            }}>
+              <span style={{
+                fontWeight: 900, fontSize: '18px',
+                color: '#C49A3C', letterSpacing: '0.12em',
+              }}>
+                COMPARIO
+              </span>
+            </div>
           </div>
 
           {/* Category badge */}
-          {category && (
-            <div
-              style={{
-                position: 'absolute',
-                top: '20px',
-                right: '24px',
-                background: 'rgba(124,58,237,0.9)',
-                borderRadius: '6px',
-                padding: '6px 14px',
-                display: 'flex',
-              }}
-            >
-              <span style={{ color: 'white', fontSize: '14px', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '1px' }}>
-                {category}
+          {catLabel && (
+            <div style={{
+              position: 'absolute', top: '24px', right: '28px',
+              background: 'rgba(196,154,60,0.12)',
+              borderRadius: '4px',
+              padding: '7px 14px',
+              border: '1px solid rgba(196,154,60,0.4)',
+              display: 'flex',
+            }}>
+              <span style={{
+                color: '#C49A3C', fontSize: '13px', fontWeight: 700,
+                textTransform: 'uppercase', letterSpacing: '0.1em',
+              }}>
+                {catLabel}
               </span>
             </div>
           )}
         </div>
 
-        {/* Bottom section — purple gradient with title */}
+        {/* ── Bottom: title area (210px) ──────────────── */}
         <div
           style={{
             flex: 1,
-            background: 'linear-gradient(120deg, #6D28D9 0%, #4F46E5 60%, #7C3AED 100%)',
             display: 'flex',
-            alignItems: 'center',
-            padding: '0 56px',
+            flexDirection: 'column',
+            justifyContent: 'center',
+            padding: '0 40px',
+            position: 'relative',
+            backgroundColor: '#08090E',
           }}
         >
-          <span
-            style={{
-              color: '#ffffff',
-              fontSize: `${fontSize}px`,
-              fontWeight: 900,
-              textTransform: 'uppercase',
-              lineHeight: 1.15,
-              letterSpacing: '-0.02em',
-            }}
-          >
+          {/* Gold accent line */}
+          <div style={{
+            position: 'absolute', top: 0, left: '40px', right: '40px',
+            height: '1px',
+            background: 'linear-gradient(to right, #C49A3C, rgba(196,154,60,0))',
+          }} />
+
+          <span style={{
+            color: '#EDE8DF',
+            fontSize: `${fontSize}px`,
+            fontWeight: 900,
+            lineHeight: 1.2,
+            letterSpacing: '-0.01em',
+          }}>
             {title}
           </span>
+
+          {/* Domain watermark */}
+          <div style={{
+            position: 'absolute', bottom: '18px', right: '40px',
+            display: 'flex', alignItems: 'center', gap: '6px',
+          }}>
+            <div style={{
+              width: '4px', height: '4px',
+              background: '#C49A3C', borderRadius: '50%',
+            }} />
+            <span style={{
+              color: 'rgba(196,154,60,0.45)', fontSize: '12px',
+              fontWeight: 700, letterSpacing: '0.12em',
+            }}>
+              compario.com.tr
+            </span>
+          </div>
         </div>
       </div>
     ),

@@ -6,39 +6,31 @@ module.exports = {
   theme: {
     extend: {
       colors: {
-        'neon-cyan': '#00fff7',
-        'neon-purple': '#b724ff',
-        'neon-green': '#39ff14',
-        'neon-pink': '#ff006e',
+        // Compario Premium Palette
+        'neon-cyan':   '#C49A3C',   // Warm Gold
+        'neon-purple': '#8B9BAC',   // Cool Platinum
+        'neon-green':  '#10B981',   // Emerald
+        'neon-pink':   '#DC2626',   // Crimson
       },
       fontFamily: {
         orbitron: ['var(--font-orbitron)', 'sans-serif'],
         mono: ['var(--font-jetbrains)', 'monospace'],
       },
       backgroundImage: {
-        'grid-pattern': `linear-gradient(rgba(0,255,247,0.03) 1px, transparent 1px),
-          linear-gradient(90deg, rgba(0,255,247,0.03) 1px, transparent 1px)`,
+        'grid-pattern': `linear-gradient(rgba(196,154,60,0.02) 1px, transparent 1px),
+          linear-gradient(90deg, rgba(196,154,60,0.02) 1px, transparent 1px)`,
       },
       backgroundSize: {
-        'grid': '40px 40px',
+        'grid': '60px 60px',
       },
       boxShadow: {
-        'neon-cyan': '0 0 10px #00fff7, 0 0 30px #00fff780',
-        'neon-purple': '0 0 10px #b724ff, 0 0 30px #b724ff80',
-        'neon-green': '0 0 10px #39ff14, 0 0 30px #39ff1480',
-        'neon-pink': '0 0 10px #ff006e, 0 0 30px #ff006e80',
+        'neon-cyan':   '0 0 15px rgba(196,154,60,0.4), 0 0 40px rgba(196,154,60,0.15)',
+        'neon-purple': '0 0 15px rgba(139,155,172,0.4), 0 0 40px rgba(139,155,172,0.15)',
+        'neon-green':  '0 0 15px rgba(16,185,129,0.4), 0 0 40px rgba(16,185,129,0.15)',
+        'neon-pink':   '0 0 15px rgba(220,38,38,0.4), 0 0 40px rgba(220,38,38,0.15)',
       },
       animation: {
-        'pulse-slow': 'pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite',
-        'flicker': 'flicker 4s linear infinite',
-      },
-      keyframes: {
-        flicker: {
-          '0%, 95%, 100%': { opacity: '1' },
-          '96%': { opacity: '0.8' },
-          '97%': { opacity: '1' },
-          '98%': { opacity: '0.7' },
-        },
+        'pulse-slow': 'pulse 4s cubic-bezier(0.4, 0, 0.6, 1) infinite',
       },
     },
   },

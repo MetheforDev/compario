@@ -72,11 +72,11 @@ async function NewsSection() {
   return (
     <section className="max-w-7xl mx-auto px-4 sm:px-6 py-16">
       <div className="flex items-center gap-4 mb-10">
-        <div className="h-px flex-1 bg-gradient-to-r from-transparent to-[rgba(0,255,247,0.2)]" />
+        <div className="h-px flex-1 bg-gradient-to-r from-transparent to-[rgba(196,154,60,0.15)]" />
         <h2 className="font-orbitron text-xs uppercase tracking-[0.3em] text-neon-cyan opacity-70">
           ⬡ Son Haberler
         </h2>
-        <div className="h-px flex-1 bg-gradient-to-l from-transparent to-[rgba(0,255,247,0.2)]" />
+        <div className="h-px flex-1 bg-gradient-to-l from-transparent to-[rgba(196,154,60,0.15)]" />
       </div>
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
         {news.map((article) => (
@@ -100,7 +100,7 @@ export default function HomePage() {
         {/* Glow orb — max-w clamped to prevent mobile overflow */}
         <div
           className="absolute top-0 left-1/2 -translate-x-1/2 w-full max-w-[600px] h-[300px] rounded-full blur-[120px] opacity-10 pointer-events-none"
-          style={{ background: 'radial-gradient(ellipse, #00fff7 0%, #b724ff 100%)' }}
+          style={{ background: 'radial-gradient(ellipse, #C49A3C 0%, #4A5568 100%)' }}
         />
 
         <div className="relative z-10 w-full max-w-3xl">
@@ -128,30 +128,30 @@ export default function HomePage() {
       </section>
 
       {/* Divider */}
-      <div className="border-t border-[rgba(0,255,247,0.08)] mx-4 sm:mx-6" />
+      <div className="border-t border-[rgba(196,154,60,0.08)] mx-4 sm:mx-6" />
 
       {/* Categories */}
       <section className="max-w-7xl mx-auto px-4 sm:px-6 py-16">
         <div className="flex items-center gap-4 mb-10">
-          <div className="h-px flex-1 bg-gradient-to-r from-transparent to-[rgba(0,255,247,0.2)]" />
+          <div className="h-px flex-1 bg-gradient-to-r from-transparent to-[rgba(196,154,60,0.15)]" />
           <h2 className="font-orbitron text-xs uppercase tracking-[0.3em] text-neon-cyan opacity-70">
             ⬡ Kategoriler
           </h2>
-          <div className="h-px flex-1 bg-gradient-to-l from-transparent to-[rgba(0,255,247,0.2)]" />
+          <div className="h-px flex-1 bg-gradient-to-l from-transparent to-[rgba(196,154,60,0.15)]" />
         </div>
         {/* @ts-expect-error async server component */}
         <CategoriesSection />
       </section>
 
       {/* Divider */}
-      <div className="border-t border-[rgba(0,255,247,0.08)] mx-4 sm:mx-6" />
+      <div className="border-t border-[rgba(196,154,60,0.08)] mx-4 sm:mx-6" />
 
       {/* Featured News */}
       {/* @ts-expect-error async server component */}
       <NewsSection />
 
       {/* Footer */}
-      <footer className="border-t border-[rgba(0,255,247,0.06)] mt-10 py-8 text-center px-4">
+      <footer className="border-t border-[rgba(196,154,60,0.06)] mt-10 py-8 text-center px-4">
         <p className="font-mono text-xs text-gray-700 uppercase tracking-widest">
           © 2026 Compario — Tüm Hakları Saklıdır
         </p>
