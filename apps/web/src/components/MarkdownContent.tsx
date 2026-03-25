@@ -1,6 +1,7 @@
 'use client';
 
 import ReactMarkdown from 'react-markdown';
+import { ComparisonCard } from '@/components/ComparisonCard';
 
 interface MarkdownContentProps {
   content: string;
@@ -40,6 +41,9 @@ export function MarkdownContent({ content }: MarkdownContentProps) {
           </blockquote>
         ),
         code: ({ children, className }) => {
+          if (className === 'language-compare') {
+            return <ComparisonCard raw={String(children).trim()} />;
+          }
           const isBlock = className?.includes('language-');
           if (isBlock) {
             return (
