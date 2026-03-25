@@ -1,0 +1,100 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --bg-primary: #0a0a0f;
+  --bg-secondary: #0f0f1a;
+  --bg-card: #12121f;
+  --border-dim: rgba(0, 255, 247, 0.1);
+  --border-glow: rgba(0, 255, 247, 0.4);
+}
+
+/* Base reset */
+* {
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  background-color: var(--bg-primary);
+  color: #e0e0e0;
+  min-height: 100vh;
+}
+
+/* Cyberpunk grid background */
+.bg-grid {
+  background-image: linear-gradient(rgba(0, 255, 247, 0.03) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(0, 255, 247, 0.03) 1px, transparent 1px);
+  background-size: 40px 40px;
+}
+
+/* Neon text utilities */
+@layer utilities {
+  .text-glow-cyan {
+    text-shadow: 0 0 10px #00fff7, 0 0 30px #00fff780;
+  }
+  .text-glow-purple {
+    text-shadow: 0 0 10px #b724ff, 0 0 30px #b724ff80;
+  }
+  .text-glow-green {
+    text-shadow: 0 0 10px #39ff14, 0 0 30px #39ff1480;
+  }
+  .text-glow-pink {
+    text-shadow: 0 0 10px #ff006e, 0 0 30px #ff006e80;
+  }
+}
+
+/* Neon card */
+@layer components {
+  .card-neon {
+    @apply bg-[#12121f] border border-[rgba(0,255,247,0.12)] rounded-lg
+           transition-all duration-300;
+  }
+  .card-neon:hover {
+    @apply border-[rgba(0,255,247,0.5)];
+    box-shadow: 0 0 20px rgba(0, 255, 247, 0.1), inset 0 0 20px rgba(0, 255, 247, 0.03);
+  }
+
+  .btn-neon {
+    @apply px-6 py-2 rounded border border-neon-cyan text-neon-cyan font-mono text-sm
+           uppercase tracking-widest transition-all duration-200;
+  }
+  .btn-neon:hover {
+    @apply bg-neon-cyan text-black;
+    box-shadow: 0 0 20px rgba(0, 255, 247, 0.5);
+  }
+
+  .btn-neon-purple {
+    @apply px-6 py-2 rounded border border-neon-purple text-neon-purple font-mono text-sm
+           uppercase tracking-widest transition-all duration-200;
+  }
+  .btn-neon-purple:hover {
+    @apply bg-neon-purple text-white;
+    box-shadow: 0 0 20px rgba(183, 36, 255, 0.5);
+  }
+}
+
+/* Scrollbar */
+::-webkit-scrollbar {
+  width: 6px;
+}
+::-webkit-scrollbar-track {
+  background: var(--bg-secondary);
+}
+::-webkit-scrollbar-thumb {
+  background: rgba(0, 255, 247, 0.3);
+  border-radius: 3px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(0, 255, 247, 0.6);
+}
+
+/* Selection */
+::selection {
+  background: rgba(0, 255, 247, 0.2);
+  color: #00fff7;
+}

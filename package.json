@@ -1,0 +1,29 @@
+{
+    "name": "compario",
+    "version": "1.0.0",
+    "private": true,
+    "description": "Multi-category product comparison platform",
+    "workspaces": [
+        "apps/*",
+        "packages/*",
+        "services/*"
+    ],
+    "scripts": {
+        "dev": "turbo run dev",
+        "dev:web": "turbo run dev --filter=web",
+        "build": "turbo run build",
+        "test": "turbo run test",
+        "lint": "turbo run lint",
+        "format": "prettier --write \"**/*.{ts,tsx,md,json}\""
+    },
+    "devDependencies": {
+        "@turbo/gen": "^1.11.2",
+        "prettier": "^3.1.1",
+        "turbo": "^1.11.2",
+        "typescript": "^5.3.3"
+    },
+    "engines": {
+        "node": ">=18.0.0",
+        "npm": ">=9.0.0"
+    }
+}
