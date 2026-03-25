@@ -10,6 +10,7 @@ export interface NewsArticle {
   cover_image: string | null;
   images: string[] | null;
   category: string | null;
+  categories: string[] | null;
   tags: string[];
   related_product_ids: string[] | null;
   meta_title: string | null;
@@ -48,7 +49,7 @@ export async function getNewsArticlesAdmin(filters: NewsFilters & { status?: str
   }
 
   if (filters.category) {
-    query = query.eq('category', filters.category);
+    query = query.or(`category.eq.${filters.category},categories.cs.{"${filters.category}"}`);
   }
 
   if (filters.featured !== undefined) {
@@ -86,7 +87,7 @@ export async function getNewsArticles(filters: NewsFilters = {}): Promise<{ data
   query = query.eq('status', status);
 
   if (filters.category) {
-    query = query.eq('category', filters.category);
+    query = query.or(`category.eq.${filters.category},categories.cs.{"${filters.category}"}`);
   }
 
   if (filters.featured !== undefined) {

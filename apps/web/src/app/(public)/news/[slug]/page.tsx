@@ -72,7 +72,14 @@ export default async function NewsDetailPage({ params }: PageProps) {
 
   if (!article) notFound();
 
-  const categoryColor = article.category ? (CATEGORY_COLORS[article.category] ?? CATEGORY_COLORS.genel) : '';
+  const articleWithCats = article as typeof article & { categories?: string[] | null };
+  const allCategories = articleWithCats.categories?.length
+    ? articleWithCats.categories
+    : article.category
+    ? [article.category]
+    : [];
+  const primaryCategory = allCategories[0] ?? null;
+  const categoryColor = primaryCategory ? (CATEGORY_COLORS[primaryCategory] ?? CATEGORY_COLORS.genel) : '';
 
   return (
     <main className="min-h-screen bg-grid">
@@ -109,10 +116,17 @@ export default async function NewsDetailPage({ params }: PageProps) {
 
         {/* Article Header */}
         <header className="mb-10">
-          {article.category && (
-            <span className={`inline-block px-3 py-1 rounded-full border text-xs font-mono uppercase tracking-wider mb-4 ${categoryColor}`}>
-              {CATEGORY_LABELS[article.category] ?? article.category}
-            </span>
+          {allCategories.length > 0 && (
+            <div className="flex flex-wrap gap-2 mb-4">
+              {allCategories.map((cat) => (
+                <span
+                  key={cat}
+                  className={`inline-block px-3 py-1 rounded-full border text-xs font-mono uppercase tracking-wider ${CATEGORY_COLORS[cat] ?? CATEGORY_COLORS.genel}`}
+                >
+                  {CATEGORY_LABELS[cat] ?? cat}
+                </span>
+              ))}
+            </div>
           )}
 
           <h1 className="font-orbitron text-3xl sm:text-4xl font-black text-white leading-tight mb-6">

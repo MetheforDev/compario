@@ -14,6 +14,21 @@ const CATEGORIES = [
   { value: 'genel', label: 'Genel' },
 ];
 
+function makeCompareTemplate(count: number): string {
+  const products = Array.from({ length: count }, (_, i) => ({
+    name: `Ürün ${i + 1}`,
+    price: '0 ₺',
+    badge: i === 0 ? 'Önerilen' : '',
+    winner: i === 0,
+    specs: [
+      { label: 'Motor', value: '-', better: i === 0 },
+      { label: '0-100 km/s', value: '-', better: false },
+      { label: 'Fiyat/Perf.', value: '-', better: i === 0 },
+    ],
+  }));
+  return '```compare\n' + JSON.stringify({ products, verdict: 'Sonuç açıklaması...' }, null, 2) + '\n```';
+}
+
 function slugify(text: string): string {
   const trMap: Record<string, string> = {
     ç: 'c', Ç: 'c', ğ: 'g', Ğ: 'g', ı: 'i', İ: 'i',
@@ -31,7 +46,7 @@ function slugify(text: string): string {
 }
 
 interface NewsFormProps {
-  initial?: Partial<NewsArticle>;
+  initial?: Partial<NewsArticle & { categories?: string[] | null }>;
   products?: Product[];
   action: (data: Partial<NewsArticleInput>) => Promise<{ error?: string }>;
   submitLabel?: string;
@@ -46,7 +61,15 @@ export function NewsForm({ initial = {}, products = [], action, submitLabel = 'K
   const [title, setTitle] = useState(initial.title ?? '');
   const [slug, setSlug] = useState(initial.slug ?? '');
   const [slugManual, setSlugManual] = useState(!!initial.slug);
-  const [category, setCategory] = useState(initial.category ?? '');
+
+  const initialCategories: string[] =
+    initial.categories?.length
+      ? initial.categories
+      : initial.category
+      ? [initial.category]
+      : [];
+  const [categories, setCategories] = useState<string[]>(initialCategories);
+
   const [coverImage, setCoverImage] = useState(initial.cover_image ?? '');
   const [imagesRaw, setImagesRaw] = useState((initial.images ?? []).join('\n'));
   const [excerpt, setExcerpt] = useState(initial.excerpt ?? '');
@@ -67,6 +90,20 @@ export function NewsForm({ initial = {}, products = [], action, submitLabel = 'K
     .map((u) => u.trim())
     .filter(Boolean);
 
+  const isComparison = categories.includes('karsilastirma');
+
+  function toggleCategory(value: string) {
+    setCategories((prev) =>
+      prev.includes(value) ? prev.filter((c) => c !== value) : [...prev, value],
+    );
+  }
+
+  function insertTemplate(count: number) {
+    const tpl = makeCompareTemplate(count);
+    setContent((prev) => (prev ? `${prev}\n\n${tpl}` : tpl));
+    setShowPreview(false);
+  }
+
   function handleTitleChange(val: string) {
     setTitle(val);
     if (!slugManual) setSlug(slugify(val));
@@ -75,10 +112,11 @@ export function NewsForm({ initial = {}, products = [], action, submitLabel = 'K
   function handleSubmit(publishNow?: boolean) {
     const tags = tagsRaw.split(',').map((t) => t.trim()).filter(Boolean);
 
-    const payload: Partial<NewsArticleInput> = {
+    const payload = {
       title: title.trim(),
       slug: slug.trim(),
-      category: category || undefined,
+      category: categories[0] ?? undefined,
+      categories: categories.length ? categories : undefined,
       cover_image: coverImage.trim() || undefined,
       images: galleryImages.length ? galleryImages : undefined,
       excerpt: excerpt.trim() || undefined,
@@ -100,7 +138,7 @@ export function NewsForm({ initial = {}, products = [], action, submitLabel = 'K
 
     startTransition(async () => {
       setError(null);
-      const result = await action(payload);
+      const result = await action(payload as Partial<NewsArticleInput>);
       if (result?.error) setError(result.error);
     });
   }
@@ -156,15 +194,37 @@ export function NewsForm({ initial = {}, products = [], action, submitLabel = 'K
             </div>
           </div>
 
-          {/* Category */}
+          {/* Categories — multi-select checkboxes */}
           <div>
-            <label className={labelClass}>Kategori</label>
-            <select value={category} onChange={(e) => setCategory(e.target.value)} className={inputClass}>
-              <option value="">Seç...</option>
-              {CATEGORIES.map((c) => (
-                <option key={c.value} value={c.value}>{c.label}</option>
-              ))}
-            </select>
+            <label className={labelClass}>
+              Kategoriler
+              <span className="ml-2 text-gray-700 normal-case tracking-normal">
+                ({categories.length} seçili)
+              </span>
+            </label>
+            <div className="grid grid-cols-2 gap-2">
+              {CATEGORIES.map((cat) => {
+                const active = categories.includes(cat.value);
+                return (
+                  <label
+                    key={cat.value}
+                    className={`flex items-center gap-2 px-3 py-2 rounded border cursor-pointer transition-all select-none ${
+                      active
+                        ? 'border-neon-cyan/50 bg-neon-cyan/10 text-neon-cyan'
+                        : 'border-[rgba(0,255,247,0.1)] text-gray-500 hover:border-neon-cyan/30 hover:text-gray-300'
+                    }`}
+                  >
+                    <input
+                      type="checkbox"
+                      checked={active}
+                      onChange={() => toggleCategory(cat.value)}
+                      className="accent-[#00fff7] w-3.5 h-3.5 flex-shrink-0"
+                    />
+                    <span className="font-mono text-[11px]">{cat.label}</span>
+                  </label>
+                );
+              })}
+            </div>
           </div>
 
           {/* Author */}
@@ -326,7 +386,7 @@ export function NewsForm({ initial = {}, products = [], action, submitLabel = 'K
 
       {/* Content with preview toggle */}
       <div>
-        <div className="flex items-center justify-between mb-1.5">
+        <div className="flex items-center justify-between mb-1.5 flex-wrap gap-2">
           <label className={labelClass} style={{ marginBottom: 0 }}>İçerik * (Markdown)</label>
           <button
             type="button"
@@ -336,6 +396,30 @@ export function NewsForm({ initial = {}, products = [], action, submitLabel = 'K
             {showPreview ? '📝 Düzenle' : '👁 Önizleme'}
           </button>
         </div>
+
+        {/* Comparison templates — shown only when karsilastirma category is selected */}
+        {isComparison && !showPreview && (
+          <div className="mb-3 p-3 border border-[rgba(183,36,255,0.25)] rounded bg-[rgba(183,36,255,0.04)]">
+            <p className="font-mono text-[10px] text-neon-purple uppercase tracking-wider mb-2">
+              ◈ Karşılaştırma Şablonları
+            </p>
+            <div className="flex gap-2 flex-wrap">
+              {[2, 3, 4].map((n) => (
+                <button
+                  key={n}
+                  type="button"
+                  onClick={() => insertTemplate(n)}
+                  className="px-3 py-1.5 border border-neon-purple/40 rounded font-mono text-[11px] text-neon-purple hover:bg-neon-purple/10 transition-colors"
+                >
+                  + {n} Ürün Karşılaştırması
+                </button>
+              ))}
+            </div>
+            <p className="font-mono text-[10px] text-gray-700 mt-2">
+              Şablon içeriğin sonuna eklenir — JSON'u düzenleyerek gerçek ürün bilgilerini girin
+            </p>
+          </div>
+        )}
 
         {showPreview ? (
           <div className="w-full min-h-[300px] bg-[#0c0c16] border border-[rgba(0,255,247,0.15)] rounded px-4 py-3">

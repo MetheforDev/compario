@@ -26,14 +26,22 @@ interface NewsCardProps {
     excerpt?: string | null;
     cover_image?: string | null;
     category?: string | null;
+    categories?: string[] | null;
     published_at?: string | null;
     view_count?: number;
   };
 }
 
 export function NewsCard({ article }: NewsCardProps) {
-  const categoryColor = article.category
-    ? (CATEGORY_COLORS[article.category] ?? CATEGORY_COLORS.genel)
+  // Prefer new `categories` array, fall back to legacy `category`
+  const allCategories = article.categories?.length
+    ? article.categories
+    : article.category
+    ? [article.category]
+    : [];
+  const primaryCategory = allCategories[0];
+  const primaryColor = primaryCategory
+    ? (CATEGORY_COLORS[primaryCategory] ?? CATEGORY_COLORS.genel)
     : CATEGORY_COLORS.genel;
 
   return (
@@ -59,12 +67,24 @@ export function NewsCard({ article }: NewsCardProps) {
           </div>
         )}
 
-        {/* Category badge overlay */}
-        {article.category && (
-          <div className="absolute top-3 left-3">
-            <span className={`px-2 py-0.5 rounded border font-mono text-[10px] uppercase tracking-wider ${categoryColor}`}>
-              {CATEGORY_LABELS[article.category] ?? article.category}
-            </span>
+        {/* Category badges overlay */}
+        {allCategories.length > 0 && (
+          <div className="absolute top-3 left-3 flex gap-1 flex-wrap">
+            {allCategories.slice(0, 2).map((cat) => (
+              <span
+                key={cat}
+                className={`px-2 py-0.5 rounded border font-mono text-[10px] uppercase tracking-wider ${
+                  CATEGORY_COLORS[cat] ?? CATEGORY_COLORS.genel
+                }`}
+              >
+                {CATEGORY_LABELS[cat] ?? cat}
+              </span>
+            ))}
+            {allCategories.length > 2 && (
+              <span className="px-2 py-0.5 rounded border font-mono text-[10px] text-gray-500 border-gray-500/20 bg-gray-500/10">
+                +{allCategories.length - 2}
+              </span>
+            )}
           </div>
         )}
       </div>

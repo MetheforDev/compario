@@ -1,27 +1,31 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
 import { StatCard } from '@/components/admin/StatCard';
-import { getProducts, getCategories, getAllSegments } from '@compario/database';
+import { getProducts, getCategories, getAllSegments, getNewsArticlesAdmin } from '@compario/database';
 
 export const metadata: Metadata = { title: 'Dashboard' };
 
 async function fetchStats() {
   try {
-    const [allProducts, categories, segments] = await Promise.all([
+    const [allProducts, categories, segments, allNews] = await Promise.all([
       getProducts({ limit: 1000 }),
       getCategories(false),
       getAllSegments(),
+      getNewsArticlesAdmin({ limit: 1000 }),
     ]);
     const activeProducts = allProducts.filter((p) => p.status === 'active');
+    const publishedNews = allNews.data.filter((n) => n.status === 'published');
     return {
       total: allProducts.length,
       active: activeProducts.length,
       categories: categories.length,
       segments: segments.length,
+      newsTotal: allNews.total,
+      newsPublished: publishedNews.length,
       recent: allProducts.slice(0, 5),
     };
   } catch {
-    return { total: 0, active: 0, categories: 0, segments: 0, recent: [] };
+    return { total: 0, active: 0, categories: 0, segments: 0, newsTotal: 0, newsPublished: 0, recent: [] };
   }
 }
 
@@ -49,11 +53,13 @@ export default async function DashboardPage() {
       {/* Stats */}
       <section className="mb-10">
         <p className="font-mono text-[10px] text-gray-600 uppercase tracking-widest mb-4">⬡ Genel Bakış</p>
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-          <StatCard label="Toplam Ürün"   value={stats.total}      icon="◈" href="/admin/products"   color="cyan"   />
-          <StatCard label="Aktif Ürün"    value={stats.active}     icon="⬡" href="/admin/products"   color="green"  />
-          <StatCard label="Kategori"      value={stats.categories} icon="◇" href="/admin/categories" color="purple" />
-          <StatCard label="Segment"       value={stats.segments}   icon="◆" href="/admin/segments"   color="pink"   />
+        <div className="grid grid-cols-2 lg:grid-cols-3 gap-4">
+          <StatCard label="Toplam Ürün"   value={stats.total}        icon="◈" href="/admin/products"   color="cyan"   />
+          <StatCard label="Aktif Ürün"    value={stats.active}       icon="⬡" href="/admin/products"   color="green"  />
+          <StatCard label="Kategori"      value={stats.categories}   icon="◇" href="/admin/categories" color="purple" />
+          <StatCard label="Segment"       value={stats.segments}     icon="◆" href="/admin/segments"   color="pink"   />
+          <StatCard label="Toplam Haber"  value={stats.newsTotal}    icon="◉" href="/admin/news"       color="cyan"   />
+          <StatCard label="Yayında Haber" value={stats.newsPublished} icon="▶" href="/admin/news?status=published" color="green" />
         </div>
       </section>
 
@@ -109,6 +115,7 @@ export default async function DashboardPage() {
         <p className="font-mono text-[10px] text-gray-600 uppercase tracking-widest mb-4">⬡ Hızlı İşlemler</p>
         <div className="flex flex-wrap gap-3">
           <Link href="/admin/products/new"   className="btn-neon">+ Ürün Ekle</Link>
+          <Link href="/admin/news/new"       className="btn-neon">+ Haber Ekle</Link>
           <Link href="/admin/categories/new" className="btn-neon-purple">+ Kategori Ekle</Link>
           <Link href="/admin/segments/new"   className="btn-neon-purple">+ Segment Ekle</Link>
         </div>

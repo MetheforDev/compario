@@ -5,10 +5,11 @@ import { usePathname } from 'next/navigation';
 
 const navItems = [
   { href: '/admin/dashboard', label: 'Dashboard', icon: '⬡', exact: true },
+  { href: '/admin/news', label: 'Haberler', icon: '◉', exact: false },
   { href: '/admin/products', label: 'Ürünler', icon: '◈', exact: false },
   { href: '/admin/categories', label: 'Kategoriler', icon: '◇', exact: false },
   { href: '/admin/segments', label: 'Segmentler', icon: '◆', exact: false },
-  { href: '/admin/news', label: 'Haberler', icon: '◉', exact: false },
+  { href: '/admin/users', label: 'Kullanıcılar', icon: '◎', exact: false },
 ];
 
 export function Sidebar() {

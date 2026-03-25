@@ -190,6 +190,7 @@ export interface Database {
           cover_image: string | null
           images: string[] | null
           category: string | null
+          categories: string[] | null
           tags: string[] | null
           related_product_ids: string[] | null
           meta_title: string | null
@@ -213,6 +214,7 @@ export interface Database {
           cover_image?: string | null
           images?: string[] | null
           category?: string | null
+          categories?: string[] | null
           tags?: string[] | null
           related_product_ids?: string[] | null
           meta_title?: string | null
@@ -236,6 +238,7 @@ export interface Database {
           cover_image?: string | null
           images?: string[] | null
           category?: string | null
+          categories?: string[] | null
           tags?: string[] | null
           related_product_ids?: string[] | null
           meta_title?: string | null
