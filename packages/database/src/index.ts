@@ -63,6 +63,7 @@ export {
 // News queries
 export type { NewsArticle, NewsArticleInput, NewsFilters } from './queries/news';
 export {
+  getNewsArticlesAdmin,
   getNewsArticles,
   getNewsArticleBySlug,
   getNewsArticleById,

@@ -1,6 +1,6 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
-import { getNewsArticles } from '@compario/database';
+import { getNewsArticlesAdmin } from '@compario/database';
 import { DeleteNewsButton } from './DeleteNewsButton';
 
 export const metadata: Metadata = { title: 'Haberler' };
@@ -45,7 +45,7 @@ export default async function NewsPage({ searchParams }: PageProps) {
   let total = 0;
 
   try {
-    const result = await getNewsArticles({
+    const result = await getNewsArticlesAdmin({
       category: searchParams.category,
       status: searchParams.status || undefined,
       featured: searchParams.featured === 'true' ? true : undefined,

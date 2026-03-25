@@ -37,6 +37,46 @@ export interface NewsFilters {
   search?: string;
 }
 
+export async function getNewsArticlesAdmin(filters: NewsFilters & { status?: string } = {}): Promise<{ data: NewsArticle[]; total: number }> {
+  const admin = createAdminClient();
+  let query = admin
+    .from('news_articles')
+    .select('*', { count: 'exact' });
+
+  if (filters.status) {
+    query = query.eq('status', filters.status);
+  }
+
+  if (filters.category) {
+    query = query.eq('category', filters.category);
+  }
+
+  if (filters.featured !== undefined) {
+    query = query.eq('is_featured', filters.featured);
+  }
+
+  if (filters.tags?.length) {
+    query = query.contains('tags', filters.tags);
+  }
+
+  if (filters.search) {
+    query = query.or(
+      `title.ilike.%${filters.search}%,excerpt.ilike.%${filters.search}%`,
+    );
+  }
+
+  const limit = filters.limit ?? 20;
+  const offset = filters.offset ?? 0;
+
+  query = query
+    .order('created_at', { ascending: false })
+    .range(offset, offset + limit - 1);
+
+  const { data, error, count } = await query;
+  if (error) throw new Error(`Failed to fetch news: ${error.message}`);
+  return { data: (data ?? []) as unknown as NewsArticle[], total: count ?? 0 };
+}
+
 export async function getNewsArticles(filters: NewsFilters = {}): Promise<{ data: NewsArticle[]; total: number }> {
   let query = supabase
     .from('news_articles')
