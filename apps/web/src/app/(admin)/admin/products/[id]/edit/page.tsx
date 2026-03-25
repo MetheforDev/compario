@@ -4,7 +4,7 @@ import { notFound } from 'next/navigation';
 import { getProductById, getCategories, getAllSegments } from '@compario/database';
 import { ProductForm } from '@/components/admin/ProductForm';
 import { updateProductAction, deleteProductAction } from '../../actions';
-import type { ProductInput } from '@compario/database';
+import type { ProductInput, Product, Category, Segment } from '@compario/database';
 
 interface PageProps {
   params: { id: string };
@@ -28,7 +28,7 @@ export default async function EditProductPage({ params }: PageProps) {
     p.status === 'fulfilled' ? p.value : null,
     c.status === 'fulfilled' ? c.value : [],
     s.status === 'fulfilled' ? s.value : [],
-  ]);
+  ] as [Product | null, Category[], Segment[]]);
 
   if (!product) notFound();
 

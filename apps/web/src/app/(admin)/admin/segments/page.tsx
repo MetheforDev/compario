@@ -1,6 +1,7 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
 import { getAllSegments, getCategories } from '@compario/database';
+import type { Segment, Category } from '@compario/database';
 import { DeleteSegmentButton } from './DeleteSegmentButton';
 
 export const metadata: Metadata = { title: 'Segmentler' };
@@ -12,7 +13,7 @@ export default async function SegmentsPage() {
   ]).then(([s, c]) => [
     s.status === 'fulfilled' ? s.value : [],
     c.status === 'fulfilled' ? c.value : [],
-  ]);
+  ] as [Segment[], Category[]]);
 
   const categoryMap = Object.fromEntries(categories.map((c) => [c.id, c.name]));
 

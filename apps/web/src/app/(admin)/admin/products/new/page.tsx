@@ -1,6 +1,7 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
 import { getCategories, getAllSegments } from '@compario/database';
+import type { Category, Segment } from '@compario/database';
 import { ProductForm } from '@/components/admin/ProductForm';
 import { createProductAction } from '../actions';
 
@@ -13,7 +14,7 @@ export default async function NewProductPage() {
   ]).then(([c, s]) => [
     c.status === 'fulfilled' ? c.value : [],
     s.status === 'fulfilled' ? s.value : [],
-  ]);
+  ] as [Category[], Segment[]]);
 
   return (
     <div className="p-8">

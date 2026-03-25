@@ -1,7 +1,7 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
 import { getProducts, getCategories } from '@compario/database';
-import type { ProductStatus } from '@compario/database';
+import type { ProductStatus, Product, Category } from '@compario/database';
 import { ProductTable } from '@/components/admin/ProductTable';
 import { ProductFilters } from './ProductFilters';
 
@@ -37,7 +37,7 @@ export default async function ProductsPage({ searchParams }: PageProps) {
   ]).then(([p, c]) => [
     p.status === 'fulfilled' ? p.value : [],
     c.status === 'fulfilled' ? c.value : [],
-  ]);
+  ] as [Product[], Category[]]);
 
   return (
     <div className="p-8">
