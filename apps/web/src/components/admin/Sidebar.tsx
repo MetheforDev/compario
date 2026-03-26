@@ -1,7 +1,7 @@
 'use client';
 
 import Link from 'next/link';
-import { usePathname } from 'next/navigation';
+import { usePathname, useRouter } from 'next/navigation';
 
 const navItems = [
   { href: '/admin/dashboard', label: 'Dashboard', icon: '⬡', exact: true },
@@ -14,6 +14,13 @@ const navItems = [
 
 export function Sidebar() {
   const pathname = usePathname();
+  const router = useRouter();
+
+  const handleLogout = async () => {
+    await fetch('/api/admin/logout', { method: 'POST' });
+    router.push('/admin-login');
+    router.refresh();
+  };
 
   return (
     <aside className="w-64 flex-shrink-0 min-h-screen bg-[#0c0c16] border-r border-[rgba(0,255,247,0.08)] flex flex-col">
@@ -52,7 +59,7 @@ export function Sidebar() {
       </nav>
 
       {/* Footer */}
-      <div className="px-3 py-3 border-t border-[rgba(0,255,247,0.08)]">
+      <div className="px-3 py-3 border-t border-[rgba(0,255,247,0.08)] flex flex-col gap-1">
         <Link
           href="/"
           className="flex items-center gap-3 px-4 py-2.5 font-mono text-xs text-gray-600 uppercase tracking-wider
@@ -61,6 +68,14 @@ export function Sidebar() {
           <span className="opacity-50">←</span>
           <span>Siteye Dön</span>
         </Link>
+        <button
+          onClick={handleLogout}
+          className="flex items-center gap-3 px-4 py-2.5 font-mono text-xs text-gray-700 uppercase tracking-wider
+                     hover:text-red-500 transition-colors rounded border-l-2 border-transparent pl-[14px] w-full text-left"
+        >
+          <span className="opacity-50">⏻</span>
+          <span>Çıkış Yap</span>
+        </button>
       </div>
     </aside>
   );
