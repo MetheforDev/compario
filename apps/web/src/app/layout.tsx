@@ -22,6 +22,7 @@ export const viewport: Viewport = {
 };
 
 export const metadata: Metadata = {
+  metadataBase: new URL('https://compario.tech'),
   title: {
     default: 'Compario — Her Şeyi Karşılaştır, En İyisine Karar Ver',
     template: '%s | Compario',

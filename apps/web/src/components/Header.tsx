@@ -206,7 +206,7 @@ export function Header() {
               className="font-mono text-[9px] uppercase tracking-[0.3em] mt-2 px-4"
               style={{ color: 'rgba(196,154,60,0.25)' }}
             >
-              compario.com.tr
+              compario.tech
             </p>
           </div>
         </div>

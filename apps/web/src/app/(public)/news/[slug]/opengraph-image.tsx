@@ -186,7 +186,7 @@ export default async function Image({ params }: Props) {
               color: 'rgba(196,154,60,0.45)', fontSize: '12px',
               fontWeight: 700, letterSpacing: '0.12em',
             }}>
-              compario.com.tr
+              compario.tech
             </span>
           </div>
         </div>

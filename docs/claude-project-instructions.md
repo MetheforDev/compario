@@ -4,7 +4,7 @@
 Compario, Türkiye'nin ürün karşılaştırma platformudur. Kullanıcılar araçlar, akıllı telefonlar, laptoplar ve diğer ürünleri karşılaştırabilir. Aynı zamanda haber/makale sistemi vardır.
 
 **GitHub:** https://github.com/MetheforDev/compario
-**Domain:** compario.com.tr
+**Domain:** compario.tech
 **Deploy:** Vercel (otomatik main push ile)
 
 ---
@@ -239,7 +239,7 @@ ADMIN_SECRET=tOd9czvKrqT5nOWWfDyepenmLpJXwaBJn2r6r1cBn5I4Wb2URGHadrEtXLlAXCEg
 ```
 
 ## Admin Panel Erişimi
-- **URL:** `compario.com.tr/admin-login` (veya `/admin` → otomatik yönlendirir)
+- **URL:** `compario.tech/admin-login` (veya `/admin` → otomatik yönlendirir)
 - **Şifre:** `Compario1-`
 - **Oturum süresi:** 30 gün (httpOnly cookie)
 - Vercel'de `ADMIN_PASSWORD` ve `ADMIN_SECRET` env var'ları set edilmeli

@@ -18,8 +18,8 @@ const MAIN_LINKS = [
   {
     icon: '⬡',
     label: 'Ana Platform',
-    sublabel: 'compario.com.tr',
-    href: 'https://compario.com.tr',
+    sublabel: 'compario.tech',
+    href: 'https://compario.tech',
     external: true,
     accent: '#C49A3C',
   },
@@ -269,7 +269,7 @@ export default function LinksPage() {
         {/* Footer */}
         <p className="font-mono text-[9px] uppercase tracking-[0.3em]"
           style={{ color: 'rgba(196,154,60,0.2)' }}>
-          compario.com.tr · © 2026
+          compario.tech · © 2026
         </p>
       </div>
     </main>
