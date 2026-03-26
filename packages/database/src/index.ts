@@ -34,6 +34,7 @@ export {
   getProducts,
   getProductById,
   getProductBySlug,
+  getProductsByIds,
   createProduct,
   updateProduct,
   deleteProduct,

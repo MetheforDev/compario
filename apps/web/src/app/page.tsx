@@ -3,6 +3,7 @@ import { getCategories, getFeaturedNews } from '@compario/database';
 import type { Category, NewsArticle } from '@compario/database';
 import { NewsCard } from '@/components/NewsCard';
 import { Header } from '@/components/Header';
+import { CompareBar } from '@/components/CompareBar';
 
 function CategoryIcon({ icon }: { icon: string | null }) {
   return (
@@ -151,6 +152,8 @@ export default function HomePage() {
       {/* Featured News */}
       {/* @ts-expect-error async server component */}
       <NewsSection />
+
+      <CompareBar />
 
       {/* Footer */}
       <footer className="border-t border-[rgba(196,154,60,0.06)] mt-10 py-8 text-center px-4">

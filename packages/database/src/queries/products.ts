@@ -117,6 +117,14 @@ export async function deleteProduct(id: string): Promise<void> {
   if (error) throw new Error(`Failed to delete product: ${error.message}`);
 }
 
+export async function getProductsByIds(ids: string[]): Promise<Product[]> {
+  if (!ids.length) return [];
+  const { data, error } = await supabase.from('products').select('*').in('id', ids);
+  if (error) throw new Error(`Failed to fetch products by ids: ${error.message}`);
+  const map = new Map((data ?? []).map((p) => [p.id, p]));
+  return ids.map((id) => map.get(id)).filter(Boolean) as Product[];
+}
+
 export async function incrementViewCount(id: string): Promise<void> {
   const { error } = await supabase.rpc('increment_product_view', { product_uuid: id });
   if (error) console.warn(`incrementViewCount failed: ${error.message}`);

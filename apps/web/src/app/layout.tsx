@@ -1,6 +1,7 @@
 import type { Metadata, Viewport } from 'next';
 import { Orbitron, JetBrains_Mono } from 'next/font/google';
 import './globals.css';
+import { CompareProvider } from '@/lib/compare-store';
 
 const orbitron = Orbitron({
   subsets: ['latin'],
@@ -76,10 +77,12 @@ export default function RootLayout({
         <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
         <meta name="apple-mobile-web-app-title" content="Compario" />
         <meta name="mobile-web-app-capable" content="yes" />
-        <meta name="theme-color" content="#00fff7" />
+        <meta name="theme-color" content="#C49A3C" />
       </head>
       <body className="bg-[#08090E] text-[#EDE8DF] font-mono antialiased">
-        {children}
+        <CompareProvider>
+          {children}
+        </CompareProvider>
       </body>
     </html>
   );
