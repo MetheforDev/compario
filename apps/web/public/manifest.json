@@ -1,11 +1,11 @@
 {
-  "name": "Compario - Compare Everything",
+  "name": "Compario — Karşılaştırma Platformu",
   "short_name": "Compario",
-  "description": "Türkiye'nin en kapsamlı ürün karşılaştırma platformu. 2026 model araçlar, telefonlar ve daha fazlası.",
+  "description": "Türkiye'nin en kapsamlı ürün karşılaştırma platformu. Araçlar, telefonlar, laptoplar ve daha fazlası.",
   "start_url": "/",
   "display": "standalone",
-  "background_color": "#0a0a0f",
-  "theme_color": "#00fff7",
+  "background_color": "#08090E",
+  "theme_color": "#C49A3C",
   "orientation": "portrait-primary",
   "icons": [
     {
