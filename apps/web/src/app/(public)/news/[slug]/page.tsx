@@ -81,8 +81,48 @@ export default async function NewsDetailPage({ params }: PageProps) {
   const primaryCategory = allCategories[0] ?? null;
   const categoryColor = primaryCategory ? (CATEGORY_COLORS[primaryCategory] ?? CATEGORY_COLORS.genel) : '';
 
+  const jsonLd = {
+    '@context': 'https://schema.org',
+    '@type': 'NewsArticle',
+    headline: article.meta_title ?? article.title,
+    description: article.meta_description ?? article.excerpt ?? '',
+    image: article.cover_image ? [article.cover_image] : [],
+    datePublished: article.published_at ?? article.created_at,
+    dateModified: article.updated_at,
+    author: {
+      '@type': 'Person',
+      name: article.author ?? 'Compario',
+    },
+    publisher: {
+      '@type': 'Organization',
+      name: 'Compario',
+      url: 'https://compario.tech',
+      logo: {
+        '@type': 'ImageObject',
+        url: 'https://compario.tech/icons/icon-512x512.png',
+      },
+    },
+    mainEntityOfPage: {
+      '@type': 'WebPage',
+      '@id': `https://compario.tech/news/${article.slug}`,
+    },
+    keywords: article.tags?.join(', ') ?? '',
+  };
+
+  const breadcrumbLd = {
+    '@context': 'https://schema.org',
+    '@type': 'BreadcrumbList',
+    itemListElement: [
+      { '@type': 'ListItem', position: 1, name: 'Ana Sayfa', item: 'https://compario.tech' },
+      { '@type': 'ListItem', position: 2, name: 'Haberler', item: 'https://compario.tech/news' },
+      { '@type': 'ListItem', position: 3, name: article.title, item: `https://compario.tech/news/${article.slug}` },
+    ],
+  };
+
   return (
     <main className={`min-h-screen bg-grid ${!article.cover_image ? 'pt-20' : ''}`}>
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbLd) }} />
       {/* Cover Image */}
       {article.cover_image && (
         <div className="w-full h-[400px] sm:h-[500px] relative overflow-hidden">

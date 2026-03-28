@@ -440,7 +440,12 @@ export function NewsForm({ initial = {}, products = [], action, submitLabel = 'K
         <h3 className="font-orbitron text-xs text-neon-purple uppercase tracking-wider">SEO</h3>
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
           <div>
-            <label className={labelClass}>Meta Başlık</label>
+            <label className={labelClass}>
+              Meta Başlık
+              <span className={`ml-2 font-mono text-[10px] ${(metaTitle || title).length > 60 ? 'text-red-400' : (metaTitle || title).length > 50 ? 'text-yellow-400' : 'text-gray-600'}`}>
+                {(metaTitle || title).length}/60
+              </span>
+            </label>
             <input
               type="text"
               value={metaTitle}
@@ -450,7 +455,12 @@ export function NewsForm({ initial = {}, products = [], action, submitLabel = 'K
             />
           </div>
           <div>
-            <label className={labelClass}>Meta Açıklama</label>
+            <label className={labelClass}>
+              Meta Açıklama
+              <span className={`ml-2 font-mono text-[10px] ${(metaDesc || excerpt).length > 160 ? 'text-red-400' : (metaDesc || excerpt).length > 140 ? 'text-yellow-400' : 'text-gray-600'}`}>
+                {(metaDesc || excerpt).length}/160
+              </span>
+            </label>
             <input
               type="text"
               value={metaDesc}
@@ -458,6 +468,36 @@ export function NewsForm({ initial = {}, products = [], action, submitLabel = 'K
               placeholder="SEO açıklaması (boş = kısa özet)"
               className={inputClass}
             />
+          </div>
+        </div>
+
+        {/* Google Preview */}
+        <div className="mt-2">
+          <p className="font-mono text-[10px] text-gray-700 uppercase tracking-wider mb-2">Google Önizleme</p>
+          <div className="rounded-lg border border-[rgba(255,255,255,0.06)] bg-white/[0.02] p-4">
+            {/* URL */}
+            <p className="font-sans text-xs text-[#006621] mb-0.5 truncate">
+              compario.tech › news › <span className="opacity-70">{slug || 'haber-slug'}</span>
+            </p>
+            {/* Title */}
+            <p className="font-sans text-base text-[#1a0dab] leading-snug mb-1 line-clamp-1 hover:underline cursor-default"
+              style={{ color: '#8ab4f8' }}>
+              {(metaTitle || title || 'Haber Başlığı').slice(0, 60)}
+              {(metaTitle || title).length > 60 && <span className="text-red-400">…</span>}
+            </p>
+            {/* Description */}
+            <p className="font-sans text-sm leading-snug line-clamp-2" style={{ color: '#bdc1c6' }}>
+              {(metaDesc || excerpt || 'Meta açıklama buraya gelecek. Haberin kısa özetini yazın.').slice(0, 160)}
+              {(metaDesc || excerpt).length > 160 && <span className="text-red-400">…</span>}
+            </p>
+          </div>
+          <div className="flex gap-4 mt-2">
+            <p className={`font-mono text-[10px] ${(metaTitle || title).length === 0 ? 'text-yellow-500' : (metaTitle || title).length <= 60 ? 'text-green-500' : 'text-red-400'}`}>
+              {(metaTitle || title).length === 0 ? '⚠ Başlık yok' : (metaTitle || title).length <= 60 ? '✓ Başlık ideal' : '✗ Başlık çok uzun'}
+            </p>
+            <p className={`font-mono text-[10px] ${(metaDesc || excerpt).length === 0 ? 'text-yellow-500' : (metaDesc || excerpt).length <= 160 ? 'text-green-500' : 'text-red-400'}`}>
+              {(metaDesc || excerpt).length === 0 ? '⚠ Açıklama yok' : (metaDesc || excerpt).length <= 160 ? '✓ Açıklama ideal' : '✗ Açıklama çok uzun'}
+            </p>
           </div>
         </div>
       </div>

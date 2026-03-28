@@ -128,7 +128,52 @@ export function Header() {
                 </Link>
               );
             })}
+
+            {/* Search icon — desktop */}
+            <Link
+              href="/search"
+              aria-label="Ara"
+              className="ml-2 w-9 h-9 flex items-center justify-center rounded-lg transition-all duration-200"
+              style={{
+                color: pathname.startsWith('/search') ? '#C49A3C' : '#6b7280',
+                background: pathname.startsWith('/search') ? 'rgba(196,154,60,0.08)' : 'transparent',
+                border: `1px solid ${pathname.startsWith('/search') ? 'rgba(196,154,60,0.25)' : 'transparent'}`,
+              }}
+              onMouseEnter={(e) => {
+                const el = e.currentTarget as HTMLElement;
+                el.style.color = '#C49A3C';
+                el.style.background = 'rgba(196,154,60,0.08)';
+                el.style.border = '1px solid rgba(196,154,60,0.2)';
+              }}
+              onMouseLeave={(e) => {
+                const el = e.currentTarget as HTMLElement;
+                if (!pathname.startsWith('/search')) {
+                  el.style.color = '#6b7280';
+                  el.style.background = 'transparent';
+                  el.style.border = '1px solid transparent';
+                }
+              }}
+            >
+              <svg width="15" height="15" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" viewBox="0 0 24 24">
+                <circle cx="11" cy="11" r="8" />
+                <path d="m21 21-4.35-4.35" />
+              </svg>
+            </Link>
           </nav>
+
+          {/* Mobile: search icon + hamburger */}
+          <div className="sm:hidden flex items-center gap-2">
+            <Link
+              href="/search"
+              aria-label="Ara"
+              className="flex items-center justify-center w-9 h-9 rounded-lg"
+              style={{ color: '#6b7280' }}
+            >
+              <svg width="16" height="16" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" viewBox="0 0 24 24">
+                <circle cx="11" cy="11" r="8" />
+                <path d="m21 21-4.35-4.35" />
+              </svg>
+            </Link>
 
           {/* Hamburger button — mobile only */}
           <button
@@ -159,7 +204,8 @@ export function Header() {
               }}
             />
           </button>
-        </div>
+          </div>
+        </div>{/* end: max-w-7xl container */}
 
         {/* Mobile dropdown menu */}
         <div
@@ -194,6 +240,22 @@ export function Header() {
                 </Link>
               );
             })}
+
+            {/* Search link in mobile menu */}
+            <Link
+              href="/search"
+              className="flex items-center gap-3 px-4 py-4 rounded-lg font-mono text-sm uppercase tracking-wider transition-all duration-200"
+              style={{
+                color: pathname.startsWith('/search') ? '#C49A3C' : '#9ca3af',
+                background: pathname.startsWith('/search') ? 'rgba(196,154,60,0.06)' : 'transparent',
+                borderLeft: pathname.startsWith('/search') ? '2px solid rgba(196,154,60,0.5)' : '2px solid transparent',
+              }}
+            >
+              <svg width="12" height="12" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" viewBox="0 0 24 24">
+                <circle cx="11" cy="11" r="8" /><path d="m21 21-4.35-4.35" />
+              </svg>
+              Arama
+            </Link>
 
             {/* Bottom accent */}
             <div

@@ -11,13 +11,21 @@ interface PageProps {
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
   try {
     const product = await getProductBySlug(params.slug);
-    if (!product) return { title: 'Product Not Found' };
+    if (!product) return { title: 'Ürün Bulunamadı' };
     return {
-      title: product.name,
-      description: `Compare ${product.name} by ${product.brand}. Model: ${product.model}.`,
+      title: product.meta_title ?? product.name,
+      description:
+        product.meta_description ??
+        `${product.name} — ${product.brand ?? ''} ${product.model ?? ''} özelliklerini inceleyin ve karşılaştırın.`,
+      openGraph: {
+        title: product.name,
+        description: product.short_description ?? product.description ?? '',
+        images: product.image_url ? [product.image_url] : [],
+        type: 'website',
+      },
     };
   } catch {
-    return { title: 'Product' };
+    return { title: 'Ürün' };
   }
 }
 
@@ -61,22 +69,56 @@ export default async function ProductPage({ params }: PageProps) {
 
   const priceDisplay =
     product.price_min && product.price_max
-      ? `$${product.price_min.toLocaleString()} – $${product.price_max.toLocaleString()}`
+      ? `₺${product.price_min.toLocaleString('tr-TR')} – ₺${product.price_max.toLocaleString('tr-TR')}`
       : product.price_min
-      ? `From $${product.price_min.toLocaleString()}`
-      : 'Price unavailable';
+      ? `₺${product.price_min.toLocaleString('tr-TR')}`
+      : null;
+
+  const jsonLd = {
+    '@context': 'https://schema.org',
+    '@type': 'Product',
+    name: product.name,
+    description: product.description ?? product.short_description ?? '',
+    brand: { '@type': 'Brand', name: product.brand ?? 'Compario' },
+    image: product.image_url ? [product.image_url] : [],
+    sku: product.slug,
+    url: `https://compario.tech/products/${product.slug}`,
+    ...(product.price_min
+      ? {
+          offers: {
+            '@type': 'AggregateOffer',
+            priceCurrency: product.currency ?? 'TRY',
+            lowPrice: product.price_min,
+            highPrice: product.price_max ?? product.price_min,
+            offerCount: 1,
+          },
+        }
+      : {}),
+  };
+
+  const breadcrumbLd = {
+    '@context': 'https://schema.org',
+    '@type': 'BreadcrumbList',
+    itemListElement: [
+      { '@type': 'ListItem', position: 1, name: 'Ana Sayfa', item: 'https://compario.tech' },
+      { '@type': 'ListItem', position: 2, name: 'Kategoriler', item: 'https://compario.tech/categories' },
+      { '@type': 'ListItem', position: 3, name: product.name, item: `https://compario.tech/products/${product.slug}` },
+    ],
+  };
 
   return (
     <main className="min-h-screen bg-grid">
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbLd) }} />
       <div className="max-w-4xl mx-auto px-6 pt-28 pb-16">
         {/* Breadcrumb */}
         <nav className="flex items-center gap-2 font-mono text-xs text-gray-600 mb-10">
           <Link href="/" className="hover:text-neon-cyan transition-colors">
-            Home
+            Ana Sayfa
           </Link>
           <span>/</span>
           <Link href="/categories" className="hover:text-neon-cyan transition-colors">
-            Categories
+            Kategoriler
           </Link>
           <span>/</span>
           <span className="text-gray-400">{product.name}</span>
@@ -97,9 +139,11 @@ export default async function ProductPage({ params }: PageProps) {
               </p>
             </div>
             <div className="text-right flex-shrink-0">
+              {priceDisplay && (
               <p className="font-orbitron text-xl font-bold text-neon-green text-glow-green">
                 {priceDisplay}
               </p>
+            )}
               <span
                 className={`inline-block mt-2 font-mono text-xs uppercase tracking-widest px-3 py-1 rounded border ${
                   product.status === 'active'
@@ -119,7 +163,7 @@ export default async function ProductPage({ params }: PageProps) {
         {/* Actions */}
         <div className="mt-6 flex gap-4">
           <Link href="/categories" className="btn-neon text-sm">
-            ← Back
+            ← Kategorilere Dön
           </Link>
         </div>
       </div>
