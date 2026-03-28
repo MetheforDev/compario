@@ -1,10 +1,6 @@
-import type { Metadata } from 'next';
-import Link from 'next/link';
+'use client';
 
-export const metadata: Metadata = {
-  title: 'Compario — Linkler',
-  description: 'Compario — Her Şeyi Karşılaştır, En İyisine Karar Ver',
-};
+import Link from 'next/link';
 
 // ─── UPDATE THESE WHEN ACCOUNTS ARE READY ───────────────────────────────────
 const SOCIAL_LINKS = {
