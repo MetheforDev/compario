@@ -1,94 +1,131 @@
 import type { Metadata } from 'next';
-import Link from 'next/link';
+import { createAdminClient } from '@compario/database';
+import { getAdminUser, canManageUsers } from '@/lib/admin-auth';
+import { redirect } from 'next/navigation';
+import { InviteForm } from './InviteForm';
+import { UserRow } from './UserRow';
 
 export const metadata: Metadata = { title: 'Kullanıcılar' };
+export const dynamic = 'force-dynamic';
 
-const ROADMAP = [
-  { step: '01', label: 'Login Sistemi', desc: 'E-posta + şifre ile güvenli admin girişi', done: false },
-  { step: '02', label: 'Kullanıcı Rolleri', desc: 'Süper Admin · Editör · Yazar · Okuyucu', done: false },
-  { step: '03', label: 'Editör Paneli', desc: 'Editörler sadece haber yönetebilir', done: false },
-  { step: '04', label: 'Davet Sistemi', desc: 'E-posta ile editör/yazar davet et', done: false },
-];
+const ROLE_LABELS: Record<string, string> = {
+  superadmin: 'Süper Admin',
+  admin: 'Admin',
+  editor: 'Editör',
+};
+const ROLE_COLORS: Record<string, string> = {
+  superadmin: '#C49A3C',
+  admin: '#8B9BAC',
+  editor: '#10B981',
+};
 
-export default function UsersPage() {
+export default async function UsersPage() {
+  const currentUser = await getAdminUser();
+  if (!canManageUsers(currentUser)) redirect('/admin/dashboard');
+
+  let users: Array<{
+    id: string; email: string; role: string;
+    created_at: string; last_sign_in_at: string | null; invited_at: string | null;
+  }> = [];
+
+  try {
+    const admin = createAdminClient();
+    const { data } = await admin.auth.admin.listUsers({ perPage: 100 });
+    if (data) {
+      users = data.users.map((u) => ({
+        id: u.id,
+        email: u.email ?? '',
+        role: (u.user_metadata?.role as string) ?? 'editor',
+        created_at: u.created_at,
+        last_sign_in_at: u.last_sign_in_at ?? null,
+        invited_at: (u as Record<string, unknown>).invited_at as string | null ?? null,
+      }));
+    }
+  } catch { /* ignore */ }
+
+  const fmt = (d: string | null) =>
+    d ? new Date(d).toLocaleDateString('tr-TR', { day: '2-digit', month: 'short', year: 'numeric' }) : '—';
+
   return (
-    <div className="p-8">
-      {/* Header */}
-      <div className="mb-10">
-        <p className="font-mono text-[10px] text-neon-purple uppercase tracking-[0.4em] opacity-60 mb-1">
-          Admin
-        </p>
-        <h1 className="font-orbitron text-3xl font-black text-neon-cyan text-glow-cyan">
-          KULLANICILAR
-        </h1>
-        <p className="font-mono text-xs text-gray-600 mt-1">
-          Yazarlar, editörler ve yöneticiler
-        </p>
+    <div className="p-6 sm:p-8 max-w-4xl">
+      {/* Başlık */}
+      <div className="mb-8">
+        <p className="font-mono text-[10px] text-neon-purple uppercase tracking-[0.3em] opacity-60 mb-1">Admin Panel</p>
+        <h1 className="font-orbitron text-2xl font-black text-neon-cyan">KULLANICILAR</h1>
+        <p className="font-mono text-xs text-gray-500 mt-1">Editör ve admin hesaplarını yönetin, davet gönderin.</p>
       </div>
 
-      {/* Coming soon card */}
-      <div className="max-w-2xl">
-        <div className="border border-[rgba(183,36,255,0.2)] rounded-xl p-8 bg-[rgba(183,36,255,0.03)] text-center mb-8">
-          <div
-            className="w-16 h-16 rounded-full border-2 border-neon-purple flex items-center justify-center mx-auto mb-4 font-orbitron text-2xl text-neon-purple"
-            style={{ boxShadow: '0 0 30px rgba(183,36,255,0.3)' }}
-          >
-            ◎
+      {/* Rol kartları */}
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 mb-8">
+        {[
+          { role: 'superadmin', desc: 'Tam erişim. Admin şifresiyle giriş.' },
+          { role: 'admin',      desc: 'Tüm içerik + kullanıcı yönetimi.' },
+          { role: 'editor',     desc: 'Sadece haber ekler / düzenler.' },
+        ].map(({ role, desc }) => (
+          <div key={role} className="p-4 rounded-xl"
+            style={{ background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(196,154,60,0.07)' }}>
+            <p className="font-orbitron text-[10px] font-bold mb-1" style={{ color: ROLE_COLORS[role] }}>
+              {ROLE_LABELS[role]}
+            </p>
+            <p className="font-mono text-[10px] text-gray-600">{desc}</p>
           </div>
-          <h2 className="font-orbitron text-lg font-black text-white mb-2">
-            Kullanıcı Yönetimi
-          </h2>
-          <p className="font-mono text-xs text-gray-500 leading-relaxed mb-2">
-            Bu bölüm login sistemi kurulduktan sonra aktif olacak.
-          </p>
-          <p className="font-mono text-xs text-gray-600">
-            Yazarlar ve editörler kullanıcı adı + şifre ile giriş yapabilecek,
-            sadece yetkili oldukları bölümlere erişebilecekler.
-          </p>
+        ))}
+      </div>
+
+      {/* Davet formu */}
+      <div className="mb-8 p-5 rounded-xl"
+        style={{ background: 'rgba(196,154,60,0.03)', border: '1px solid rgba(196,154,60,0.1)' }}>
+        <h2 className="font-orbitron text-xs font-bold text-neon-cyan mb-4 uppercase tracking-wider">
+          + Yeni Kullanıcı Davet Et
+        </h2>
+        <InviteForm />
+      </div>
+
+      {/* Kullanıcı listesi */}
+      <div>
+        <h2 className="font-mono text-[10px] text-gray-600 uppercase tracking-widest mb-3">
+          Kayıtlı Kullanıcılar ({users.length + 1})
+        </h2>
+
+        {/* Süper admin (statik satır) */}
+        <div className="flex items-center gap-3 px-4 py-3 rounded-lg mb-2"
+          style={{ background: 'rgba(196,154,60,0.04)', border: '1px solid rgba(196,154,60,0.1)' }}>
+          <div className="w-8 h-8 rounded-full flex items-center justify-center font-orbitron text-xs font-black flex-shrink-0"
+            style={{ background: 'rgba(196,154,60,0.1)', color: '#C49A3C', border: '1px solid rgba(196,154,60,0.2)' }}>
+            ◆
+          </div>
+          <div className="flex-1 min-w-0">
+            <p className="font-mono text-xs text-white truncate">
+              {process.env.ADMIN_EMAIL ?? 'admin@compario.tech'}
+            </p>
+            <p className="font-mono text-[10px] text-gray-600">Şifre ile giriş · Silinemez</p>
+          </div>
+          <span className="font-mono text-[10px] px-2.5 py-1 rounded-full flex-shrink-0"
+            style={{ background: 'rgba(196,154,60,0.1)', color: '#C49A3C', border: '1px solid rgba(196,154,60,0.2)' }}>
+            Süper Admin
+          </span>
         </div>
 
-        {/* Roadmap */}
-        <div>
-          <p className="font-mono text-[10px] text-gray-600 uppercase tracking-widest mb-4">
-            ⬡ Yol Haritası
-          </p>
-          <div className="space-y-3">
-            {ROADMAP.map((item) => (
-              <div
-                key={item.step}
-                className="flex items-start gap-4 p-4 border border-[rgba(0,255,247,0.06)] rounded-lg bg-[rgba(0,255,247,0.01)]"
-              >
-                <div className="font-orbitron text-xs font-black text-gray-700 w-8 flex-shrink-0 mt-0.5">
-                  {item.step}
-                </div>
-                <div>
-                  <p className="font-mono text-xs text-gray-400 font-semibold mb-0.5">{item.label}</p>
-                  <p className="font-mono text-[11px] text-gray-600">{item.desc}</p>
-                </div>
-                <div className="ml-auto flex-shrink-0">
-                  <span className="font-mono text-[10px] text-yellow-500 border border-yellow-500/20 bg-yellow-500/10 px-2 py-0.5 rounded uppercase tracking-wider">
-                    Yakında
-                  </span>
-                </div>
-              </div>
+        {users.length === 0 ? (
+          <div className="py-10 text-center font-mono text-xs text-gray-700 rounded-xl"
+            style={{ border: '1px solid rgba(196,154,60,0.06)' }}>
+            Henüz davet edilmiş kullanıcı yok.
+          </div>
+        ) : (
+          <div className="flex flex-col gap-2">
+            {users.map((u) => (
+              <UserRow
+                key={u.id}
+                user={u}
+                roleLabel={ROLE_LABELS[u.role] ?? u.role}
+                roleColor={ROLE_COLORS[u.role] ?? '#6b7280'}
+                joinedAt={fmt(u.created_at)}
+                lastSeen={fmt(u.last_sign_in_at)}
+                isPending={!u.last_sign_in_at}
+              />
             ))}
           </div>
-        </div>
-
-        <div className="mt-8 pt-6 border-t border-[rgba(0,255,247,0.06)]">
-          <p className="font-mono text-[10px] text-gray-700 mb-3">
-            Şimdilik Supabase üzerinden kullanıcı ekleyebilirsiniz:
-          </p>
-          <Link
-            href="https://supabase.com/dashboard"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="inline-flex items-center gap-2 px-4 py-2 border border-[rgba(0,255,247,0.15)] rounded font-mono text-xs text-gray-500 hover:text-neon-cyan hover:border-neon-cyan/40 transition-colors"
-          >
-            <span>Supabase Dashboard</span>
-            <span className="opacity-50">↗</span>
-          </Link>
-        </div>
+        )}
       </div>
     </div>
   );

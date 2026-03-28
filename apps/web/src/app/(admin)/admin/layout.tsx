@@ -1,18 +1,19 @@
 import type { Metadata } from 'next';
 import { Toaster } from 'react-hot-toast';
 import { Sidebar } from '@/components/admin/Sidebar';
+import { getAdminUser } from '@/lib/admin-auth';
 
 export const metadata: Metadata = {
-  title: {
-    default: 'Admin',
-    template: '%s | Admin — Compario',
-  },
+  title: { default: 'Admin', template: '%s | Admin — Compario' },
 };
 
-export default function AdminLayout({ children }: { children: React.ReactNode }) {
+export default async function AdminLayout({ children }: { children: React.ReactNode }) {
+  const user = await getAdminUser();
+  const role = user?.role ?? 'editor';
+
   return (
     <div className="min-h-screen flex bg-[#0a0a0f]">
-      <Sidebar />
+      <Sidebar role={role} />
       <main className="flex-1 overflow-auto">
         {children}
       </main>
@@ -22,16 +23,12 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
           style: {
             background: '#12121f',
             color: '#e0e0e0',
-            border: '1px solid rgba(0,255,247,0.2)',
+            border: '1px solid rgba(196,154,60,0.2)',
             fontFamily: 'var(--font-jetbrains), monospace',
             fontSize: '12px',
           },
-          success: {
-            iconTheme: { primary: '#39ff14', secondary: '#0a0a0f' },
-          },
-          error: {
-            iconTheme: { primary: '#ff006e', secondary: '#0a0a0f' },
-          },
+          success: { iconTheme: { primary: '#10B981', secondary: '#0a0a0f' } },
+          error:   { iconTheme: { primary: '#DC2626', secondary: '#0a0a0f' } },
         }}
       />
     </div>
