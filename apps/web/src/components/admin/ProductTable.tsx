@@ -73,7 +73,7 @@ export function ProductTable({ products }: ProductTableProps) {
         </thead>
         <tbody className="divide-y divide-[rgba(0,255,247,0.04)]">
           {products.map((p) => {
-            const st = statusConfig[p.status] ?? statusConfig.inactive;
+            const st = statusConfig[p.status as keyof typeof statusConfig] ?? statusConfig.inactive;
             const price = p.price_min
               ? `₺${p.price_min.toLocaleString('tr-TR')}`
               : '—';

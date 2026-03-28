@@ -1,5 +1,5 @@
 import Link from 'next/link';
-import { getCategories, getFeaturedNews } from '@compario/database';
+import { getCategories, getFeaturedNews, getDailyComparison } from '@compario/database';
 import type { Category, NewsArticle } from '@compario/database';
 import { NewsCard } from '@/components/NewsCard';
 import { Header } from '@/components/Header';
@@ -58,6 +58,111 @@ async function CategoriesSection() {
         <CategoryCard key={cat.id} category={cat} />
       ))}
     </div>
+  );
+}
+
+async function DailyComparisonSection() {
+  let comparison: NewsArticle | null = null;
+  try {
+    comparison = await getDailyComparison();
+  } catch {
+    // Database not reachable
+  }
+
+  if (!comparison) return null;
+
+  const allCategories = (comparison as typeof comparison & { categories?: string[] | null }).categories?.length
+    ? (comparison as typeof comparison & { categories?: string[] }).categories!
+    : comparison.category
+    ? [comparison.category]
+    : [];
+
+  return (
+    <section className="max-w-7xl mx-auto px-4 sm:px-6 py-12">
+      {/* Section label */}
+      <div className="flex items-center gap-4 mb-8">
+        <div className="h-px flex-1 bg-gradient-to-r from-transparent to-[rgba(183,36,255,0.2)]" />
+        <div className="flex items-center gap-2">
+          <span className="font-mono text-[10px] text-neon-purple uppercase tracking-[0.4em] opacity-80">
+            ⬡ Günün Karşılaştırması
+          </span>
+        </div>
+        <div className="h-px flex-1 bg-gradient-to-l from-transparent to-[rgba(183,36,255,0.2)]" />
+      </div>
+
+      {/* Featured card */}
+      <Link
+        href={`/news/${comparison.slug}`}
+        className="group block relative rounded-xl overflow-hidden border border-[rgba(183,36,255,0.2)] bg-[#0c0c18] hover:border-neon-purple/50 transition-all duration-300"
+      >
+        {/* Cover image */}
+        {comparison.cover_image ? (
+          <div className="relative w-full h-[280px] sm:h-[360px] overflow-hidden">
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img
+              src={comparison.cover_image}
+              alt={comparison.title}
+              className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+            />
+            <div className="absolute inset-0 bg-gradient-to-t from-[#0c0c18] via-[#0c0c18]/60 to-transparent" />
+
+            {/* "Günün Karşılaştırması" badge — top-left */}
+            <div className="absolute top-4 left-4">
+              <span className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-neon-purple/90 backdrop-blur-sm rounded-full font-mono text-[10px] text-white uppercase tracking-wider">
+                ⚔ Günün Karşılaştırması
+              </span>
+            </div>
+
+            {/* Title overlay */}
+            <div className="absolute bottom-0 left-0 right-0 p-6">
+              <h2 className="font-orbitron text-xl sm:text-2xl font-black text-white leading-tight group-hover:text-neon-purple transition-colors">
+                {comparison.title}
+              </h2>
+              {comparison.excerpt && (
+                <p className="font-mono text-sm text-gray-400 mt-2 line-clamp-2">
+                  {comparison.excerpt}
+                </p>
+              )}
+            </div>
+          </div>
+        ) : (
+          <div className="p-8">
+            <div className="mb-3">
+              <span className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-neon-purple/20 border border-neon-purple/30 rounded-full font-mono text-[10px] text-neon-purple uppercase tracking-wider">
+                ⚔ Günün Karşılaştırması
+              </span>
+            </div>
+            <h2 className="font-orbitron text-xl sm:text-2xl font-black text-white leading-tight mb-3 group-hover:text-neon-purple transition-colors">
+              {comparison.title}
+            </h2>
+            {comparison.excerpt && (
+              <p className="font-mono text-sm text-gray-400 line-clamp-3">
+                {comparison.excerpt}
+              </p>
+            )}
+          </div>
+        )}
+
+        {/* Footer strip */}
+        <div className="px-6 py-4 flex items-center justify-between border-t border-[rgba(183,36,255,0.1)]">
+          <div className="flex items-center gap-3 flex-wrap">
+            {allCategories.map((cat) => (
+              <span key={cat} className="font-mono text-[10px] text-neon-purple uppercase tracking-wider">
+                #{cat}
+              </span>
+            ))}
+            {comparison.tags?.slice(0, 3).map((tag) => (
+              <span key={tag} className="font-mono text-[10px] text-gray-600 uppercase tracking-wider">
+                #{tag}
+              </span>
+            ))}
+          </div>
+          <span className="font-mono text-xs text-neon-purple group-hover:translate-x-1 transition-transform">
+            Karşılaştırmayı Oku →
+          </span>
+        </div>
+      </Link>
+    </section>
   );
 }
 
@@ -133,6 +238,12 @@ export default function HomePage() {
       {/* Divider */}
       <div className="border-t border-[rgba(196,154,60,0.08)] mx-4 sm:mx-6" />
 
+      {/* Daily Comparison — full width feature */}
+      <DailyComparisonSection />
+
+      {/* Divider */}
+      <div className="border-t border-[rgba(196,154,60,0.08)] mx-4 sm:mx-6" />
+
       {/* Categories */}
       <section className="max-w-7xl mx-auto px-4 sm:px-6 py-16">
         <div className="flex items-center gap-4 mb-10">
@@ -142,7 +253,6 @@ export default function HomePage() {
           </h2>
           <div className="h-px flex-1 bg-gradient-to-l from-transparent to-[rgba(196,154,60,0.15)]" />
         </div>
-        {/* @ts-expect-error async server component */}
         <CategoriesSection />
       </section>
 
@@ -150,7 +260,6 @@ export default function HomePage() {
       <div className="border-t border-[rgba(196,154,60,0.08)] mx-4 sm:mx-6" />
 
       {/* Featured News */}
-      {/* @ts-expect-error async server component */}
       <NewsSection />
 
       <CompareBar />

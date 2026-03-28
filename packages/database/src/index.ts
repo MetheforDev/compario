@@ -73,5 +73,6 @@ export {
   deleteNewsArticle,
   incrementNewsView,
   getFeaturedNews,
+  getDailyComparison,
   getRelatedNews,
 } from './queries/news';

@@ -195,6 +195,21 @@ export async function getFeaturedNews(limit: number = 3): Promise<NewsArticle[]>
   return (data ?? []) as unknown as NewsArticle[];
 }
 
+export async function getDailyComparison(): Promise<NewsArticle | null> {
+  const { data, error } = await supabase
+    .from('news_articles')
+    .select('*')
+    .eq('status', 'published')
+    .or('category.eq.karsilastirma,categories.cs.{"karsilastirma"}')
+    .eq('is_featured', true)
+    .order('published_at', { ascending: false, nullsFirst: false })
+    .limit(1)
+    .maybeSingle();
+
+  if (error) throw new Error(`Failed to fetch daily comparison: ${error.message}`);
+  return data as unknown as NewsArticle | null;
+}
+
 export async function getRelatedNews(tags: string[], excludeId: string, limit: number = 3): Promise<NewsArticle[]> {
   const { data, error } = await supabase
     .from('news_articles')

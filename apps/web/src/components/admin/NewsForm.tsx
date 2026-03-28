@@ -4,6 +4,7 @@ import { useState, useTransition } from 'react';
 import { useRouter } from 'next/navigation';
 import type { NewsArticle, NewsArticleInput, Product } from '@compario/database';
 import { MarkdownContent } from '@/components/MarkdownContent';
+import { TiptapEditor } from '@/components/admin/TiptapEditor';
 
 const CATEGORIES = [
   { value: 'yeni-model', label: 'Yeni Model' },
@@ -426,18 +427,12 @@ export function NewsForm({ initial = {}, products = [], action, submitLabel = 'K
             <MarkdownContent content={content} />
           </div>
         ) : (
-          <textarea
-            required
+          <TiptapEditor
             value={content}
-            onChange={(e) => setContent(e.target.value)}
-            rows={16}
-            placeholder={'# Başlık\n\nHaber içeriği buraya gelecek...\n\n## Alt başlık\n\n![Görsel](https://...)'}
-            className={`${inputClass} resize-y font-mono text-xs leading-relaxed`}
+            onChange={setContent}
+            placeholder="# Başlık&#10;&#10;Haber içeriğinizi buraya yazın..."
           />
         )}
-        <p className="mt-1 font-mono text-[10px] text-gray-700">
-          Markdown destekli. Görsel: ![Alt](URL) · Kalın: **metin** · Başlık: ## Başlık
-        </p>
       </div>
 
       {/* SEO */}

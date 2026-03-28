@@ -101,7 +101,7 @@ export function ProductForm({
   const [model, setModel]             = useState(product?.model ?? '');
   const [priceMin, setPriceMin]       = useState(product?.price_min?.toString() ?? '');
   const [priceMax, setPriceMax]       = useState(product?.price_max?.toString() ?? '');
-  const [status, setStatus]           = useState<ProductStatus>(product?.status ?? 'draft');
+  const [status, setStatus]           = useState<ProductStatus>((product?.status as ProductStatus) ?? 'draft');
 
   // Specs
   const [specEntries, setSpecEntries] = useState<SpecEntry[]>(() => {
