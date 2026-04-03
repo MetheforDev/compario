@@ -1,4 +1,5 @@
 import Link from 'next/link';
+import Image from 'next/image';
 import { getCategories, getFeaturedNews, getDailyComparison } from '@compario/database';
 import type { Category, NewsArticle } from '@compario/database';
 import { NewsCard } from '@/components/NewsCard';
@@ -205,6 +206,17 @@ export default function HomePage() {
       <Header />
       {/* Hero */}
       <section className="relative flex flex-col items-center justify-center text-center px-4 pt-28 pb-20 overflow-hidden">
+        {/* Hero background image */}
+        <div className="absolute inset-0 pointer-events-none">
+          <Image
+            src="/images/web/hero-banner.jpg"
+            alt=""
+            fill
+            className="object-cover opacity-20"
+            priority
+          />
+          <div className="absolute inset-0" style={{ background: 'linear-gradient(to bottom, rgba(8,9,14,0.3) 0%, rgba(8,9,14,0.7) 60%, #08090E 100%)' }} />
+        </div>
         {/* Glow orb — max-w clamped to prevent mobile overflow */}
         <div
           className="absolute top-0 left-1/2 -translate-x-1/2 w-full max-w-[600px] h-[300px] rounded-full blur-[120px] opacity-10 pointer-events-none"

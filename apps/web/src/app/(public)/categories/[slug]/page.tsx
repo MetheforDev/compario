@@ -1,8 +1,17 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
+import Image from 'next/image';
 import { notFound } from 'next/navigation';
 import { getCategoryBySlug, getProducts, getSegmentsByCategory } from '@compario/database';
 import { ProductCard } from '@/components/ProductCard';
+
+const CATEGORY_BANNERS: Record<string, string> = {
+  laptops:      '/images/web/category-laptops.jpg',
+  smartphones:  '/images/web/category-smartphones.jpg',
+  automotive:   '/images/web/category-automotive.jpg',
+  appliances:   '/images/web/category-appliances.jpg',
+  tech:         '/images/web/category-tech.jpg',
+};
 
 interface PageProps {
   params: { slug: string };
@@ -50,39 +59,58 @@ export default async function CategoryPage({ params, searchParams }: PageProps) 
     limit: 60,
   }).catch(() => []);
 
-  return (
-    <main className="min-h-screen bg-grid pt-28 pb-24">
-      {/* Hero */}
-      <div className="max-w-7xl mx-auto px-4 sm:px-6">
-        {/* Breadcrumb */}
-        <nav className="flex items-center gap-2 font-mono text-[10px] text-gray-700 uppercase tracking-wider mb-8">
-          <Link href="/" className="hover:text-neon-cyan transition-colors">Ana Sayfa</Link>
-          <span>/</span>
-          <Link href="/categories" className="hover:text-neon-cyan transition-colors">Kategoriler</Link>
-          <span>/</span>
-          <span className="text-neon-purple">{category.name}</span>
-        </nav>
+  const bannerSrc = CATEGORY_BANNERS[params.slug] ?? null;
 
-        {/* Category header */}
-        <div className="flex items-center gap-5 mb-10">
-          {category.icon && (
-            <span className="text-5xl">{category.icon}</span>
-          )}
-          <div>
-            <p className="font-mono text-[10px] text-neon-purple uppercase tracking-[0.4em] opacity-60 mb-1">
-              Karşılaştırma
-            </p>
-            <h1 className="font-orbitron text-3xl sm:text-4xl font-black text-neon-cyan text-glow-cyan">
-              {category.name.toUpperCase()}
-            </h1>
-            {category.description && (
-              <p className="font-mono text-xs text-gray-500 mt-2 max-w-xl">{category.description}</p>
+  return (
+    <main className="min-h-screen bg-grid pt-20 pb-24">
+      {/* Category banner header */}
+      <div className="relative w-full h-48 sm:h-64 overflow-hidden mb-0">
+        {bannerSrc ? (
+          <Image
+            src={bannerSrc}
+            alt={category.name}
+            fill
+            className="object-cover"
+            priority
+          />
+        ) : (
+          <div className="absolute inset-0" style={{ background: 'rgba(12,12,22,1)' }} />
+        )}
+        <div className="absolute inset-0" style={{ background: 'linear-gradient(to bottom, rgba(8,9,14,0.4) 0%, rgba(8,9,14,0.75) 70%, #08090E 100%)' }} />
+
+        <div className="absolute inset-0 flex flex-col justify-end px-4 sm:px-8 pb-6 max-w-7xl mx-auto left-0 right-0">
+          {/* Breadcrumb */}
+          <nav className="flex items-center gap-2 font-mono text-[10px] text-gray-500 uppercase tracking-wider mb-3">
+            <Link href="/" className="hover:text-neon-cyan transition-colors">Ana Sayfa</Link>
+            <span>/</span>
+            <Link href="/categories" className="hover:text-neon-cyan transition-colors">Kategoriler</Link>
+            <span>/</span>
+            <span className="text-neon-purple">{category.name}</span>
+          </nav>
+
+          <div className="flex items-center gap-4">
+            {category.icon && (
+              <span className="text-4xl drop-shadow-lg">{category.icon}</span>
             )}
+            <div>
+              <p className="font-mono text-[10px] text-neon-purple uppercase tracking-[0.4em] opacity-70 mb-0.5">
+                Karşılaştırma
+              </p>
+              <h1 className="font-orbitron text-3xl sm:text-4xl font-black text-neon-cyan"
+                style={{ textShadow: '0 0 30px rgba(196,154,60,0.4)' }}>
+                {category.name.toUpperCase()}
+              </h1>
+              {category.description && (
+                <p className="font-mono text-xs text-gray-400 mt-1 max-w-xl">{category.description}</p>
+              )}
+            </div>
           </div>
         </div>
+      </div>
 
+      <div className="max-w-7xl mx-auto px-4 sm:px-6">
         {/* Divider */}
-        <div className="h-px mb-6" style={{ background: 'rgba(196,154,60,0.08)' }} />
+        <div className="h-px mb-6 mt-6" style={{ background: 'rgba(196,154,60,0.08)' }} />
 
         {/* Filters row */}
         <div className="flex flex-wrap items-center gap-3 mb-8">

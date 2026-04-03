@@ -1,6 +1,7 @@
 'use client';
 
 import Link from 'next/link';
+import Image from 'next/image';
 import { usePathname } from 'next/navigation';
 import { useEffect, useState } from 'react';
 
@@ -65,40 +66,23 @@ export function Header() {
           {/* Logo */}
           <Link
             href="/"
-            className="group flex flex-col justify-center select-none"
+            className="group flex items-center select-none"
             onClick={() => setMenuOpen(false)}
           >
-            <div className="flex items-center gap-2">
-              <span
-                className="transition-all duration-500"
-                style={{ color: 'rgba(196,154,60,0.5)', fontSize: scrolled ? '8px' : '10px' }}
-              >
-                ◆
-              </span>
-              <span
-                className="font-orbitron font-black text-neon-cyan transition-all duration-500 tracking-widest"
-                style={{
-                  fontSize: scrolled ? '16px' : '20px',
-                  textShadow: scrolled
-                    ? 'none'
-                    : '0 0 30px rgba(196,154,60,0.3), 0 0 60px rgba(196,154,60,0.1)',
-                }}
-              >
-                COMPARIO
-              </span>
-            </div>
-            <span
-              className="font-mono uppercase tracking-[0.35em] text-neon-purple transition-all duration-500 origin-left"
+            <Image
+              src="/images/logos/compario-logo-horizontal.png"
+              alt="Compario"
+              width={140}
+              height={36}
+              className="transition-all duration-500 object-contain"
               style={{
-                fontSize: '7px',
-                opacity: scrolled ? 0 : 0.45,
-                maxHeight: scrolled ? '0' : '14px',
-                overflow: 'hidden',
-                paddingLeft: '18px',
+                height: scrolled ? '28px' : '36px',
+                width: 'auto',
+                filter: 'drop-shadow(0 0 12px rgba(196,154,60,0.2))',
+                opacity: scrolled ? 0.85 : 1,
               }}
-            >
-              Karşılaştırma Platformu
-            </span>
+              priority
+            />
           </Link>
 
           {/* Desktop nav */}
