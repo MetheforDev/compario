@@ -39,6 +39,7 @@ export {
   updateProduct,
   deleteProduct,
   incrementViewCount,
+  getSimilarProducts,
 } from './queries/products';
 
 // Category queries

@@ -129,3 +129,21 @@ export async function incrementViewCount(id: string): Promise<void> {
   const { error } = await supabase.rpc('increment_product_view', { product_uuid: id });
   if (error) console.warn(`incrementViewCount failed: ${error.message}`);
 }
+
+export async function getSimilarProducts(
+  categoryId: string,
+  currentProductId: string,
+  limit: number = 4,
+): Promise<Product[]> {
+  const { data, error } = await supabase
+    .from('products')
+    .select('id, name, slug, brand, model, image_url, price_min, price_max, currency, status, is_featured, view_count, compare_count, category_id, segment_id, model_year, specs, short_description, description, meta_title, meta_description, meta_keywords, images, source, source_url, last_scraped_at, published_at, created_at, updated_at')
+    .eq('category_id', categoryId)
+    .eq('status', 'active')
+    .neq('id', currentProductId)
+    .order('view_count', { ascending: false })
+    .limit(limit);
+
+  if (error) throw new Error(`Failed to fetch similar products: ${error.message}`);
+  return (data ?? []) as Product[];
+}
