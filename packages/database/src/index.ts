@@ -75,4 +75,5 @@ export {
   getFeaturedNews,
   getDailyComparison,
   getRelatedNews,
+  getAdjacentNews,
 } from './queries/news';

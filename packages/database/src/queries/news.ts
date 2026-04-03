@@ -223,3 +223,41 @@ export async function getRelatedNews(tags: string[], excludeId: string, limit: n
   if (error) throw new Error(`Failed to fetch related news: ${error.message}`);
   return (data ?? []) as unknown as NewsArticle[];
 }
+
+export async function getAdjacentNews(currentSlug: string): Promise<{
+  previous: Pick<NewsArticle, 'id' | 'title' | 'slug'> | null;
+  next: Pick<NewsArticle, 'id' | 'title' | 'slug'> | null;
+}> {
+  const { data: current } = await supabase
+    .from('news_articles')
+    .select('published_at')
+    .eq('slug', currentSlug)
+    .eq('status', 'published')
+    .single();
+
+  if (!current) return { previous: null, next: null };
+
+  const [{ data: previous }, { data: next }] = await Promise.all([
+    supabase
+      .from('news_articles')
+      .select('id, title, slug')
+      .eq('status', 'published')
+      .lt('published_at', current.published_at)
+      .order('published_at', { ascending: false })
+      .limit(1)
+      .maybeSingle(),
+    supabase
+      .from('news_articles')
+      .select('id, title, slug')
+      .eq('status', 'published')
+      .gt('published_at', current.published_at)
+      .order('published_at', { ascending: true })
+      .limit(1)
+      .maybeSingle(),
+  ]);
+
+  return {
+    previous: previous as Pick<NewsArticle, 'id' | 'title' | 'slug'> | null,
+    next: next as Pick<NewsArticle, 'id' | 'title' | 'slug'> | null,
+  };
+}
