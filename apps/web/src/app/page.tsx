@@ -5,6 +5,7 @@ import type { Category, NewsArticle } from '@compario/database';
 import { NewsCard } from '@/components/NewsCard';
 import { Header } from '@/components/Header';
 import { CompareBar } from '@/components/CompareBar';
+import Divider from '@/components/Divider';
 
 function CategoryIcon({ icon }: { icon: string | null }) {
   return (
@@ -72,95 +73,64 @@ async function DailyComparisonSection() {
 
   if (!comparison) return null;
 
-  const allCategories = (comparison as typeof comparison & { categories?: string[] | null }).categories?.length
-    ? (comparison as typeof comparison & { categories?: string[] }).categories!
-    : comparison.category
-    ? [comparison.category]
-    : [];
-
   return (
     <section className="max-w-7xl mx-auto px-4 sm:px-6 py-12">
       {/* Section label */}
       <div className="flex items-center gap-4 mb-8">
         <div className="h-px flex-1 bg-gradient-to-r from-transparent to-[rgba(183,36,255,0.2)]" />
-        <div className="flex items-center gap-2">
-          <span className="font-mono text-[10px] text-neon-purple uppercase tracking-[0.4em] opacity-80">
-            ⬡ Günün Karşılaştırması
-          </span>
-        </div>
+        <span className="font-mono text-[10px] text-neon-purple uppercase tracking-[0.4em] opacity-80">
+          ⬡ Günün Karşılaştırması
+        </span>
         <div className="h-px flex-1 bg-gradient-to-l from-transparent to-[rgba(183,36,255,0.2)]" />
       </div>
 
-      {/* Featured card */}
+      {/* Two-column feature card */}
       <Link
         href={`/news/${comparison.slug}`}
-        className="group block relative rounded-xl overflow-hidden border border-[rgba(183,36,255,0.2)] bg-[#0c0c18] hover:border-neon-purple/50 transition-all duration-300"
+        className="group block relative card-neon overflow-hidden hover:scale-[1.01] transition-transform duration-300"
       >
-        {/* Cover image */}
-        {comparison.cover_image ? (
-          <div className="relative w-full h-[280px] sm:h-[360px] overflow-hidden">
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img
-              src={comparison.cover_image}
-              alt={comparison.title}
-              className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-            />
-            <div className="absolute inset-0 bg-gradient-to-t from-[#0c0c18] via-[#0c0c18]/60 to-transparent" />
-
-            {/* "Günün Karşılaştırması" badge — top-left */}
+        <div className="grid md:grid-cols-2 gap-0">
+          {/* Left: Image */}
+          <div className="relative h-64 md:h-80 overflow-hidden">
+            {comparison.cover_image ? (
+              <Image
+                src={comparison.cover_image}
+                alt={comparison.title}
+                fill
+                className="object-cover group-hover:scale-110 transition-transform duration-500"
+              />
+            ) : (
+              <div className="absolute inset-0 bg-gradient-to-br from-[rgba(183,36,255,0.15)] to-[rgba(8,9,14,1)]" />
+            )}
+            <div className="absolute inset-0 bg-gradient-to-r from-transparent to-[#0c0c18] hidden md:block" />
+            <div className="absolute inset-0 bg-gradient-to-t from-[#0c0c18] to-transparent md:hidden" />
+            {/* Badge */}
             <div className="absolute top-4 left-4">
-              <span className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-neon-purple/90 backdrop-blur-sm rounded-full font-mono text-[10px] text-white uppercase tracking-wider">
+              <span className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-neon-purple/20 backdrop-blur-sm border border-neon-purple/40 rounded-full font-mono text-[10px] text-neon-purple uppercase tracking-wider">
                 ⚔ Günün Karşılaştırması
               </span>
-            </div>
-
-            {/* Title overlay */}
-            <div className="absolute bottom-0 left-0 right-0 p-6">
-              <h2 className="font-orbitron text-xl sm:text-2xl font-black text-white leading-tight group-hover:text-neon-purple transition-colors">
-                {comparison.title}
-              </h2>
-              {comparison.excerpt && (
-                <p className="font-mono text-sm text-gray-400 mt-2 line-clamp-2">
-                  {comparison.excerpt}
-                </p>
-              )}
             </div>
           </div>
-        ) : (
-          <div className="p-8">
-            <div className="mb-3">
-              <span className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-neon-purple/20 border border-neon-purple/30 rounded-full font-mono text-[10px] text-neon-purple uppercase tracking-wider">
-                ⚔ Günün Karşılaştırması
-              </span>
-            </div>
-            <h2 className="font-orbitron text-xl sm:text-2xl font-black text-white leading-tight mb-3 group-hover:text-neon-purple transition-colors">
+
+          {/* Right: Content */}
+          <div className="flex flex-col justify-center p-8">
+            <h2 className="font-orbitron text-2xl sm:text-3xl font-black text-neon-cyan leading-tight mb-4 group-hover:text-white transition-colors line-clamp-3">
               {comparison.title}
             </h2>
             {comparison.excerpt && (
-              <p className="font-mono text-sm text-gray-400 line-clamp-3">
+              <p className="font-mono text-sm text-gray-400 line-clamp-4 mb-6 leading-relaxed">
                 {comparison.excerpt}
               </p>
             )}
+            <div className="flex items-center gap-4">
+              <span className="btn-neon text-xs">Karşılaştırmayı Gör</span>
+              {comparison.published_at && (
+                <span className="font-mono text-xs text-gray-600">
+                  {new Date(comparison.published_at).toLocaleDateString('tr-TR')}
+                </span>
+              )}
+            </div>
           </div>
-        )}
-
-        {/* Footer strip */}
-        <div className="px-6 py-4 flex items-center justify-between border-t border-[rgba(183,36,255,0.1)]">
-          <div className="flex items-center gap-3 flex-wrap">
-            {allCategories.map((cat) => (
-              <span key={cat} className="font-mono text-[10px] text-neon-purple uppercase tracking-wider">
-                #{cat}
-              </span>
-            ))}
-            {comparison.tags?.slice(0, 3).map((tag) => (
-              <span key={tag} className="font-mono text-[10px] text-gray-600 uppercase tracking-wider">
-                #{tag}
-              </span>
-            ))}
-          </div>
-          <span className="font-mono text-xs text-neon-purple group-hover:translate-x-1 transition-transform">
-            Karşılaştırmayı Oku →
-          </span>
         </div>
       </Link>
     </section>
@@ -170,7 +140,7 @@ async function DailyComparisonSection() {
 async function NewsSection() {
   let news: NewsArticle[] = [];
   try {
-    news = await getFeaturedNews(3);
+    news = await getFeaturedNews(6);
   } catch {
     // Database not reachable
   }
@@ -247,17 +217,15 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* Divider */}
-      <div className="border-t border-[rgba(196,154,60,0.08)] mx-4 sm:mx-6" />
+      <Divider />
 
       {/* Daily Comparison — full width feature */}
       <DailyComparisonSection />
 
-      {/* Divider */}
-      <div className="border-t border-[rgba(196,154,60,0.08)] mx-4 sm:mx-6" />
+      <Divider />
 
       {/* Categories */}
-      <section className="max-w-7xl mx-auto px-4 sm:px-6 py-16">
+      <section className="max-w-7xl mx-auto px-4 sm:px-6 pb-4">
         <div className="flex items-center gap-4 mb-10">
           <div className="h-px flex-1 bg-gradient-to-r from-transparent to-[rgba(196,154,60,0.15)]" />
           <h2 className="font-orbitron text-xs uppercase tracking-[0.3em] text-neon-cyan opacity-70">
@@ -268,8 +236,7 @@ export default function HomePage() {
         <CategoriesSection />
       </section>
 
-      {/* Divider */}
-      <div className="border-t border-[rgba(196,154,60,0.08)] mx-4 sm:mx-6" />
+      <Divider />
 
       {/* Featured News */}
       <NewsSection />
