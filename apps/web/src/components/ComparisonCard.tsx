@@ -1,5 +1,7 @@
 'use client';
 
+import Image from 'next/image';
+
 interface SpecRow {
   label: string;
   value: string;
@@ -104,9 +106,14 @@ function ProductCard({
 
       {/* Image */}
       {product.image && (
-        <div className="aspect-video w-full overflow-hidden bg-[#0c0c16]">
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src={product.image} alt={product.name} className="w-full h-full object-cover" />
+        <div className="relative aspect-video w-full overflow-hidden bg-[#0c0c16]">
+          <Image
+            src={product.image}
+            alt={product.name}
+            fill
+            className="object-cover"
+            sizes="(max-width: 640px) 50vw, 25vw"
+          />
         </div>
       )}
 

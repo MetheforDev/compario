@@ -1,4 +1,5 @@
 import Link from 'next/link';
+import Image from 'next/image';
 
 const CATEGORY_LABELS: Record<string, string> = {
   'yeni-model': 'Yeni Model',
@@ -53,11 +54,12 @@ export function NewsCard({ article }: NewsCardProps) {
       <div className="relative aspect-video bg-[#0c0c16] overflow-hidden flex-shrink-0">
         {article.cover_image ? (
           <>
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img
+            <Image
               src={article.cover_image}
               alt={article.title}
-              className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+              fill
+              className="object-cover group-hover:scale-105 transition-transform duration-500"
+              sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
             />
             <div className="absolute inset-0 bg-gradient-to-t from-[#1a1a26]/80 via-transparent to-transparent" />
           </>

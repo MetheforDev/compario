@@ -1,5 +1,6 @@
 'use client';
 
+import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 import { useCompare } from '@/lib/compare-store';
 
@@ -51,11 +52,12 @@ export function CompareBar() {
               }}
             >
               {item.image && (
-                // eslint-disable-next-line @next/next/no-img-element
-                <img
+                <Image
                   src={item.image}
                   alt={item.name}
-                  className="w-5 h-5 rounded object-cover flex-shrink-0"
+                  width={20}
+                  height={20}
+                  className="rounded object-cover flex-shrink-0"
                 />
               )}
               <span className="font-mono text-[10px] text-gray-300 truncate max-w-[100px]">

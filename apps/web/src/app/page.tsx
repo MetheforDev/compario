@@ -1,4 +1,5 @@
 import Link from 'next/link';
+import Image from 'next/image';
 import { getCategories, getFeaturedNews, getDailyComparison, getTrendingProducts } from '@compario/database';
 import type { Category, NewsArticle, Product } from '@compario/database';
 import { NewsCard } from '@/components/NewsCard';
@@ -101,11 +102,13 @@ async function DailyComparisonSection() {
         {/* Cover image */}
         {comparison.cover_image ? (
           <div className="relative w-full h-[280px] sm:h-[360px] overflow-hidden">
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img
+            <Image
               src={comparison.cover_image}
               alt={comparison.title}
-              className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+              fill
+              priority
+              className="object-cover group-hover:scale-105 transition-transform duration-500"
+              sizes="(max-width: 640px) 100vw, 1200px"
             />
             <div className="absolute inset-0 bg-gradient-to-t from-[#0c0c18] via-[#0c0c18]/60 to-transparent" />
 
@@ -217,16 +220,17 @@ function TrendingProductCard({ product }: { product: Product }) {
       }}
     >
       {/* Image */}
-      <div className="aspect-video w-full overflow-hidden bg-[#0c0c16] flex items-center justify-center">
+      <div className="relative aspect-video w-full overflow-hidden bg-[#0c0c16]">
         {product.image_url ? (
-          // eslint-disable-next-line @next/next/no-img-element
-          <img
+          <Image
             src={product.image_url}
             alt={product.name}
-            className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+            fill
+            className="object-cover group-hover:scale-105 transition-transform duration-500"
+            sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 20vw"
           />
         ) : (
-          <span className="font-mono text-3xl opacity-10">◈</span>
+          <span className="absolute inset-0 flex items-center justify-center font-mono text-3xl opacity-10">◈</span>
         )}
       </div>
 

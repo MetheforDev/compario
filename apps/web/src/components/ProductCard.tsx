@@ -1,6 +1,7 @@
 'use client';
 
 import Link from 'next/link';
+import Image from 'next/image';
 import type { Product } from '@compario/database';
 import { useCompare } from '@/lib/compare-store';
 
@@ -51,18 +52,19 @@ export function ProductCard({ product }: ProductCardProps) {
       {/* Image */}
       <Link href={`/products/${product.slug}`}>
         <div
-          className="aspect-video w-full overflow-hidden bg-[#0c0c16] flex items-center justify-center"
+          className="relative aspect-video w-full overflow-hidden bg-[#0c0c16]"
           style={{ marginTop: selected ? '24px' : '0' }}
         >
           {product.image_url ? (
-            // eslint-disable-next-line @next/next/no-img-element
-            <img
+            <Image
               src={product.image_url}
               alt={product.name}
-              className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+              fill
+              className="object-cover group-hover:scale-105 transition-transform duration-500"
+              sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw"
             />
           ) : (
-            <span className="font-mono text-4xl opacity-10">◈</span>
+            <span className="absolute inset-0 flex items-center justify-center font-mono text-4xl opacity-10">◈</span>
           )}
         </div>
       </Link>
