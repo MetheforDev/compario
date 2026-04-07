@@ -98,6 +98,18 @@ body {
     @apply bg-neon-purple text-black;
     box-shadow: 0 0 25px rgba(139,155,172,0.35);
   }
+
+  /* Footer social icon buttons */
+  .footer-social-btn {
+    background: rgba(196,154,60,0.05);
+    border: 1px solid rgba(196,154,60,0.1);
+    color: #6b7280;
+  }
+  .footer-social-btn:hover {
+    color: #C49A3C;
+    background: rgba(196,154,60,0.1);
+    border-color: rgba(196,154,60,0.3);
+  }
 }
 
 /* ─── Comparison card animations ─────────────────────── */

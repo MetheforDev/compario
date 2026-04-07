@@ -129,3 +129,70 @@ export async function incrementViewCount(id: string): Promise<void> {
   const { error } = await supabase.rpc('increment_product_view', { product_uuid: id });
   if (error) console.warn(`incrementViewCount failed: ${error.message}`);
 }
+
+export async function incrementCompareCount(ids: string[]): Promise<void> {
+  if (!ids.length) return;
+  // Fire individual updates; non-critical — swallow errors
+  await Promise.all(
+    ids.map((id) =>
+      supabase.rpc('increment_compare_count', { product_uuid: id }).then(() => null, () => null),
+    ),
+  );
+}
+
+export async function getTrendingProducts(limit = 6): Promise<Product[]> {
+  const { data, error } = await supabase
+    .from('products')
+    .select('*')
+    .eq('status', 'active')
+    .order('compare_count', { ascending: false })
+    .order('view_count', { ascending: false })
+    .limit(limit);
+  if (error) throw new Error(`Failed to fetch trending: ${error.message}`);
+  return (data ?? []) as Product[];
+}
+
+export async function getTopProductsByViews(limit = 10): Promise<Product[]> {
+  const admin = createAdminClient();
+  const { data, error } = await admin
+    .from('products')
+    .select('*')
+    .order('view_count', { ascending: false })
+    .limit(limit);
+  if (error) throw new Error(`Failed to fetch top by views: ${error.message}`);
+  return (data ?? []) as Product[];
+}
+
+export async function getTopProductsByCompares(limit = 10): Promise<Product[]> {
+  const admin = createAdminClient();
+  const { data, error } = await admin
+    .from('products')
+    .select('*')
+    .order('compare_count', { ascending: false })
+    .limit(limit);
+  if (error) throw new Error(`Failed to fetch top by compares: ${error.message}`);
+  return (data ?? []) as Product[];
+}
+
+export async function bulkCreateProducts(inputs: ProductInput[]): Promise<{ created: number; errors: string[] }> {
+  if (!inputs.length) return { created: 0, errors: [] };
+  const admin = createAdminClient();
+  const errors: string[] = [];
+  let created = 0;
+
+  // Insert in batches of 50
+  const BATCH = 50;
+  for (let i = 0; i < inputs.length; i += BATCH) {
+    const batch = inputs.slice(i, i + BATCH);
+    const { data, error } = await admin
+      .from('products')
+      .insert(batch as ProductInsert[])
+      .select('id');
+    if (error) {
+      errors.push(`Satır ${i + 1}–${i + batch.length}: ${error.message}`);
+    } else {
+      created += (data ?? []).length;
+    }
+  }
+  return { created, errors };
+}

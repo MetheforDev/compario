@@ -5,6 +5,10 @@ import { useRouter } from 'next/navigation';
 import type { NewsArticle, NewsArticleInput, Product } from '@compario/database';
 import { MarkdownContent } from '@/components/MarkdownContent';
 import { TiptapEditor } from '@/components/admin/TiptapEditor';
+import { ImageUpload } from '@/components/admin/ImageUpload';
+import { SeoAnalyzer } from '@/components/admin/SeoAnalyzer';
+import { ContentStats } from '@/components/admin/ContentStats';
+import { PublishChecklist } from '@/components/admin/PublishChecklist';
 
 const CATEGORIES = [
   { value: 'yeni-model', label: 'Yeni Model' },
@@ -48,19 +52,20 @@ function slugify(text: string): string {
 
 interface NewsFormProps {
   initial?: Partial<NewsArticle & { categories?: string[] | null }>;
+  prefill?: { title?: string; source_url?: string; source_name?: string };
   products?: Product[];
   action: (data: Partial<NewsArticleInput>) => Promise<{ error?: string }>;
   submitLabel?: string;
 }
 
-export function NewsForm({ initial = {}, products = [], action, submitLabel = 'Kaydet' }: NewsFormProps) {
+export function NewsForm({ initial = {}, prefill, products = [], action, submitLabel = 'Kaydet' }: NewsFormProps) {
   const router = useRouter();
   const [isPending, startTransition] = useTransition();
   const [error, setError] = useState<string | null>(null);
   const [showPreview, setShowPreview] = useState(false);
 
-  const [title, setTitle] = useState(initial.title ?? '');
-  const [slug, setSlug] = useState(initial.slug ?? '');
+  const [title, setTitle] = useState(initial.title ?? prefill?.title ?? '');
+  const [slug, setSlug] = useState(initial.slug ?? slugify(prefill?.title ?? ''));
   const [slugManual, setSlugManual] = useState(!!initial.slug);
 
   const initialCategories: string[] =
@@ -72,7 +77,7 @@ export function NewsForm({ initial = {}, products = [], action, submitLabel = 'K
   const [categories, setCategories] = useState<string[]>(initialCategories);
 
   const [coverImage, setCoverImage] = useState(initial.cover_image ?? '');
-  const [imagesRaw, setImagesRaw] = useState((initial.images ?? []).join('\n'));
+  const [galleryImages, setGalleryImages] = useState<string[]>(initial.images ?? []);
   const [excerpt, setExcerpt] = useState(initial.excerpt ?? '');
   const [content, setContent] = useState(initial.content ?? '');
   const [tagsRaw, setTagsRaw] = useState((initial.tags ?? []).join(', '));
@@ -85,11 +90,9 @@ export function NewsForm({ initial = {}, products = [], action, submitLabel = 'K
   const [metaTitle, setMetaTitle] = useState(initial.meta_title ?? '');
   const [metaDesc, setMetaDesc] = useState(initial.meta_description ?? '');
   const [relatedIds, setRelatedIds] = useState<string[]>(initial.related_product_ids ?? []);
-
-  const galleryImages = imagesRaw
-    .split('\n')
-    .map((u) => u.trim())
-    .filter(Boolean);
+  const [focusKeyword, setFocusKeyword] = useState('');
+  const [focusMode, setFocusMode] = useState(false);
+  const [showChecklist, setShowChecklist] = useState(false);
 
   const isComparison = categories.includes('karsilastirma');
 
@@ -148,8 +151,36 @@ export function NewsForm({ initial = {}, products = [], action, submitLabel = 'K
     'w-full bg-[#0c0c16] border border-[rgba(0,255,247,0.15)] rounded px-3 py-2.5 font-mono text-xs text-gray-300 placeholder-gray-700 focus:outline-none focus:border-neon-cyan/50 transition-colors';
   const labelClass = 'block font-mono text-[10px] text-gray-600 uppercase tracking-wider mb-1.5';
 
+  const seoProps = {
+    title, slug, metaTitle, metaDesc, excerpt, content,
+    coverImage, categories, focusKeyword, author,
+  };
+
   return (
-    <form onSubmit={(e) => { e.preventDefault(); handleSubmit(); }} className="space-y-8">
+    <>
+    {showChecklist && (
+      <PublishChecklist
+        {...seoProps}
+        onPublish={() => { setShowChecklist(false); handleSubmit(true); }}
+        onClose={() => setShowChecklist(false)}
+      />
+    )}
+
+    <div className={focusMode ? 'fixed inset-0 z-40 bg-[#06060f] overflow-y-auto' : ''}>
+    {focusMode && (
+      <div className="sticky top-0 z-50 flex items-center justify-between px-8 py-3 border-b border-[rgba(0,255,247,0.08)] bg-[#06060f]/95 backdrop-blur">
+        <span className="font-orbitron text-xs text-neon-cyan uppercase tracking-widest">Odak Modu</span>
+        <div className="flex items-center gap-3">
+          <ContentStats content={content} />
+          <button type="button" onClick={() => setFocusMode(false)}
+            className="px-3 py-1.5 border border-[rgba(0,255,247,0.2)] rounded font-mono text-[10px] text-gray-400 hover:text-neon-cyan transition-colors">
+            ✕ Çıkış
+          </button>
+        </div>
+      </div>
+    )}
+
+    <form onSubmit={(e) => { e.preventDefault(); handleSubmit(); }} className={`space-y-8 ${focusMode ? 'max-w-3xl mx-auto px-8 py-10' : ''}`}>
       {error && (
         <div className="border border-red-500/30 bg-red-500/10 rounded px-4 py-3 font-mono text-xs text-red-400">
           {error}
@@ -159,6 +190,23 @@ export function NewsForm({ initial = {}, products = [], action, submitLabel = 'K
       {/* Main info */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         <div className="space-y-4">
+          {/* Source reference (when coming from feed) */}
+          {prefill?.source_url && (
+            <div className="p-3 border border-[rgba(196,154,60,0.2)] rounded bg-[rgba(196,154,60,0.04)]">
+              <p className="font-mono text-[10px] text-[#C49A3C] uppercase tracking-wider mb-1">
+                ◈ Kaynak{prefill.source_name ? ` — ${prefill.source_name}` : ''}
+              </p>
+              <a
+                href={prefill.source_url}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="font-mono text-[10px] text-gray-400 hover:text-neon-cyan transition-colors break-all"
+              >
+                {prefill.source_url}
+              </a>
+            </div>
+          )}
+
           {/* Title */}
           <div>
             <label className={labelClass}>Başlık *</label>
@@ -242,20 +290,8 @@ export function NewsForm({ initial = {}, products = [], action, submitLabel = 'K
 
           {/* Cover Image */}
           <div>
-            <label className={labelClass}>Kapak Görseli URL</label>
-            <input
-              type="url"
-              value={coverImage}
-              onChange={(e) => setCoverImage(e.target.value)}
-              placeholder="https://..."
-              className={inputClass}
-            />
-            {coverImage && (
-              <div className="mt-2 rounded overflow-hidden border border-[rgba(0,255,247,0.1)] aspect-video bg-[#0c0c16]">
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img src={coverImage} alt="kapak önizleme" className="w-full h-full object-cover" />
-              </div>
-            )}
+            <label className={labelClass}>Kapak Görseli</label>
+            <ImageUpload value={coverImage} onChange={setCoverImage} />
           </div>
 
           {/* Image Gallery */}
@@ -266,37 +302,7 @@ export function NewsForm({ initial = {}, products = [], action, submitLabel = 'K
                 ({galleryImages.length} görsel)
               </span>
             </label>
-            <p className="font-mono text-[10px] text-gray-700 mb-2">
-              Her satıra bir URL — haber sayfasında galeri olarak gösterilir
-            </p>
-            <textarea
-              value={imagesRaw}
-              onChange={(e) => setImagesRaw(e.target.value)}
-              rows={4}
-              placeholder={`https://example.com/image1.jpg\nhttps://example.com/image2.jpg`}
-              className={`${inputClass} resize-none font-mono text-xs`}
-            />
-            {galleryImages.length > 0 && (
-              <div className="mt-3 grid grid-cols-4 gap-2">
-                {galleryImages.map((url, i) => (
-                  <div key={i} className="relative aspect-video bg-[#0c0c16] rounded overflow-hidden border border-[rgba(0,255,247,0.08)]">
-                    {/* eslint-disable-next-line @next/next/no-img-element */}
-                    <img
-                      src={url}
-                      alt={`Galeri ${i + 1}`}
-                      className="w-full h-full object-cover"
-                      onError={(e) => {
-                        e.currentTarget.style.display = 'none';
-                        e.currentTarget.parentElement!.style.borderColor = 'rgba(255,0,110,0.4)';
-                      }}
-                    />
-                    <span className="absolute bottom-1 right-1 font-mono text-[9px] text-gray-600 bg-black/60 px-1 rounded">
-                      {i + 1}
-                    </span>
-                  </div>
-                ))}
-              </div>
-            )}
+            <ImageUpload multiple value={galleryImages} onChange={setGalleryImages} />
           </div>
         </div>
 
@@ -318,9 +324,15 @@ export function NewsForm({ initial = {}, products = [], action, submitLabel = 'K
             <label className={labelClass}>Durum</label>
             <select value={status} onChange={(e) => setStatus(e.target.value)} className={inputClass}>
               <option value="draft">Taslak</option>
+              <option value="scheduled">Zamanlanmış</option>
               <option value="published">Yayında</option>
               <option value="archived">Arşiv</option>
             </select>
+            {status === 'scheduled' && (
+              <p className="mt-1 font-mono text-[10px] text-neon-purple">
+                ◈ "Yayın Tarihi" doluysa o tarihte otomatik yayınlanır
+              </p>
+            )}
           </div>
 
           {/* Published At */}
@@ -387,16 +399,30 @@ export function NewsForm({ initial = {}, products = [], action, submitLabel = 'K
 
       {/* Content with preview toggle */}
       <div>
-        <div className="flex items-center justify-between mb-1.5 flex-wrap gap-2">
+        <div className="flex items-center justify-between mb-2 flex-wrap gap-2">
           <label className={labelClass} style={{ marginBottom: 0 }}>İçerik * (Markdown)</label>
-          <button
-            type="button"
-            onClick={() => setShowPreview((p) => !p)}
-            className="font-mono text-[10px] text-neon-cyan hover:text-neon-purple transition-colors uppercase tracking-wider"
-          >
-            {showPreview ? '📝 Düzenle' : '👁 Önizleme'}
-          </button>
+          <div className="flex items-center gap-2">
+            <button
+              type="button"
+              onClick={() => setFocusMode(true)}
+              title="Odak modunda yaz"
+              className="px-2.5 py-1 border border-[rgba(183,36,255,0.25)] rounded font-mono text-[10px] text-neon-purple hover:bg-neon-purple/10 transition-colors uppercase tracking-wider"
+            >
+              ⊞ Odak Modu
+            </button>
+            <button
+              type="button"
+              onClick={() => setShowPreview((p) => !p)}
+              className="font-mono text-[10px] text-neon-cyan hover:text-neon-purple transition-colors uppercase tracking-wider"
+            >
+              {showPreview ? '✎ Düzenle' : '◉ Önizleme'}
+            </button>
+          </div>
         </div>
+
+        {/* Content stats bar */}
+        {!showPreview && <div className="mb-2"><ContentStats content={content} /></div>}
+
 
         {/* Comparison templates — shown only when karsilastirma category is selected */}
         {isComparison && !showPreview && (
@@ -438,6 +464,27 @@ export function NewsForm({ initial = {}, products = [], action, submitLabel = 'K
       {/* SEO */}
       <div className="border border-[rgba(183,36,255,0.15)] rounded p-4 space-y-4">
         <h3 className="font-orbitron text-xs text-neon-purple uppercase tracking-wider">SEO</h3>
+
+        {/* Focus keyword */}
+        <div>
+          <label className={labelClass}>
+            Odak Anahtar Kelime
+            <span className="ml-2 text-gray-700 normal-case tracking-normal font-sans">
+              — başlık, meta ve içerikte bu kelimeye göre analiz yapılır
+            </span>
+          </label>
+          <div className="relative">
+            <input
+              type="text"
+              value={focusKeyword}
+              onChange={(e) => setFocusKeyword(e.target.value)}
+              placeholder="örn: elektrikli otomobil, iPhone 16 Pro, karşılaştırma"
+              className={`${inputClass} pl-8`}
+            />
+            <span className="absolute left-3 top-1/2 -translate-y-1/2 font-mono text-[11px] text-neon-purple opacity-50">◈</span>
+          </div>
+        </div>
+
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
           <div>
             <label className={labelClass}>
@@ -502,8 +549,71 @@ export function NewsForm({ initial = {}, products = [], action, submitLabel = 'K
         </div>
       </div>
 
+      {/* SEO Analyzer */}
+      <SeoAnalyzer {...seoProps} />
+
+      {/* Twitter / OG Social Preview */}
+      <div className="border border-[rgba(0,255,247,0.08)] rounded-xl p-4 space-y-3">
+        <h3 className="font-mono text-[10px] text-gray-600 uppercase tracking-widest">Sosyal Medya Önizleme</h3>
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+          {/* Twitter Card */}
+          <div>
+            <p className="font-mono text-[10px] text-gray-700 uppercase tracking-wider mb-2">Twitter / X Kartı</p>
+            <div className="rounded-xl overflow-hidden border border-[rgba(255,255,255,0.08)] bg-[#15202b]">
+              {coverImage ? (
+                <div className="aspect-[2/1] bg-gray-900 overflow-hidden">
+                  <img src={coverImage} alt="" className="w-full h-full object-cover opacity-90" />
+                </div>
+              ) : (
+                <div className="aspect-[2/1] bg-[#1e2732] flex items-center justify-center">
+                  <span className="font-mono text-[10px] text-gray-700">Kapak görseli yok</span>
+                </div>
+              )}
+              <div className="px-3 py-2.5">
+                <p className="font-sans text-[11px] text-gray-500 mb-0.5">compario.tech</p>
+                <p className="font-sans text-xs text-gray-200 font-medium leading-snug line-clamp-2">
+                  {metaTitle || title || 'Haber başlığı'}
+                </p>
+                <p className="font-sans text-[11px] text-gray-500 mt-0.5 line-clamp-1">
+                  {metaDesc || excerpt || 'Meta açıklama'}
+                </p>
+              </div>
+            </div>
+          </div>
+          {/* Facebook / WhatsApp OG */}
+          <div>
+            <p className="font-mono text-[10px] text-gray-700 uppercase tracking-wider mb-2">Facebook / WhatsApp</p>
+            <div className="rounded border border-[rgba(255,255,255,0.08)] bg-[#1c1e21] overflow-hidden">
+              {coverImage ? (
+                <div className="aspect-[1.91/1] bg-gray-900 overflow-hidden">
+                  <img src={coverImage} alt="" className="w-full h-full object-cover opacity-90" />
+                </div>
+              ) : (
+                <div className="aspect-[1.91/1] bg-[#2d2f33] flex items-center justify-center">
+                  <span className="font-mono text-[10px] text-gray-700">Kapak görseli yok</span>
+                </div>
+              )}
+              <div className="px-3 py-2 border-t border-white/5">
+                <p className="font-sans text-[10px] text-gray-600 uppercase mb-0.5">compario.tech</p>
+                <p className="font-sans text-xs text-gray-200 font-medium leading-snug line-clamp-2">
+                  {metaTitle || title || 'Haber başlığı'}
+                </p>
+                <p className="font-sans text-[11px] text-gray-500 mt-0.5 line-clamp-1">
+                  {metaDesc || excerpt || 'Meta açıklama'}
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+        {!coverImage && (
+          <p className="font-mono text-[10px] text-red-400/70">
+            ◈ Kapak görseli olmadan sosyal medya kartları görünmez — büyük etkileşim kaybı
+          </p>
+        )}
+      </div>
+
       {/* Actions */}
-      <div className="flex items-center gap-3 pt-2">
+      <div className="flex items-center gap-3 pt-2 flex-wrap">
         <button
           type="submit"
           disabled={isPending}
@@ -514,10 +624,18 @@ export function NewsForm({ initial = {}, products = [], action, submitLabel = 'K
         <button
           type="button"
           disabled={isPending}
-          onClick={() => handleSubmit(true)}
+          onClick={() => setShowChecklist(true)}
           className="btn-neon-purple disabled:opacity-50 disabled:cursor-not-allowed"
         >
-          {isPending ? '...' : 'Kaydet & Yayınla'}
+          {isPending ? '...' : '◈ Yayın Kontrolü'}
+        </button>
+        <button
+          type="button"
+          disabled={isPending}
+          onClick={() => handleSubmit(true)}
+          className="px-4 py-2 border border-[rgba(0,255,247,0.2)] rounded font-mono text-xs text-gray-400 hover:text-neon-cyan transition-colors disabled:opacity-50"
+        >
+          {isPending ? '...' : 'Hızlı Yayınla'}
         </button>
         <button
           type="button"
@@ -528,5 +646,7 @@ export function NewsForm({ initial = {}, products = [], action, submitLabel = 'K
         </button>
       </div>
     </form>
+    </div>
+    </>
   );
 }

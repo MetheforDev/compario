@@ -36,6 +36,7 @@ export interface NewsFilters {
   limit?: number;
   offset?: number;
   search?: string;
+  sortBy?: 'newest' | 'most-viewed';
 }
 
 export async function getNewsArticlesAdmin(filters: NewsFilters & { status?: string } = {}): Promise<{ data: NewsArticle[]; total: number }> {
@@ -107,13 +108,29 @@ export async function getNewsArticles(filters: NewsFilters = {}): Promise<{ data
   const limit = filters.limit ?? 10;
   const offset = filters.offset ?? 0;
 
-  query = query
-    .order('published_at', { ascending: false, nullsFirst: false })
-    .range(offset, offset + limit - 1);
+  if (filters.sortBy === 'most-viewed') {
+    query = query.order('view_count', { ascending: false });
+  } else {
+    query = query.order('published_at', { ascending: false, nullsFirst: false });
+  }
+
+  query = query.range(offset, offset + limit - 1);
 
   const { data, error, count } = await query;
   if (error) throw new Error(`Failed to fetch news: ${error.message}`);
   return { data: (data ?? []) as unknown as NewsArticle[], total: count ?? 0 };
+}
+
+export async function getNewsForProduct(productId: string, limit = 4): Promise<NewsArticle[]> {
+  const { data, error } = await supabase
+    .from('news_articles')
+    .select('*')
+    .eq('status', 'published')
+    .contains('related_product_ids', [productId])
+    .order('published_at', { ascending: false })
+    .limit(limit);
+  if (error) throw new Error(`Failed to fetch news for product: ${error.message}`);
+  return (data ?? []) as unknown as NewsArticle[];
 }
 
 export async function getNewsArticleBySlug(slug: string): Promise<NewsArticle | null> {
@@ -208,6 +225,30 @@ export async function getDailyComparison(): Promise<NewsArticle | null> {
 
   if (error) throw new Error(`Failed to fetch daily comparison: ${error.message}`);
   return data as unknown as NewsArticle | null;
+}
+
+export async function getTopNewsByViews(limit = 10): Promise<NewsArticle[]> {
+  const admin = createAdminClient();
+  const { data, error } = await admin
+    .from('news_articles')
+    .select('*')
+    .order('view_count', { ascending: false })
+    .limit(limit);
+  if (error) throw new Error(`Failed to fetch top news: ${error.message}`);
+  return (data ?? []) as unknown as NewsArticle[];
+}
+
+export async function publishScheduledArticles(): Promise<number> {
+  const admin = createAdminClient();
+  const now = new Date().toISOString();
+  const { data, error } = await admin
+    .from('news_articles')
+    .update({ status: 'published' })
+    .eq('status', 'scheduled')
+    .lte('published_at', now)
+    .select('id');
+  if (error) throw new Error(`Failed to publish scheduled: ${error.message}`);
+  return (data ?? []).length;
 }
 
 export async function getRelatedNews(tags: string[], excludeId: string, limit: number = 3): Promise<NewsArticle[]> {

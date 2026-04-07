@@ -267,6 +267,10 @@ export interface Database {
         Args: { article_uuid: string }
         Returns: undefined
       }
+      increment_compare_count: {
+        Args: { product_uuid: string }
+        Returns: undefined
+      }
     }
     Enums: {
       [_ in never]: never

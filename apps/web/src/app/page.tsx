@@ -1,9 +1,12 @@
 import Link from 'next/link';
-import { getCategories, getFeaturedNews, getDailyComparison } from '@compario/database';
-import type { Category, NewsArticle } from '@compario/database';
+import { getCategories, getFeaturedNews, getDailyComparison, getTrendingProducts } from '@compario/database';
+import type { Category, NewsArticle, Product } from '@compario/database';
 import { NewsCard } from '@/components/NewsCard';
+import { ProductCard } from '@/components/ProductCard';
 import { Header } from '@/components/Header';
 import { CompareBar } from '@/components/CompareBar';
+import { CompareHistory } from '@/components/CompareHistory';
+import { Footer } from '@/components/Footer';
 
 function CategoryIcon({ icon }: { icon: string | null }) {
   return (
@@ -166,6 +169,92 @@ async function DailyComparisonSection() {
   );
 }
 
+async function TrendingSection() {
+  let products: Product[] = [];
+  try {
+    products = await getTrendingProducts(6);
+  } catch {
+    // Database not reachable
+  }
+
+  if (products.length === 0) return null;
+
+  return (
+    <section className="max-w-7xl mx-auto px-4 sm:px-6 py-16">
+      <div className="flex items-center gap-4 mb-10">
+        <div className="h-px flex-1 bg-gradient-to-r from-transparent to-[rgba(196,154,60,0.15)]" />
+        <div className="flex items-center gap-2">
+          <span className="font-orbitron text-xs uppercase tracking-[0.3em] text-[#C49A3C] opacity-80">
+            ⬡ Trend Karşılaştırmalar
+          </span>
+        </div>
+        <div className="h-px flex-1 bg-gradient-to-l from-transparent to-[rgba(196,154,60,0.15)]" />
+      </div>
+
+      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-4">
+        {products.map((product) => (
+          <TrendingProductCard key={product.id} product={product} />
+        ))}
+      </div>
+
+      <div className="mt-8 text-center">
+        <Link href="/products" className="btn-neon">
+          Tüm Ürünlere Bak →
+        </Link>
+      </div>
+    </section>
+  );
+}
+
+function TrendingProductCard({ product }: { product: Product }) {
+  return (
+    <Link
+      href={`/products/${product.slug}`}
+      className="group flex flex-col gap-2 rounded-xl overflow-hidden border transition-all duration-300"
+      style={{
+        background: 'linear-gradient(135deg, #0f0f1a 0%, #12121f 100%)',
+        border: '1px solid rgba(196,154,60,0.08)',
+      }}
+    >
+      {/* Image */}
+      <div className="aspect-video w-full overflow-hidden bg-[#0c0c16] flex items-center justify-center">
+        {product.image_url ? (
+          // eslint-disable-next-line @next/next/no-img-element
+          <img
+            src={product.image_url}
+            alt={product.name}
+            className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+          />
+        ) : (
+          <span className="font-mono text-3xl opacity-10">◈</span>
+        )}
+      </div>
+
+      {/* Info */}
+      <div className="p-3 flex flex-col gap-1">
+        {product.brand && (
+          <p className="font-mono text-[8px] uppercase tracking-[0.3em] text-gray-600">
+            {product.brand}
+          </p>
+        )}
+        <h3 className="font-orbitron text-[10px] font-bold text-gray-300 leading-snug line-clamp-2 group-hover:text-neon-cyan transition-colors">
+          {product.name}
+        </h3>
+        {product.price_min && (
+          <p className="font-orbitron text-xs font-black" style={{ color: '#C49A3C' }}>
+            ₺{product.price_min.toLocaleString('tr-TR')}
+          </p>
+        )}
+        {product.compare_count > 0 && (
+          <p className="font-mono text-[8px] text-gray-700 uppercase tracking-wider">
+            {product.compare_count}× karşılaştırıldı
+          </p>
+        )}
+      </div>
+    </Link>
+  );
+}
+
 async function NewsSection() {
   let news: NewsArticle[] = [];
   try {
@@ -259,17 +348,23 @@ export default function HomePage() {
       {/* Divider */}
       <div className="border-t border-[rgba(196,154,60,0.08)] mx-4 sm:mx-6" />
 
+      {/* Trending */}
+      <TrendingSection />
+
+      {/* Divider */}
+      <div className="border-t border-[rgba(196,154,60,0.08)] mx-4 sm:mx-6" />
+
       {/* Featured News */}
       <NewsSection />
 
-      <CompareBar />
+      {/* Divider */}
+      <div className="border-t border-[rgba(196,154,60,0.08)] mx-4 sm:mx-6" />
 
-      {/* Footer */}
-      <footer className="border-t border-[rgba(196,154,60,0.06)] mt-10 py-8 text-center px-4">
-        <p className="font-mono text-xs text-gray-700 uppercase tracking-widest">
-          © 2026 Compario — Tüm Hakları Saklıdır
-        </p>
-      </footer>
+      {/* Compare History — client, shows only if user has history */}
+      <CompareHistory />
+
+      <CompareBar />
+      <Footer />
     </main>
   );
 }

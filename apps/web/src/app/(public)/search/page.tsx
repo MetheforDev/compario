@@ -3,7 +3,6 @@ import Link from 'next/link';
 import { getProducts, getNewsArticles } from '@compario/database';
 import type { Product, NewsArticle } from '@compario/database';
 import { NewsCard } from '@/components/NewsCard';
-import { Header } from '@/components/Header';
 import { SearchInput } from '@/components/SearchInput';
 
 interface PageProps {
@@ -83,8 +82,6 @@ export default async function SearchPage({ searchParams }: PageProps) {
 
   return (
     <main className="min-h-screen bg-grid">
-      <Header />
-
       <div className="max-w-3xl mx-auto px-4 sm:px-6 pt-32 pb-20">
         {/* Page header */}
         <div className="mb-10">

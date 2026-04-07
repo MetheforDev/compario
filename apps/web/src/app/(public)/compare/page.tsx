@@ -1,13 +1,33 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
 import { redirect } from 'next/navigation';
-import { getProductsByIds } from '@compario/database';
+import { getProductsByIds, incrementCompareCount } from '@compario/database';
 import type { Product, Json } from '@compario/database';
-
-export const metadata: Metadata = { title: 'Ürün Karşılaştırma' };
+import { ShareButtons } from '@/components/ShareButtons';
+import { CompareHistorySaver } from '@/components/CompareHistorySaver';
 
 interface PageProps {
   searchParams: { ids?: string };
+}
+
+export async function generateMetadata({ searchParams }: PageProps): Promise<Metadata> {
+  const ids = (searchParams.ids ?? '').split(',').filter(Boolean).slice(0, 4);
+  if (ids.length < 2) return { title: 'Ürün Karşılaştırma' };
+
+  const products = await getProductsByIds(ids).catch(() => []);
+  const names = products.map((p) => p.brand ? `${p.brand} ${p.name}` : p.name);
+  const title = names.length >= 2 ? `${names[0]} vs ${names[1]} Karşılaştırma` : 'Ürün Karşılaştırma';
+  const ogImageUrl = `/api/og/compare?ids=${ids.join(',')}`;
+
+  return {
+    title,
+    description: `${names.join(' — ')} karşılaştırması. Özellikler, fiyatlar ve daha fazlası.`,
+    openGraph: {
+      title,
+      images: [{ url: ogImageUrl, width: 1200, height: 630 }],
+    },
+    twitter: { card: 'summary_large_image', title, images: [ogImageUrl] },
+  };
 }
 
 function getSpecs(product: Product): Record<string, string> {
@@ -42,6 +62,9 @@ export default async function ComparePage({ searchParams }: PageProps) {
   const products = await getProductsByIds(rawIds).catch(() => [] as Product[]);
   if (products.length < 2) redirect('/categories');
 
+  // Fire-and-forget: increment compare_count for each product
+  incrementCompareCount(products.map((p) => p.id)).catch(() => null);
+
   // Collect all spec keys preserving order
   const specKeyOrder: string[] = [];
   const seenKeys = new Set<string>();
@@ -58,8 +81,11 @@ export default async function ComparePage({ searchParams }: PageProps) {
   const prices = products.map((p) => p.price_min);
   const minPrice = Math.min(...prices.filter((p): p is number => p !== null));
 
+  const productNames = products.map((p) => p.brand ? `${p.brand} ${p.name}` : p.name);
+
   return (
     <main className="min-h-screen bg-grid pb-24" style={{ paddingTop: '88px' }}>
+      <CompareHistorySaver ids={products.map((p) => p.id)} names={productNames} />
       <div className="max-w-7xl mx-auto px-4 sm:px-6">
 
         {/* Header */}
@@ -257,16 +283,28 @@ export default async function ComparePage({ searchParams }: PageProps) {
           )}
         </div>
 
-        {/* Actions */}
-        <div className="mt-8 flex flex-wrap gap-3">
-          <Link href="/categories" className="btn-neon-purple">
-            ← Yeni Karşılaştırma
-          </Link>
-          {products.map((p) => (
-            <Link key={p.id} href={`/products/${p.slug}`} className="btn-neon text-xs">
-              {p.brand} {p.name} →
+        {/* Actions + Share */}
+        <div className="mt-8 space-y-4">
+          {/* Share row */}
+          <div className="rounded-xl px-6 py-4"
+            style={{ background: '#0c0c18', border: '1px solid rgba(196,154,60,0.1)' }}>
+            <ShareButtons
+              title={`${products.map((p) => p.brand ? `${p.brand} ${p.name}` : p.name).join(' vs ')} — Compario`}
+              url={`/compare?ids=${rawIds.join(',')}`}
+            />
+          </div>
+
+          {/* Nav buttons */}
+          <div className="flex flex-wrap gap-3">
+            <Link href="/categories" className="btn-neon-purple">
+              ← Yeni Karşılaştırma
             </Link>
-          ))}
+            {products.map((p) => (
+              <Link key={p.id} href={`/products/${p.slug}`} className="btn-neon text-xs">
+                {p.brand} {p.name} →
+              </Link>
+            ))}
+          </div>
         </div>
       </div>
     </main>

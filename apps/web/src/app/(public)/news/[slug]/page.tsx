@@ -4,8 +4,10 @@ import { notFound } from 'next/navigation';
 import {
   getNewsArticleBySlug,
   getRelatedNews,
+  getProductsByIds,
   incrementNewsView,
 } from '@compario/database';
+import type { Product } from '@compario/database';
 import { NewsCard } from '@/components/NewsCard';
 import { ShareButtons } from '@/components/ShareButtons';
 import { MarkdownContent } from '@/components/MarkdownContent';
@@ -36,15 +38,24 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   try {
     const article = await getNewsArticleBySlug(params.slug);
     if (!article) return {};
+    const title = article.meta_title ?? article.title;
+    const description = article.meta_description ?? article.excerpt ?? '';
+    const ogImage = `/api/og/news?slug=${params.slug}`;
     return {
-      title: `${article.meta_title ?? article.title} | Compario`,
-      description: article.meta_description ?? article.excerpt ?? '',
+      title: `${title} | Compario`,
+      description,
       openGraph: {
-        title: article.meta_title ?? article.title,
-        description: article.meta_description ?? article.excerpt ?? '',
-        images: article.cover_image ? [article.cover_image] : [],
+        title,
+        description,
+        images: [{ url: ogImage, width: 1200, height: 630 }],
         type: 'article',
         publishedTime: article.published_at ?? undefined,
+      },
+      twitter: {
+        card: 'summary_large_image',
+        title,
+        description,
+        images: [ogImage],
       },
     };
   } catch {
@@ -52,19 +63,30 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   }
 }
 
+function readingTime(content: string): number {
+  const words = content.trim().split(/\s+/).length;
+  return Math.max(1, Math.round(words / 200));
+}
+
 export default async function NewsDetailPage({ params }: PageProps) {
   let article: import('@compario/database').NewsArticle | null = null;
   let related: import('@compario/database').NewsArticle[] = [];
+  let relatedProducts: Product[] = [];
 
   try {
     article = await getNewsArticleBySlug(params.slug);
     if (article) {
-      // Increment view count (fire & forget)
       incrementNewsView(article.id).catch(() => {});
 
-      if (article.tags?.length) {
-        related = await getRelatedNews(article.tags, article.id, 3);
-      }
+      const articleAny = article as typeof article & { related_product_ids?: string[] | null };
+      const [relNews, relProds] = await Promise.all([
+        article.tags?.length ? getRelatedNews(article.tags, article.id, 3) : Promise.resolve([]),
+        articleAny.related_product_ids?.length
+          ? getProductsByIds(articleAny.related_product_ids)
+          : Promise.resolve([]),
+      ]);
+      related = relNews;
+      relatedProducts = relProds;
     }
   } catch {
     // db not available
@@ -72,6 +94,7 @@ export default async function NewsDetailPage({ params }: PageProps) {
 
   if (!article) notFound();
 
+  const minutes = readingTime(article.content);
   const articleWithCats = article as typeof article & { categories?: string[] | null };
   const allCategories = articleWithCats.categories?.length
     ? articleWithCats.categories
@@ -194,6 +217,10 @@ export default async function NewsDetailPage({ params }: PageProps) {
               <span className="text-gray-700">◆</span>
               {article.view_count} görüntülenme
             </span>
+            <span className="flex items-center gap-1.5">
+              <span className="text-gray-700">◈</span>
+              {minutes} dk okuma
+            </span>
           </div>
 
           {/* Tags */}
@@ -248,6 +275,52 @@ export default async function NewsDetailPage({ params }: PageProps) {
 
         {/* Share */}
         <ShareButtons title={article.title} slug={article.slug} />
+
+        {/* Related Products */}
+        {relatedProducts.length > 0 && (
+          <section className="mt-14">
+            <div className="flex items-center gap-4 mb-6">
+              <div className="h-px flex-1" style={{ background: 'linear-gradient(90deg, rgba(196,154,60,0.2), transparent)' }} />
+              <h2 className="font-orbitron text-[10px] uppercase tracking-[0.4em] whitespace-nowrap" style={{ color: '#C49A3C' }}>
+                İlgili Ürünler
+              </h2>
+              <div className="h-px flex-1" style={{ background: 'linear-gradient(270deg, rgba(196,154,60,0.2), transparent)' }} />
+            </div>
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+              {relatedProducts.map((p) => (
+                <Link
+                  key={p.id}
+                  href={`/products/${p.slug}`}
+                  className="group flex flex-col rounded-xl overflow-hidden border transition-all"
+                  style={{ background: '#0f0f1a', borderColor: 'rgba(196,154,60,0.08)' }}
+                >
+                  <div className="aspect-video w-full bg-[#0c0c16] flex items-center justify-center overflow-hidden">
+                    {p.image_url ? (
+                      // eslint-disable-next-line @next/next/no-img-element
+                      <img src={p.image_url} alt={p.name} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
+                    ) : (
+                      <span className="text-3xl opacity-10">◈</span>
+                    )}
+                  </div>
+                  <div className="px-4 py-4 flex flex-col gap-1.5">
+                    {p.brand && <p className="font-mono text-[9px] uppercase tracking-widest text-gray-600">{p.brand}</p>}
+                    <h3 className="font-orbitron text-xs font-bold text-gray-300 line-clamp-2 group-hover:text-neon-cyan transition-colors">{p.name}</h3>
+                    <div className="flex items-center justify-between mt-1">
+                      {p.price_min && (
+                        <p className="font-orbitron text-sm font-black" style={{ color: '#C49A3C' }}>
+                          ₺{p.price_min.toLocaleString('tr-TR')}
+                        </p>
+                      )}
+                      <span className="font-mono text-[9px] text-neon-cyan opacity-0 group-hover:opacity-100 transition-opacity">
+                        İncele →
+                      </span>
+                    </div>
+                  </div>
+                </Link>
+              ))}
+            </div>
+          </section>
+        )}
 
         {/* Related News */}
         {related.length > 0 && (

@@ -7,6 +7,8 @@ import { useEffect, useState } from 'react';
 const NAV_ITEMS = [
   { href: '/',           label: 'Ana Sayfa',  exact: true  },
   { href: '/categories', label: 'Kategoriler', exact: false },
+  { href: '/products',   label: 'Ürünler',    exact: false },
+  { href: '/trending',   label: 'Trend',      exact: false },
   { href: '/news',       label: 'Haberler',   exact: false },
 ];
 

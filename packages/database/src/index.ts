@@ -39,6 +39,11 @@ export {
   updateProduct,
   deleteProduct,
   incrementViewCount,
+  incrementCompareCount,
+  getTrendingProducts,
+  getTopProductsByViews,
+  getTopProductsByCompares,
+  bulkCreateProducts,
 } from './queries/products';
 
 // Category queries
@@ -75,4 +80,7 @@ export {
   getFeaturedNews,
   getDailyComparison,
   getRelatedNews,
+  getTopNewsByViews,
+  publishScheduledArticles,
+  getNewsForProduct,
 } from './queries/news';

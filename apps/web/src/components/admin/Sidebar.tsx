@@ -6,16 +6,18 @@ import { createClientComponentClient } from '@supabase/auth-helpers-nextjs';
 
 // Items visible to all authenticated users (editors+)
 const EDITOR_ITEMS = [
-  { href: '/admin/dashboard', label: 'Dashboard',   icon: '⬡', exact: true  },
-  { href: '/admin/news',      label: 'Haberler',    icon: '◉', exact: false },
+  { href: '/admin/dashboard',  label: 'Dashboard',   icon: '⬡', exact: true  },
+  { href: '/admin/analytics',  label: 'Analytics',   icon: '◉', exact: false },
+  { href: '/admin/news',       label: 'Haberler',    icon: '▶', exact: false },
+  { href: '/admin/feed',       label: 'Haber Akışı', icon: '◈', exact: false },
 ];
 
 // Items visible only to admin / superadmin
 const ADMIN_ITEMS = [
-  { href: '/admin/products',   label: 'Ürünler',     icon: '◈', exact: false },
-  { href: '/admin/categories', label: 'Kategoriler', icon: '◇', exact: false },
-  { href: '/admin/segments',   label: 'Segmentler',  icon: '◆', exact: false },
-  { href: '/admin/users',      label: 'Kullanıcılar',icon: '◎', exact: false },
+  { href: '/admin/products',   label: 'Ürünler',      icon: '◈', exact: false },
+  { href: '/admin/categories', label: 'Kategoriler',  icon: '◇', exact: false },
+  { href: '/admin/segments',   label: 'Segmentler',   icon: '◆', exact: false },
+  { href: '/admin/users',      label: 'Kullanıcılar', icon: '◎', exact: false },
 ];
 
 interface SidebarProps {

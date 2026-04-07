@@ -54,9 +54,14 @@ export default async function ProductsPage({ searchParams }: PageProps) {
             {products.length} ürün listeleniyor
           </p>
         </div>
-        <Link href="/admin/products/new" className="btn-neon">
-          + Yeni Ürün
-        </Link>
+        <div className="flex gap-3">
+          <Link href="/admin/products/import" className="btn-neon-purple text-sm">
+            CSV Import
+          </Link>
+          <Link href="/admin/products/new" className="btn-neon">
+            + Yeni Ürün
+          </Link>
+        </div>
       </div>
 
       {/* Filters */}
