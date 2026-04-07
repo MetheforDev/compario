@@ -1,6 +1,7 @@
 'use client';
 
 import Link from 'next/link';
+import Image from 'next/image';
 import { usePathname } from 'next/navigation';
 import { useEffect, useState } from 'react';
 
@@ -70,37 +71,46 @@ export function Header() {
             className="group flex flex-col justify-center select-none"
             onClick={() => setMenuOpen(false)}
           >
-            <div className="flex items-center gap-2">
-              <span
-                className="transition-all duration-500"
-                style={{ color: 'rgba(196,154,60,0.5)', fontSize: scrolled ? '8px' : '10px' }}
+            <div className="flex items-center gap-2.5">
+              {/* Logo icon — falls back gracefully if file missing */}
+              <div
+                className="relative flex-shrink-0 transition-all duration-500"
+                style={{ width: scrolled ? 28 : 36, height: scrolled ? 28 : 36 }}
               >
-                ◆
-              </span>
-              <span
-                className="font-orbitron font-black text-neon-cyan transition-all duration-500 tracking-widest"
-                style={{
-                  fontSize: scrolled ? '16px' : '20px',
-                  textShadow: scrolled
-                    ? 'none'
-                    : '0 0 30px rgba(196,154,60,0.3), 0 0 60px rgba(196,154,60,0.1)',
-                }}
-              >
-                COMPARIO
-              </span>
+                <Image
+                  src="/images/logo/logo-icon.png"
+                  alt="Compario"
+                  fill
+                  className="object-contain"
+                  priority
+                  sizes="36px"
+                />
+              </div>
+              <div className="flex flex-col">
+                <span
+                  className="font-orbitron font-black text-neon-cyan transition-all duration-500 tracking-widest leading-none"
+                  style={{
+                    fontSize: scrolled ? '16px' : '20px',
+                    textShadow: scrolled
+                      ? 'none'
+                      : '0 0 30px rgba(196,154,60,0.3), 0 0 60px rgba(196,154,60,0.1)',
+                  }}
+                >
+                  COMPARIO
+                </span>
+                <span
+                  className="font-mono uppercase tracking-[0.35em] text-neon-purple transition-all duration-500 origin-left"
+                  style={{
+                    fontSize: '7px',
+                    opacity: scrolled ? 0 : 0.45,
+                    maxHeight: scrolled ? '0' : '14px',
+                    overflow: 'hidden',
+                  }}
+                >
+                  Karşılaştırma Platformu
+                </span>
+              </div>
             </div>
-            <span
-              className="font-mono uppercase tracking-[0.35em] text-neon-purple transition-all duration-500 origin-left"
-              style={{
-                fontSize: '7px',
-                opacity: scrolled ? 0 : 0.45,
-                maxHeight: scrolled ? '0' : '14px',
-                overflow: 'hidden',
-                paddingLeft: '18px',
-              }}
-            >
-              Karşılaştırma Platformu
-            </span>
           </Link>
 
           {/* Desktop nav */}

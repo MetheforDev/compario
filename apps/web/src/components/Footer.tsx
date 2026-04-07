@@ -1,4 +1,5 @@
 import Link from 'next/link';
+import Image from 'next/image';
 
 const NAV_LINKS = [
   { href: '/categories', label: 'Kategoriler' },
@@ -62,22 +63,30 @@ export function Footer() {
 
           {/* Brand */}
           <div className="sm:col-span-1">
-            <Link href="/" className="inline-flex flex-col gap-1 mb-4">
-              <div className="flex items-center gap-2">
-                <span style={{ color: 'rgba(196,154,60,0.5)', fontSize: '9px' }}>◆</span>
+            <Link href="/" className="inline-flex items-center gap-3 mb-4">
+              <div className="relative flex-shrink-0" style={{ width: 44, height: 44 }}>
+                <Image
+                  src="/images/logo/logo-white.png"
+                  alt="Compario"
+                  fill
+                  className="object-contain"
+                  sizes="44px"
+                />
+              </div>
+              <div className="flex flex-col gap-0.5">
                 <span
-                  className="font-orbitron font-black tracking-widest"
+                  className="font-orbitron font-black tracking-widest leading-none"
                   style={{ fontSize: '18px', color: '#00fff7' }}
                 >
                   COMPARIO
                 </span>
+                <span
+                  className="font-mono uppercase tracking-[0.35em]"
+                  style={{ fontSize: '7px', color: 'rgba(196,154,60,0.35)' }}
+                >
+                  Karşılaştırma Platformu
+                </span>
               </div>
-              <span
-                className="font-mono uppercase tracking-[0.35em] pl-5"
-                style={{ fontSize: '7px', color: 'rgba(196,154,60,0.35)' }}
-              >
-                Karşılaştırma Platformu
-              </span>
             </Link>
             <p className="font-mono text-xs text-gray-600 leading-relaxed max-w-[240px]">
               Araçlar, telefonlar, laptoplar ve daha fazlasını karşılaştır. Veriye dayalı kararlar al.

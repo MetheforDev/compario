@@ -1,6 +1,7 @@
 'use client';
 
 import Link from 'next/link';
+import Image from 'next/image';
 import { usePathname, useRouter } from 'next/navigation';
 import { createClientComponentClient } from '@supabase/auth-helpers-nextjs';
 
@@ -45,8 +46,19 @@ export function Sidebar({ role = 'superadmin' }: SidebarProps) {
     <aside className="w-56 flex-shrink-0 min-h-screen bg-[#0c0c16] border-r border-[rgba(196,154,60,0.06)] flex flex-col">
       {/* Logo */}
       <div className="px-5 py-5 border-b border-[rgba(196,154,60,0.06)]">
-        <Link href="/" className="font-orbitron text-base font-black text-neon-cyan hover:text-glow-cyan transition-all">
-          COMPARIO
+        <Link href="/" className="flex items-center gap-2.5 mb-0.5">
+          <div className="relative flex-shrink-0" style={{ width: 28, height: 28 }}>
+            <Image
+              src="/images/logo/logo-icon.png"
+              alt="Compario"
+              fill
+              className="object-contain"
+              sizes="28px"
+            />
+          </div>
+          <span className="font-orbitron text-base font-black text-neon-cyan hover:text-glow-cyan transition-all">
+            COMPARIO
+          </span>
         </Link>
         <p className="font-mono text-[9px] text-neon-purple uppercase tracking-[0.3em] mt-0.5 opacity-50">
           Admin Panel
