@@ -8,13 +8,14 @@ interface AICompareButtonProps {
   productNames: string[];
 }
 
-type Status = 'idle' | 'loading' | 'done' | 'error';
+type Status = 'idle' | 'loading' | 'done' | 'error' | 'rate-limited';
 
 export function AICompareButton({ productIds, productNames }: AICompareButtonProps) {
   const [status, setStatus] = useState<Status>('idle');
   const [analysis, setAnalysis] = useState('');
   const [error, setError] = useState('');
   const [open, setOpen] = useState(false);
+  const [retryAfter, setRetryAfter] = useState(0);
 
   // Close on Escape
   useEffect(() => {
@@ -30,8 +31,21 @@ export function AICompareButton({ productIds, productNames }: AICompareButtonPro
     return () => { document.body.style.overflow = ''; };
   }, [open]);
 
+  // Countdown for rate limit
+  useEffect(() => {
+    if (status !== 'rate-limited' || retryAfter <= 0) return;
+    const id = setInterval(() => {
+      setRetryAfter((s) => {
+        if (s <= 1) { clearInterval(id); setStatus('idle'); return 0; }
+        return s - 1;
+      });
+    }, 1000);
+    return () => clearInterval(id);
+  }, [status, retryAfter]);
+
   const handleClick = async () => {
     if (status === 'done') { setOpen(true); return; }
+    if (status === 'rate-limited') { setOpen(true); return; }
 
     setStatus('loading');
     setOpen(true);
@@ -45,6 +59,12 @@ export function AICompareButton({ productIds, productNames }: AICompareButtonPro
       });
 
       const data = await res.json();
+
+      if (res.status === 429) {
+        setRetryAfter(data.retryAfter ?? 3600);
+        setStatus('rate-limited');
+        return;
+      }
 
       if (!res.ok) {
         throw new Error(data.error ?? 'AI analizi başarısız');
@@ -69,7 +89,7 @@ export function AICompareButton({ productIds, productNames }: AICompareButtonPro
       {/* Trigger button */}
       <button
         onClick={handleClick}
-        disabled={status === 'loading'}
+        disabled={status === 'loading' || status === 'rate-limited'}
         className="flex items-center gap-2.5 px-5 py-2.5 rounded-xl font-mono text-xs uppercase tracking-wider transition-all duration-200 disabled:opacity-60 disabled:cursor-not-allowed"
         style={{
           background: 'linear-gradient(135deg, rgba(183,36,255,0.12) 0%, rgba(0,255,247,0.06) 100%)',
@@ -92,6 +112,11 @@ export function AICompareButton({ productIds, productNames }: AICompareButtonPro
           <>
             <span className="inline-block w-3.5 h-3.5 border-2 border-neon-purple/30 border-t-neon-purple rounded-full animate-spin" />
             <span>Analiz yapılıyor...</span>
+          </>
+        ) : status === 'rate-limited' ? (
+          <>
+            <span className="text-base leading-none">⏳</span>
+            <span>Limit doldu — {Math.floor(retryAfter / 60)}:{String(retryAfter % 60).padStart(2, '0')}</span>
           </>
         ) : (
           <>
@@ -178,6 +203,18 @@ export function AICompareButton({ productIds, productNames }: AICompareButtonPro
                         {step}
                       </span>
                     ))}
+                  </div>
+                </div>
+              )}
+
+              {status === 'rate-limited' && (
+                <div className="py-12 flex flex-col items-center gap-4 text-center">
+                  <span className="text-3xl">⏳</span>
+                  <div>
+                    <p className="font-mono text-sm text-amber-400">Saatte 5 istek hakkınız var.</p>
+                    <p className="font-mono text-[11px] text-gray-600 mt-1">
+                      {Math.floor(retryAfter / 60)}:{String(retryAfter % 60).padStart(2, '0')} sonra tekrar deneyin
+                    </p>
                   </div>
                 </div>
               )}

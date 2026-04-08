@@ -10,6 +10,28 @@ const client = new Anthropic({
   apiKey: process.env.ANTHROPIC_API_KEY,
 });
 
+// In-memory rate limiter: 5 requests/hour/IP
+const rateLimitMap = new Map<string, { count: number; resetAt: number }>();
+const RATE_LIMIT = 5;
+const RATE_WINDOW_MS = 60 * 60 * 1000; // 1 hour
+
+function checkRateLimit(ip: string): { allowed: boolean; retryAfter?: number } {
+  const now = Date.now();
+  const entry = rateLimitMap.get(ip);
+
+  if (!entry || now >= entry.resetAt) {
+    rateLimitMap.set(ip, { count: 1, resetAt: now + RATE_WINDOW_MS });
+    return { allowed: true };
+  }
+
+  if (entry.count >= RATE_LIMIT) {
+    return { allowed: false, retryAfter: Math.ceil((entry.resetAt - now) / 1000) };
+  }
+
+  entry.count += 1;
+  return { allowed: true };
+}
+
 function getSpecs(product: Product): Record<string, string> {
   if (!product.specs || typeof product.specs !== 'object' || Array.isArray(product.specs)) return {};
   return Object.fromEntries(
@@ -40,38 +62,31 @@ function buildProductBlock(product: Product): string {
 
 function buildPrompt(products: Product[]): string {
   const productBlocks = products.map(buildProductBlock).join('\n\n');
-  const names = products.map((p) => p.brand ? `${p.brand} ${p.name}` : p.name);
-  const count = products.length;
 
-  return `Sen Compario.tech'in AI karşılaştırma asistanısın. Türk kullanıcılara ürün seçiminde yardım ediyorsun.
-
-Aşağıdaki ${count} ürünü karşılaştır ve kullanıcıya net, pratik bir öneri sun.
-
-## Karşılaştırılan Ürünler
+  return `Sen bir ürün karşılaştırma uzmanısın. Şu ürünleri karşılaştır:
 
 ${productBlocks}
 
-## Görevin
+Kullanıcıya kısa (200 kelime), tarafsız öneri ver. Hangisini almalı ve neden?
 
-Bu ${count} ürünü aşağıdaki çerçevede analiz et:
-
-1. **Güçlü & Zayıf Yönler** — Her ürün için 2-3 madde
-2. **Fiyat/Performans** — Ödenen paranın karşılığı
-3. **Kime Göre Hangisi?** — Farklı kullanıcı profilleri için öneri
-4. **Net Karar** — Hangi ürünü önerirsin ve neden?
-
-### Kurallar
-- Türkçe yaz, sade ve doğrudan ol
-- Markdown formatı kullan (## başlıklar, **bold**, madde işaretleri)
-- Teknik jargon kullanma — herkesin anlayacağı dil
-- 350-500 kelime arası
-- Sonunda "**Sonuç:**" ile tek cümlelik net karar ver
-
-Karşılaştırılan ürünler: ${names.join(' vs ')}`;
+Kurallar:
+- Türkçe yaz
+- Markdown kullan (## başlık, **bold**, madde işaretleri)
+- Sonunda "**Sonuç:**" ile tek cümlelik net karar ver`;
 }
 
 export async function POST(request: Request) {
   try {
+    // Rate limiting
+    const ip = request.headers.get('x-forwarded-for')?.split(',')[0]?.trim() ?? 'unknown';
+    const rateCheck = checkRateLimit(ip);
+    if (!rateCheck.allowed) {
+      return NextResponse.json(
+        { error: 'Saatte 5 istek hakkınız var. Lütfen daha sonra deneyin.', retryAfter: rateCheck.retryAfter },
+        { status: 429 },
+      );
+    }
+
     const body = await request.json() as { productIds?: string[] };
     const { productIds } = body;
 
@@ -99,7 +114,7 @@ export async function POST(request: Request) {
 
     const message = await client.messages.create({
       model: 'claude-sonnet-4-6',
-      max_tokens: 1024,
+      max_tokens: 400,
       messages: [{ role: 'user', content: prompt }],
     });
 
