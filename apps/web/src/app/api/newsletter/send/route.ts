@@ -6,8 +6,6 @@ import { getNewsletterSubscribers } from '@compario/database';
 export const runtime = 'nodejs';
 export const maxDuration = 60;
 
-const resend = new Resend(process.env.RESEND_API_KEY);
-
 function isAdminAuthed(): boolean {
   return cookies().get('admin_authed')?.value === 'true';
 }
@@ -33,6 +31,7 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: 'Aktif abone yok.' }, { status: 400 });
     }
 
+    const resend = new Resend(process.env.RESEND_API_KEY);
     const from = process.env.RESEND_FROM_EMAIL ?? 'Compario <noreply@compario.tech>';
     const emails = subscribers.map((s) => s.email);
 

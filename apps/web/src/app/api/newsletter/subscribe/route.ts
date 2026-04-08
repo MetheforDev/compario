@@ -6,8 +6,6 @@ import type { NewsArticlePreview } from '@/lib/email-templates';
 
 export const runtime = 'nodejs';
 
-const resend = new Resend(process.env.RESEND_API_KEY);
-
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
 export async function POST(request: Request) {
@@ -40,6 +38,7 @@ export async function POST(request: Request) {
 
     // Send welcome email
     if (process.env.RESEND_API_KEY) {
+      const resend = new Resend(process.env.RESEND_API_KEY);
       const from = process.env.RESEND_FROM_EMAIL ?? 'Compario <noreply@compario.tech>';
       await resend.emails.send({
         from,

@@ -6,8 +6,6 @@ import { Resend } from 'resend';
 // Vercel Cron: günlük sabah 08:00 UTC
 // vercel.json: { "path": "/api/cron/price-check", "schedule": "0 8 * * *" }
 
-const resend = new Resend(process.env.RESEND_API_KEY);
-
 export async function GET(request: Request) {
   const authHeader = request.headers.get('authorization');
   const cronSecret = process.env.CRON_SECRET;
@@ -37,6 +35,7 @@ export async function GET(request: Request) {
 
       // Price has dropped to or below target — send email
       try {
+        const resend = new Resend(process.env.RESEND_API_KEY);
         await resend.emails.send({
           from: 'Compario <bildirim@compario.tech>',
           to: alert.email,
