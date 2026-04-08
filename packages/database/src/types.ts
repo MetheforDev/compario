@@ -258,6 +258,45 @@ export interface Database {
     Views: {
       [_ in never]: never
     }
+      reviews: {
+        Row: {
+          id: string
+          product_id: string
+          user_id: string | null
+          reviewer_name: string | null
+          reviewer_email: string | null
+          rating: number
+          comment: string
+          helpful_count: number
+          status: string
+          created_at: string
+        }
+        Insert: {
+          id?: string
+          product_id: string
+          user_id?: string | null
+          reviewer_name?: string | null
+          reviewer_email?: string | null
+          rating: number
+          comment: string
+          helpful_count?: number
+          status?: string
+          created_at?: string
+        }
+        Update: {
+          id?: string
+          product_id?: string
+          user_id?: string | null
+          reviewer_name?: string | null
+          reviewer_email?: string | null
+          rating?: number
+          comment?: string
+          helpful_count?: number
+          status?: string
+          created_at?: string
+        }
+      }
+    }
     Functions: {
       increment_product_view: {
         Args: { product_uuid: string }
@@ -329,6 +368,12 @@ export interface PaginationParams {
   limit?: number
   offset?: number
 }
+
+export type Review = Tables<'reviews'>
+export type ReviewInsert = Inserts<'reviews'>
+export type ReviewUpdate = Updates<'reviews'>
+
+export type ReviewStatus = 'pending' | 'approved' | 'rejected'
 
 export type SortBy = 'newest' | 'price_asc' | 'price_desc' | 'name_asc'
 

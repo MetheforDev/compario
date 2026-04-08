@@ -66,6 +66,19 @@ export {
   deleteSegment,
 } from './queries/segments';
 
+// Review queries
+export type { RatingSummary } from './queries/reviews';
+export type { Review, ReviewInsert, ReviewUpdate, ReviewStatus } from './types';
+export {
+  getApprovedReviews,
+  getRatingSummary,
+  createReview,
+  incrementHelpful,
+  getReviewsAdmin,
+  updateReviewStatus,
+  deleteReview,
+} from './queries/reviews';
+
 // News queries
 export type { NewsArticle, NewsArticleInput, NewsFilters } from './queries/news';
 export {

@@ -1,10 +1,11 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
-import { getProductBySlug, getProducts, getNewsForProduct, incrementViewCount } from '@compario/database';
+import { getProductBySlug, getProducts, getNewsForProduct, incrementViewCount, getApprovedReviews, getRatingSummary } from '@compario/database';
 import type { Json, Product, NewsArticle } from '@compario/database';
 import { ShareButtons } from '@/components/ShareButtons';
 import { AddToCompareButton } from '@/components/AddToCompareButton';
+import { ProductReviews } from '@/components/ProductReviews';
 
 interface PageProps {
   params: { slug: string };
@@ -120,7 +121,11 @@ export default async function ProductPage({ params }: PageProps) {
 
   incrementViewCount(product.id).catch(() => null);
 
-  const relatedNews = await getNewsForProduct(product.id).catch(() => [] as NewsArticle[]);
+  const [relatedNews, reviews, ratingSummary] = await Promise.all([
+    getNewsForProduct(product.id).catch(() => [] as NewsArticle[]),
+    getApprovedReviews(product.id).catch(() => []),
+    getRatingSummary(product.id).catch(() => ({ average: 0, count: 0, distribution: { 1: 0, 2: 0, 3: 0, 4: 0, 5: 0 } })),
+  ]);
 
   const productPath = `/products/${product.slug}`;
   const shareTitle = `${product.brand ? `${product.brand} ` : ''}${product.name} — Compario`;
@@ -142,6 +147,27 @@ export default async function ProductPage({ params }: PageProps) {
         highPrice: product.price_max ?? product.price_min,
         offerCount: 1,
       },
+    } : {}),
+    ...(ratingSummary.count > 0 ? {
+      aggregateRating: {
+        '@type': 'AggregateRating',
+        ratingValue: ratingSummary.average,
+        reviewCount: ratingSummary.count,
+        bestRating: 5,
+        worstRating: 1,
+      },
+      review: reviews.slice(0, 5).map((r) => ({
+        '@type': 'Review',
+        author: { '@type': 'Person', name: r.reviewer_name ?? 'Anonim' },
+        reviewRating: {
+          '@type': 'Rating',
+          ratingValue: r.rating,
+          bestRating: 5,
+          worstRating: 1,
+        },
+        reviewBody: r.comment,
+        datePublished: r.created_at.split('T')[0],
+      })),
     } : {}),
   };
 
@@ -288,6 +314,14 @@ export default async function ProductPage({ params }: PageProps) {
             </div>
           </section>
         )}
+
+        <div className="mb-10">
+          <ProductReviews
+            productId={product.id}
+            initialReviews={reviews}
+            initialSummary={ratingSummary}
+          />
+        </div>
 
         <RelatedProducts categoryId={product.category_id} currentId={product.id} />
       </div>
