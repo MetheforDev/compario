@@ -2,6 +2,9 @@ import type { Metadata, Viewport } from 'next';
 import { Orbitron, JetBrains_Mono } from 'next/font/google';
 import './globals.css';
 import { CompareProvider } from '@/lib/compare-store';
+import { Analytics } from '@vercel/analytics/react';
+import { GoogleAnalytics } from '@/components/GoogleAnalytics';
+import { CookieConsent } from '@/components/CookieConsent';
 
 const orbitron = Orbitron({
   subsets: ['latin'],
@@ -86,7 +89,12 @@ export default function RootLayout({
       <body className="bg-[#08090E] text-[#EDE8DF] font-mono antialiased">
         <CompareProvider>
           {children}
+          <CookieConsent />
         </CompareProvider>
+        <Analytics />
+        {process.env.NEXT_PUBLIC_GA_ID && (
+          <GoogleAnalytics gaId={process.env.NEXT_PUBLIC_GA_ID} />
+        )}
       </body>
     </html>
   );

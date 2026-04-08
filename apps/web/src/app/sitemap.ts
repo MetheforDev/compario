@@ -35,7 +35,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       url:             `${BASE}/products/${p.slug}`,
       lastModified:    new Date(p.updated_at),
       changeFrequency: 'weekly' as const,
-      priority:        0.6,
+      priority:        0.8,
     }));
   } catch { /* DB unavailable during build */ }
 
@@ -44,8 +44,8 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     newsRoutes = news.map((article) => ({
       url:             `${BASE}/news/${article.slug}`,
       lastModified:    new Date(article.updated_at),
-      changeFrequency: 'monthly' as const,
-      priority:        0.8,
+      changeFrequency: 'daily' as const,
+      priority:        0.85,
     }));
   } catch { /* DB unavailable during build */ }
 

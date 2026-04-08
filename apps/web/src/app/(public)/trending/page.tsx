@@ -1,5 +1,6 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
+import Image from 'next/image';
 import { getTrendingProducts, getTopProductsByViews } from '@compario/database';
 import type { Product } from '@compario/database';
 
@@ -33,11 +34,10 @@ function ProductRow({ product, rank, metric, metricLabel, color }: {
       </span>
 
       {/* Image */}
-      <div className="w-16 h-12 rounded-lg overflow-hidden bg-[#0a0a14] flex items-center justify-center flex-shrink-0"
+      <div className="relative w-16 h-12 rounded-lg overflow-hidden bg-[#0a0a14] flex items-center justify-center flex-shrink-0"
         style={{ border: '1px solid rgba(196,154,60,0.08)' }}>
         {product.image_url ? (
-          // eslint-disable-next-line @next/next/no-img-element
-          <img src={product.image_url} alt={product.name} className="w-full h-full object-cover" />
+          <Image src={product.image_url} alt={product.name} fill className="object-cover" sizes="64px" />
         ) : (
           <span className="text-lg opacity-10">◈</span>
         )}

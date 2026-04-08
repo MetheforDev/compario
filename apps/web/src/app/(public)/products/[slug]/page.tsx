@@ -98,12 +98,13 @@ async function RelatedProducts({ categoryId, currentId }: { categoryId: string; 
             className="group flex flex-col rounded-xl overflow-hidden border transition-all"
             style={{ background: '#0f0f1a', borderColor: 'rgba(196,154,60,0.08)' }}
           >
-            <div className="aspect-video w-full bg-[#0c0c16] flex items-center justify-center overflow-hidden">
+            <div className="relative aspect-video w-full bg-[#0c0c16] overflow-hidden">
               {p.image_url ? (
-                // eslint-disable-next-line @next/next/no-img-element
-                <img src={p.image_url} alt={p.name} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
+                <Image src={p.image_url} alt={p.name} fill className="object-cover group-hover:scale-105 transition-transform duration-500" sizes="(max-width:640px) 100vw, 33vw" />
               ) : (
-                <span className="text-3xl opacity-10">◈</span>
+                <div className="w-full h-full flex items-center justify-center">
+                  <span className="text-3xl opacity-10">◈</span>
+                </div>
               )}
             </div>
             <div className="px-4 py-4 flex flex-col gap-1">
@@ -184,8 +185,7 @@ export default async function ProductPage({ params }: PageProps) {
 
       {product.image_url && (
         <div className="relative w-full h-[260px] sm:h-[380px] overflow-hidden">
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src={product.image_url} alt={product.name} className="w-full h-full object-cover" />
+          <Image src={product.image_url} alt={product.name} fill className="object-cover" sizes="100vw" priority />
           <div className="absolute inset-0" style={{
             background: 'linear-gradient(to bottom, rgba(8,9,14,0.2) 0%, transparent 40%, rgba(8,9,14,0.95) 100%)',
           }} />
@@ -301,9 +301,8 @@ export default async function ProductPage({ params }: PageProps) {
                   style={{ background: '#0c0c18', borderColor: 'rgba(183,36,255,0.1)' }}
                 >
                   {article.cover_image && (
-                    <div className="w-20 h-14 rounded-lg overflow-hidden flex-shrink-0">
-                      {/* eslint-disable-next-line @next/next/no-img-element */}
-                      <img src={article.cover_image} alt={article.title} className="w-full h-full object-cover" />
+                    <div className="relative w-20 h-14 rounded-lg overflow-hidden flex-shrink-0">
+                      <Image src={article.cover_image} alt={article.title} fill className="object-cover" sizes="80px" />
                     </div>
                   )}
                   <div className="flex-1 min-w-0">

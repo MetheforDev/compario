@@ -1,5 +1,6 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
+import Image from 'next/image';
 import { redirect } from 'next/navigation';
 import { getProductsByIds, incrementCompareCount } from '@compario/database';
 import type { Product, Json } from '@compario/database';
@@ -322,7 +323,10 @@ export default async function ComparePage({ searchParams }: PageProps) {
           </div>
         )}
 
-        {/* ── Product Header Cards ── */}
+        {/* ── Product Header Cards + Spec Table — horizontal scroll on mobile ── */}
+        <div className="overflow-x-auto -mx-4 sm:mx-0 px-4 sm:px-0">
+        <div style={{ minWidth: `${160 + products.length * 200}px` }}>
+
         <div
           className="grid rounded-t-xl overflow-hidden"
           style={{ gridTemplateColumns: gridCols, border: '1px solid rgba(196,154,60,0.1)', borderBottom: 'none' }}
@@ -368,8 +372,9 @@ export default async function ComparePage({ searchParams }: PageProps) {
 
                 {/* Image */}
                 {product.image_url ? (
-                  // eslint-disable-next-line @next/next/no-img-element
-                  <img src={product.image_url} alt={product.name} className="w-full aspect-video object-cover rounded-lg" />
+                  <div className="relative w-full aspect-video rounded-lg overflow-hidden">
+                    <Image src={product.image_url} alt={product.name} fill className="object-cover" sizes="(max-width:640px) 90vw, 33vw" />
+                  </div>
                 ) : (
                   <div className="w-full aspect-video rounded-lg flex items-center justify-center"
                     style={{ background: 'rgba(196,154,60,0.04)', border: '1px solid rgba(196,154,60,0.08)' }}>
@@ -484,6 +489,8 @@ export default async function ComparePage({ searchParams }: PageProps) {
             </div>
           )}
         </div>
+        </div>{/* end minWidth */}
+        </div>{/* end overflow-x-auto */}
 
         {/* ── Karar Asistanı ── */}
         <div className="mt-8 rounded-xl overflow-hidden" style={{ border: '1px solid rgba(183,36,255,0.15)' }}>
