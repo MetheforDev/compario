@@ -18,12 +18,25 @@ export async function generateMetadata({ searchParams }: PageProps): Promise<Met
   const products = await getProductsByIds(ids).catch(() => []);
   const names = products.map((p) => p.brand ? `${p.brand} ${p.name}` : p.name);
   const title = names.length >= 2 ? `${names[0]} vs ${names[1]} Karşılaştırma` : 'Ürün Karşılaştırma';
-  const ogImageUrl = `/api/og/compare?ids=${ids.join(',')}`;
+  const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? 'https://compario.tech';
+  const ogImageUrl = `${appUrl}/api/og/compare?ids=${ids.join(',')}`;
+  const description = `${names.join(' — ')} karşılaştırması. Özellikler, fiyatlar ve daha fazlası.`;
   return {
     title,
-    description: `${names.join(' — ')} karşılaştırması. Özellikler, fiyatlar ve daha fazlası.`,
-    openGraph: { title, images: [{ url: ogImageUrl, width: 1200, height: 630 }] },
-    twitter: { card: 'summary_large_image', title, images: [ogImageUrl] },
+    description,
+    openGraph: {
+      title,
+      description,
+      images: [{ url: ogImageUrl, width: 1200, height: 630, type: 'image/png' }],
+      siteName: 'Compario',
+    },
+    twitter: {
+      card: 'summary_large_image',
+      title,
+      description,
+      images: [ogImageUrl],
+      site: '@compariotech',
+    },
   };
 }
 

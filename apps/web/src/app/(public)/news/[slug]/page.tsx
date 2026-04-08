@@ -40,22 +40,25 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
     if (!article) return {};
     const title = article.meta_title ?? article.title;
     const description = article.meta_description ?? article.excerpt ?? '';
-    const ogImage = `/api/og/news?slug=${params.slug}`;
+    const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? 'https://compario.tech';
+    const ogImage = `${appUrl}/api/og/news?slug=${params.slug}`;
     return {
       title: `${title} | Compario`,
       description,
       openGraph: {
         title,
         description,
-        images: [{ url: ogImage, width: 1200, height: 630 }],
+        images: [{ url: ogImage, width: 1200, height: 630, type: 'image/png' }],
         type: 'article',
         publishedTime: article.published_at ?? undefined,
+        siteName: 'Compario',
       },
       twitter: {
         card: 'summary_large_image',
         title,
         description,
         images: [ogImage],
+        site: '@compariotech',
       },
     };
   } catch {

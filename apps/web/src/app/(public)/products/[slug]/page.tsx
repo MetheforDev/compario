@@ -19,20 +19,27 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
     const description =
       product.meta_description ??
       `${product.name} özellikleri, fiyatı ve karşılaştırması — Compario`;
+    const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? 'https://compario.tech';
+    const ogImages = product.image_url
+      ? [{ url: product.image_url, width: 1200, height: 630 }]
+      : [];
     return {
       title,
       description,
       openGraph: {
         title,
         description,
-        images: product.image_url ? [{ url: product.image_url }] : [],
+        images: ogImages,
         type: 'website',
+        siteName: 'Compario',
+        url: `${appUrl}/products/${product.slug}`,
       },
       twitter: {
         card: product.image_url ? 'summary_large_image' : 'summary',
         title,
         description,
         images: product.image_url ? [product.image_url] : [],
+        site: '@compariotech',
       },
     };
   } catch {

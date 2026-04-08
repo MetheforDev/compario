@@ -13,16 +13,16 @@ export default function Image() {
           height: '630px',
           display: 'flex',
           backgroundColor: '#08090E',
-          fontFamily: '"Arial Black", Arial, sans-serif',
+          fontFamily: 'Arial, sans-serif',
           overflow: 'hidden',
           position: 'relative',
         }}
       >
-        {/* Background grid */}
+        {/* Top accent line */}
         <div style={{
-          position: 'absolute', inset: 0,
-          backgroundImage: 'linear-gradient(rgba(196,154,60,0.04) 1px, transparent 1px), linear-gradient(90deg, rgba(196,154,60,0.04) 1px, transparent 1px)',
-          backgroundSize: '60px 60px',
+          position: 'absolute', top: 0, left: 0, right: 0,
+          height: '3px',
+          background: 'linear-gradient(90deg, #C49A3C 0%, rgba(0,255,247,0.6) 50%, rgba(196,154,60,0.3) 100%)',
         }} />
 
         {/* Left accent bar */}
@@ -30,13 +30,6 @@ export default function Image() {
           position: 'absolute', left: 0, top: 0, bottom: 0,
           width: '4px',
           background: 'linear-gradient(to bottom, transparent, #C49A3C 30%, #C49A3C 70%, transparent)',
-        }} />
-
-        {/* Top accent line */}
-        <div style={{
-          position: 'absolute', top: 0, left: 0, right: 0,
-          height: '1px',
-          background: 'linear-gradient(to right, #C49A3C, rgba(196,154,60,0))',
         }} />
 
         {/* Left side — brand */}
