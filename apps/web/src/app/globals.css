@@ -253,3 +253,12 @@ body {
   float: left;
   height: 0;
 }
+
+/* AI markdown output */
+.ai-markdown h2 { font-family: var(--font-orbitron, monospace); font-size: 0.75rem; font-weight: 900; color: #00fff7; text-transform: uppercase; letter-spacing: 0.05em; margin-top: 1.25rem; margin-bottom: 0.5rem; padding-bottom: 0.25rem; border-bottom: 1px solid rgba(0,255,247,0.1); }
+.ai-markdown h3 { font-family: var(--font-orbitron, monospace); font-size: 0.7rem; font-weight: 700; color: #b724ff; text-transform: uppercase; letter-spacing: 0.05em; margin-top: 1rem; margin-bottom: 0.4rem; }
+.ai-markdown p { margin-bottom: 0.6rem; }
+.ai-markdown ul { margin-bottom: 0.6rem; padding-left: 0; list-style: none; }
+.ai-markdown li { display: flex; gap: 0.5rem; margin-bottom: 0.3rem; }
+.ai-markdown li::before { content: '◈'; color: rgba(183,36,255,0.6); flex-shrink: 0; margin-top: 1px; }
+.ai-markdown strong { color: #e5e7eb; font-weight: 600; }

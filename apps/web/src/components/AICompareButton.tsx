@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import ReactMarkdown from 'react-markdown';
+import { marked } from 'marked';
 
 interface AICompareButtonProps {
   productIds: string[];
@@ -240,46 +240,11 @@ export function AICompareButton({ productIds, productNames }: AICompareButtonPro
 
               {status === 'done' && analysis && (
                 <div
-                  className="prose prose-invert max-w-none"
-                  style={{
-                    '--tw-prose-headings': '#00fff7',
-                    '--tw-prose-bold': '#e5e7eb',
-                    '--tw-prose-bullets': 'rgba(183,36,255,0.6)',
-                  } as React.CSSProperties}
-                >
-                  <ReactMarkdown
-                    components={{
-                      h2: ({ children }) => (
-                        <h2 className="font-orbitron text-sm font-black text-neon-cyan uppercase tracking-wider mt-6 mb-3 pb-2"
-                          style={{ borderBottom: '1px solid rgba(0,255,247,0.1)' }}>
-                          {children}
-                        </h2>
-                      ),
-                      h3: ({ children }) => (
-                        <h3 className="font-orbitron text-xs font-bold text-neon-purple uppercase tracking-wider mt-4 mb-2">
-                          {children}
-                        </h3>
-                      ),
-                      p: ({ children }) => (
-                        <p className="font-mono text-xs text-gray-400 leading-relaxed mb-3">{children}</p>
-                      ),
-                      ul: ({ children }) => (
-                        <ul className="space-y-1.5 mb-3 pl-4">{children}</ul>
-                      ),
-                      li: ({ children }) => (
-                        <li className="font-mono text-xs text-gray-400 leading-relaxed list-none flex items-start gap-2">
-                          <span className="text-neon-purple flex-shrink-0 mt-0.5">◈</span>
-                          <span>{children}</span>
-                        </li>
-                      ),
-                      strong: ({ children }) => (
-                        <strong className="font-bold text-gray-200">{children}</strong>
-                      ),
-                    }}
-                  >
-                    {analysis}
-                  </ReactMarkdown>
-                </div>
+                  className="ai-markdown font-mono text-xs text-gray-400 leading-relaxed space-y-2"
+                  dangerouslySetInnerHTML={{
+                    __html: marked(analysis, { gfm: true, breaks: true }) as string,
+                  }}
+                />
               )}
             </div>
 
