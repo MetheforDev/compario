@@ -1,5 +1,6 @@
 import Link from 'next/link';
 import Image from 'next/image';
+import { NewsletterForm } from './NewsletterForm';
 
 const NAV_LINKS = [
   { href: '/categories', label: 'Kategoriler' },
@@ -128,27 +129,27 @@ export function Footer() {
             </ul>
           </div>
 
-          {/* Social list */}
+          {/* Newsletter */}
           <div>
             <p className="font-mono text-[9px] uppercase tracking-[0.3em] mb-4" style={{ color: 'rgba(196,154,60,0.5)' }}>
-              Takip Et
+              Bülten
             </p>
             <p className="font-mono text-xs text-gray-600 leading-relaxed mb-5">
-              Güncel karşılaştırmalar ve yeni model haberleri için sosyal medyada takip et.
+              Güncel karşılaştırmalar ve yeni model haberleri doğrudan e-postana gelsin.
             </p>
-            <div className="flex flex-col gap-3">
+            <NewsletterForm />
+
+            <div className="flex items-center gap-3 mt-6 pt-5" style={{ borderTop: '1px solid rgba(196,154,60,0.06)' }}>
               {SOCIAL_LINKS.map((s) => (
                 <a
                   key={s.label}
                   href={s.href}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="flex items-center gap-2.5 font-mono text-xs text-gray-600 hover:text-gray-300 transition-colors group"
+                  aria-label={s.label}
+                  className="footer-social-btn flex items-center justify-center w-8 h-8 rounded-lg transition-all duration-200"
                 >
-                  <span className="text-gray-700 group-hover:text-[#C49A3C] transition-colors">
-                    {s.icon}
-                  </span>
-                  {s.label}
+                  {s.icon}
                 </a>
               ))}
             </div>

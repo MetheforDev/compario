@@ -258,6 +258,29 @@ export interface Database {
     Views: {
       [_ in never]: never
     }
+      newsletter_subscribers: {
+        Row: {
+          id: string
+          email: string
+          status: string
+          subscribed_at: string
+          unsubscribed_at: string | null
+        }
+        Insert: {
+          id?: string
+          email: string
+          status?: string
+          subscribed_at?: string
+          unsubscribed_at?: string | null
+        }
+        Update: {
+          id?: string
+          email?: string
+          status?: string
+          subscribed_at?: string
+          unsubscribed_at?: string | null
+        }
+      }
       reviews: {
         Row: {
           id: string
@@ -368,6 +391,9 @@ export interface PaginationParams {
   limit?: number
   offset?: number
 }
+
+export type NewsletterSubscriber = Tables<'newsletter_subscribers'>
+export type NewsletterSubscriberInsert = Inserts<'newsletter_subscribers'>
 
 export type Review = Tables<'reviews'>
 export type ReviewInsert = Inserts<'reviews'>

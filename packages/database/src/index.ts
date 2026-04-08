@@ -66,6 +66,16 @@ export {
   deleteSegment,
 } from './queries/segments';
 
+// Newsletter queries
+export type { NewsletterSubscriber, NewsletterSubscriberInsert } from './types';
+export {
+  subscribeNewsletter,
+  getNewsletterSubscribers,
+  getSubscriberCount,
+  unsubscribeNewsletter,
+  deleteSubscriber,
+} from './queries/newsletter';
+
 // Review queries
 export type { RatingSummary } from './queries/reviews';
 export type { Review, ReviewInsert, ReviewUpdate, ReviewStatus } from './types';
