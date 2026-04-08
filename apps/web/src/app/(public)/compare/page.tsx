@@ -6,6 +6,7 @@ import type { Product, Json } from '@compario/database';
 import { ShareButtons } from '@/components/ShareButtons';
 import { CompareHistorySaver } from '@/components/CompareHistorySaver';
 import { CompareCopyLink } from '@/components/CompareCopyLink';
+import { AICompareButton } from '@/components/AICompareButton';
 
 interface PageProps {
   searchParams: { ids?: string };
@@ -551,8 +552,29 @@ export default async function ComparePage({ searchParams }: PageProps) {
           </div>
         </div>
 
+        {/* ── AI Asistanı ── */}
+        <div
+          className="mt-6 rounded-xl px-6 py-5"
+          style={{
+            background: 'linear-gradient(135deg, rgba(183,36,255,0.06) 0%, rgba(0,255,247,0.03) 100%)',
+            border: '1px solid rgba(183,36,255,0.2)',
+          }}
+        >
+          <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4">
+            <div className="flex-1">
+              <p className="font-orbitron text-xs font-black text-neon-purple uppercase tracking-widest mb-1">
+                AI Karşılaştırma Asistanı
+              </p>
+              <p className="font-mono text-[11px] text-gray-600">
+                Claude AI, {productNames.join(' ve ')} arasındaki farkları analiz ederek senin için en iyi seçeneği önerir.
+              </p>
+            </div>
+            <AICompareButton productIds={rawIds} productNames={productNames} />
+          </div>
+        </div>
+
         {/* ── Share & Actions ── */}
-        <div className="mt-6 rounded-xl px-6 py-5 flex flex-col sm:flex-row items-start sm:items-center gap-4"
+        <div className="mt-4 rounded-xl px-6 py-5 flex flex-col sm:flex-row items-start sm:items-center gap-4"
           style={{ background: '#0c0c18', border: '1px solid rgba(196,154,60,0.1)' }}>
           <div className="flex-1">
             <p className="font-mono text-[10px] text-gray-600 uppercase tracking-wider mb-2">Bu Karşılaştırmayı Paylaş</p>
