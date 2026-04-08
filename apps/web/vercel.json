@@ -3,6 +3,10 @@
     {
       "path": "/api/cron/publish-scheduled",
       "schedule": "* * * * *"
+    },
+    {
+      "path": "/api/cron/price-check",
+      "schedule": "0 8 * * *"
     }
   ]
 }

@@ -163,3 +163,99 @@ export function welcomeEmailText(articles: NewsArticlePreview[]): string {
 function escHtml(str: string): string {
   return str.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
 }
+
+// ─── Price Alert Email ────────────────────────────────────────────────────────
+
+export function priceAlertEmailHtml(opts: {
+  productName: string;
+  productSlug: string;
+  targetPrice: number;
+  currentPrice: number;
+  currency: string;
+}): string {
+  const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? 'https://compario.tech';
+  const productUrl = `${appUrl}/products/${opts.productSlug}`;
+  const fmt = (n: number) => n.toLocaleString('tr-TR');
+  const sym = opts.currency === 'TRY' ? '₺' : opts.currency;
+
+  return `<!DOCTYPE html>
+<html lang="tr">
+<head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Fiyat Düştü!</title></head>
+<body style="margin:0;padding:0;background:#08090E;font-family:'Courier New',monospace;">
+  <table width="100%" cellpadding="0" cellspacing="0" style="background:#08090E;padding:40px 0;">
+    <tr><td align="center">
+      <table width="600" cellpadding="0" cellspacing="0" style="max-width:600px;width:100%;background:#0c0c18;border-radius:16px;border:1px solid rgba(196,154,60,0.15);overflow:hidden;">
+        <!-- Header -->
+        <tr>
+          <td style="background:linear-gradient(135deg,#0f0f1a,#1a1a2e);padding:32px 40px;text-align:center;border-bottom:1px solid rgba(196,154,60,0.1);">
+            <p style="margin:0 0 8px;font-size:11px;letter-spacing:0.4em;color:rgba(196,154,60,0.6);text-transform:uppercase;">⬡ Compario</p>
+            <h1 style="margin:0;font-size:28px;font-weight:900;color:#C49A3C;letter-spacing:0.05em;">FİYAT DÜŞTÜ!</h1>
+            <p style="margin:8px 0 0;font-size:12px;color:#6b7280;">Takip ettiğiniz ürün hedef fiyatınıza ulaştı</p>
+          </td>
+        </tr>
+        <!-- Product -->
+        <tr>
+          <td style="padding:36px 40px;">
+            <p style="margin:0 0 6px;font-size:10px;letter-spacing:0.3em;color:rgba(196,154,60,0.5);text-transform:uppercase;">Ürün</p>
+            <h2 style="margin:0 0 24px;font-size:20px;font-weight:700;color:#e5e7eb;">${escHtml(opts.productName)}</h2>
+
+            <table width="100%" cellpadding="0" cellspacing="0" style="border-radius:12px;overflow:hidden;border:1px solid rgba(196,154,60,0.1);">
+              <tr>
+                <td style="padding:20px 24px;background:#0f0f1a;border-right:1px solid rgba(196,154,60,0.08);text-align:center;">
+                  <p style="margin:0 0 4px;font-size:10px;color:#6b7280;text-transform:uppercase;letter-spacing:0.2em;">Hedef Fiyat</p>
+                  <p style="margin:0;font-size:22px;font-weight:900;color:#22c55e;">${sym}${fmt(opts.targetPrice)}</p>
+                </td>
+                <td style="padding:20px 24px;background:#0f0f1a;text-align:center;">
+                  <p style="margin:0 0 4px;font-size:10px;color:#6b7280;text-transform:uppercase;letter-spacing:0.2em;">Şu Anki Fiyat</p>
+                  <p style="margin:0;font-size:22px;font-weight:900;color:#C49A3C;">${sym}${fmt(opts.currentPrice)}</p>
+                </td>
+              </tr>
+            </table>
+
+            <div style="margin:32px 0;text-align:center;">
+              <a href="${productUrl}" style="display:inline-block;padding:14px 36px;background:linear-gradient(135deg,#C49A3C,#a07d28);color:#08090E;font-weight:900;font-size:13px;text-decoration:none;border-radius:8px;letter-spacing:0.1em;text-transform:uppercase;">
+                Ürünü İncele →
+              </a>
+            </div>
+
+            <p style="margin:0;font-size:11px;color:#4b5563;text-align:center;line-height:1.6;">
+              Bu alarm tek kullanımlıktır ve artık devre dışı bırakıldı.<br>
+              <a href="${appUrl}" style="color:rgba(196,154,60,0.5);text-decoration:none;">compario.tech</a>
+            </p>
+          </td>
+        </tr>
+        <!-- Footer -->
+        <tr>
+          <td style="padding:20px 40px;border-top:1px solid rgba(196,154,60,0.06);text-align:center;">
+            <p style="margin:0;font-size:10px;color:#374151;letter-spacing:0.2em;">© 2026 COMPARIO · TÜRKİYE'NİN KARŞILAŞTIRMA PLATFORMU</p>
+          </td>
+        </tr>
+      </table>
+    </td></tr>
+  </table>
+</body>
+</html>`;
+}
+
+export function priceAlertEmailText(opts: {
+  productName: string;
+  productSlug: string;
+  targetPrice: number;
+  currentPrice: number;
+  currency: string;
+}): string {
+  const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? 'https://compario.tech';
+  const sym = opts.currency === 'TRY' ? '₺' : opts.currency;
+  const fmt = (n: number) => n.toLocaleString('tr-TR');
+  return [
+    'FİYAT DÜŞTÜ — Compario',
+    '',
+    `${opts.productName}`,
+    `Hedef fiyat: ${sym}${fmt(opts.targetPrice)}`,
+    `Şu anki fiyat: ${sym}${fmt(opts.currentPrice)}`,
+    '',
+    `Ürünü incele: ${appUrl}/products/${opts.productSlug}`,
+    '',
+    'Bu alarm tek kullanımlıktır ve artık devre dışı bırakıldı.',
+  ].join('\n');
+}

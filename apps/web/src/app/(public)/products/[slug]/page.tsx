@@ -6,6 +6,7 @@ import type { Json, Product, NewsArticle } from '@compario/database';
 import { ShareButtons } from '@/components/ShareButtons';
 import { AddToCompareButton } from '@/components/AddToCompareButton';
 import { ProductReviews } from '@/components/ProductReviews';
+import { PriceHistory } from '@/components/PriceHistory';
 
 interface PageProps {
   params: { slug: string };
@@ -320,6 +321,14 @@ export default async function ProductPage({ params }: PageProps) {
             </div>
           </section>
         )}
+
+        <div className="mb-6">
+          <PriceHistory
+            productId={product.id}
+            currentPrice={product.price_min}
+            currency={product.currency ?? 'TRY'}
+          />
+        </div>
 
         <div className="mb-10">
           <ProductReviews

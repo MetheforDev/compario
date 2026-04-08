@@ -107,3 +107,15 @@ export {
   publishScheduledArticles,
   getNewsForProduct,
 } from './queries/news';
+
+// Price queries
+export type { PricePoint, PriceAlert } from './queries/prices';
+export {
+  getPriceHistory,
+  recordPrice,
+  recordDailyPrices,
+  createPriceAlert,
+  getActiveAlerts,
+  deactivateAlert,
+  unsubscribePriceAlert,
+} from './queries/prices';

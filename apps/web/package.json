@@ -27,6 +27,7 @@
     "react-dom": "^18.2.0",
     "react-hot-toast": "^2.4.1",
     "react-markdown": "^10.1.0",
+    "recharts": "^3.8.1",
     "resend": "^6.10.0",
     "tiptap-markdown": "^0.8"
   },
