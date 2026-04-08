@@ -5,7 +5,7 @@ const nextConfig = {
   // Do NOT add @compario/database to serverComponentsExternalPackages —
   // that would tell Next.js to treat it as a Node.js external (skip bundling),
   // which conflicts with transpilePackages and breaks the import.
-  transpilePackages: ['@compario/database', 'recharts', 'd3-scale', 'd3-shape', 'd3-path', 'd3-array', 'd3-interpolate', 'd3-color', 'd3-format', 'd3-time', 'd3-time-format', 'internmap', 'robust-predicates'],
+  transpilePackages: ['@compario/database'],
   typescript: { ignoreBuildErrors: true },
   eslint: { ignoreDuringBuilds: true },
   images: {
