@@ -9,6 +9,7 @@ const nextConfig = {
   // victory-vendor + d3-*: recharts dependencies, ESM-only packages that need bundling
   transpilePackages: [
     '@compario/database',
+    'marked',
     'victory-vendor',
     'd3-array', 'd3-color', 'd3-ease', 'd3-format',
     'd3-interpolate', 'd3-path', 'd3-scale', 'd3-shape',
