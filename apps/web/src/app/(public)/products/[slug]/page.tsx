@@ -3,10 +3,16 @@ import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import { getProductBySlug, getProducts, getNewsForProduct, incrementViewCount, getApprovedReviews, getRatingSummary } from '@compario/database';
 import type { Json, Product, NewsArticle } from '@compario/database';
+import dynamic from 'next/dynamic';
 import { ShareButtons } from '@/components/ShareButtons';
 import { AddToCompareButton } from '@/components/AddToCompareButton';
 import { ProductReviews } from '@/components/ProductReviews';
-import { PriceHistory } from '@/components/PriceHistory';
+
+// dynamic + ssr:false removes recharts/victory-vendor/d3 (ESM-only) from server bundle
+const PriceHistory = dynamic(
+  () => import('@/components/PriceHistory').then((m) => m.PriceHistory),
+  { ssr: false },
+);
 
 interface PageProps {
   params: { slug: string };
