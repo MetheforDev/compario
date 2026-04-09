@@ -8,9 +8,9 @@ import {
   incrementNewsView,
 } from '@compario/database';
 import type { Product } from '@compario/database';
+import { marked } from 'marked';
 import { NewsCard } from '@/components/NewsCard';
 import { ShareButtons } from '@/components/ShareButtons';
-import { MarkdownContent } from '@/components/MarkdownContent';
 
 const CATEGORY_LABELS: Record<string, string> = {
   'yeni-model': 'Yeni Model',
@@ -66,9 +66,19 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   }
 }
 
-function readingTime(content: string): number {
+function readingTime(content: string | null | undefined): number {
+  if (!content) return 1;
   const words = content.trim().split(/\s+/).length;
   return Math.max(1, Math.round(words / 200));
+}
+
+function renderMarkdown(content: string | null | undefined): string {
+  if (!content) return '';
+  try {
+    return marked.parse(content, { async: false, gfm: true, breaks: true }) as string;
+  } catch {
+    return `<p>${content}</p>`;
+  }
 }
 
 export default async function NewsDetailPage({ params }: PageProps) {
@@ -269,9 +279,10 @@ export default async function NewsDetailPage({ params }: PageProps) {
         )}
 
         {/* Content */}
-        <article>
-          <MarkdownContent content={article.content} />
-        </article>
+        <article
+          className="news-markdown"
+          dangerouslySetInnerHTML={{ __html: renderMarkdown(article.content) }}
+        />
 
         {/* Divider */}
         <div className="border-t border-[rgba(0,255,247,0.08)] mt-12 mb-8" />
