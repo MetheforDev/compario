@@ -31,6 +31,15 @@ See `/docs` folder for detailed documentation.
 - Website: [compario.tech](https://compario.tech) (coming soon)
 - Instagram: [@getcompario](https://instagram.com/getcompario)
 
+## Claude AI Configuration
+
+This project uses `.claude/` folder for AI context management.
+
+- `CLAUDE.md` — Project context and working rules for Claude
+- `skills/` — Custom slash commands (`/news-article`, `/twitter-thread`, `/instagram-post`)
+- `settings.json` — Claude Code permissions and model config
+- `memory/` — Personal context (gitignored, stays local)
+
 ---
 
 **© 2025 Compario - All Rights Reserved**
