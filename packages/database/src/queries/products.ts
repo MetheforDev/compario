@@ -196,3 +196,56 @@ export async function bulkCreateProducts(inputs: ProductInput[]): Promise<{ crea
   }
   return { created, errors };
 }
+
+export interface SearchProductResult extends Product {
+  _matchType: 'exact' | 'prefix' | 'contains';
+}
+
+export async function searchProducts(
+  query: string,
+  limit = 8,
+): Promise<SearchProductResult[]> {
+  if (!query || query.trim().length < 2) return [];
+  const q = query.trim();
+
+  // Run exact/prefix and contains searches in parallel
+  const [exactRes, containsRes] = await Promise.all([
+    supabase
+      .from('products')
+      .select('*')
+      .eq('status', 'active')
+      .or(`name.ilike.${q}%,brand.ilike.${q}%,model.ilike.${q}%`)
+      .order('view_count', { ascending: false })
+      .limit(limit),
+    supabase
+      .from('products')
+      .select('*')
+      .eq('status', 'active')
+      .or(
+        `name.ilike.%${q}%,brand.ilike.%${q}%,model.ilike.%${q}%,description.ilike.%${q}%,short_description.ilike.%${q}%`,
+      )
+      .order('view_count', { ascending: false })
+      .limit(limit),
+  ]);
+
+  const exactIds = new Set<string>();
+  const results: SearchProductResult[] = [];
+
+  for (const p of exactRes.data ?? []) {
+    exactIds.add(p.id);
+    const lowerName = (p.name ?? '').toLowerCase();
+    const lowerQ = q.toLowerCase();
+    const matchType = lowerName === lowerQ || (p.brand ?? '').toLowerCase() === lowerQ
+      ? 'exact'
+      : 'prefix';
+    results.push({ ...(p as Product), _matchType: matchType });
+  }
+
+  for (const p of containsRes.data ?? []) {
+    if (!exactIds.has(p.id)) {
+      results.push({ ...(p as Product), _matchType: 'contains' });
+    }
+  }
+
+  return results.slice(0, limit);
+}

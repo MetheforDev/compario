@@ -30,11 +30,13 @@ export type {
 } from './types';
 
 // Product queries
+export type { SearchProductResult } from './queries/products';
 export {
   getProducts,
   getProductById,
   getProductBySlug,
   getProductsByIds,
+  searchProducts,
   createProduct,
   updateProduct,
   deleteProduct,
@@ -106,6 +108,7 @@ export {
   getTopNewsByViews,
   publishScheduledArticles,
   getNewsForProduct,
+  searchNews,
 } from './queries/news';
 
 // Price queries

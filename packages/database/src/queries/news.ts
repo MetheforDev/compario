@@ -264,3 +264,40 @@ export async function getRelatedNews(tags: string[], excludeId: string, limit: n
   if (error) throw new Error(`Failed to fetch related news: ${error.message}`);
   return (data ?? []) as unknown as NewsArticle[];
 }
+
+export async function searchNews(
+  query: string,
+  limit = 6,
+): Promise<NewsArticle[]> {
+  if (!query || query.trim().length < 2) return [];
+  const q = query.trim();
+
+  const [titleRes, bodyRes] = await Promise.all([
+    supabase
+      .from('news_articles')
+      .select('*')
+      .eq('status', 'published')
+      .or(`title.ilike.%${q}%,excerpt.ilike.%${q}%`)
+      .order('published_at', { ascending: false })
+      .limit(limit),
+    supabase
+      .from('news_articles')
+      .select('*')
+      .eq('status', 'published')
+      .or(`author.ilike.%${q}%`)
+      .order('published_at', { ascending: false })
+      .limit(Math.ceil(limit / 2)),
+  ]);
+
+  const seen = new Set<string>();
+  const results: NewsArticle[] = [];
+
+  for (const a of [...(titleRes.data ?? []), ...(bodyRes.data ?? [])]) {
+    if (!seen.has(a.id)) {
+      seen.add(a.id);
+      results.push(a as unknown as NewsArticle);
+    }
+  }
+
+  return results.slice(0, limit);
+}
