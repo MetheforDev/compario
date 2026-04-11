@@ -72,7 +72,7 @@ renderer.code = (code, lang) => {
   return `<pre class="bg-[#0c0c16] border border-[rgba(0,255,247,0.1)] rounded p-4 my-4 overflow-x-auto"><code class="font-mono text-xs text-neon-cyan">${code}</code></pre>`;
 };
 
-marked.setOptions({ renderer, gfm: true, breaks: true });
+marked.use({ renderer, gfm: true, breaks: true });
 
 // ─── Split rendered HTML and inject React ComparisonCard components ───────────
 function splitAndRender(html: string): React.ReactNode[] {
@@ -93,7 +93,8 @@ function splitAndRender(html: string): React.ReactNode[] {
 }
 
 export function MarkdownContent({ content }: MarkdownContentProps) {
-  const html = marked(content) as string;
+  if (!content) return null;
+  const html = marked.parse(content, { async: false }) as string;
   const nodes = splitAndRender(html);
   return <div className="markdown-content">{nodes}</div>;
 }

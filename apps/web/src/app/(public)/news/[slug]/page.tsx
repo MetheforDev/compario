@@ -8,7 +8,7 @@ import {
   incrementNewsView,
 } from '@compario/database';
 import type { Product } from '@compario/database';
-import { marked } from 'marked';
+import { MarkdownContent } from '@/components/MarkdownContent';
 import { NewsCard } from '@/components/NewsCard';
 import { ShareButtons } from '@/components/ShareButtons';
 
@@ -72,14 +72,6 @@ function readingTime(content: string | null | undefined): number {
   return Math.max(1, Math.round(words / 200));
 }
 
-function renderMarkdown(content: string | null | undefined): string {
-  if (!content) return '';
-  try {
-    return marked.parse(content, { async: false, gfm: true, breaks: true }) as string;
-  } catch {
-    return `<p>${content}</p>`;
-  }
-}
 
 export default async function NewsDetailPage({ params }: PageProps) {
   let article: import('@compario/database').NewsArticle | null = null;
@@ -135,7 +127,7 @@ export default async function NewsDetailPage({ params }: PageProps) {
       url: 'https://compario.tech',
       logo: {
         '@type': 'ImageObject',
-        url: 'https://compario.tech/icons/icon-512x512.png',
+        url: 'https://compario.tech/images/logo/logo-icon.png',
       },
     },
     mainEntityOfPage: {
@@ -279,10 +271,7 @@ export default async function NewsDetailPage({ params }: PageProps) {
         )}
 
         {/* Content */}
-        <article
-          className="news-markdown"
-          dangerouslySetInnerHTML={{ __html: renderMarkdown(article.content) }}
-        />
+        <MarkdownContent content={article.content ?? ''} />
 
         {/* Divider */}
         <div className="border-t border-[rgba(0,255,247,0.08)] mt-12 mb-8" />
