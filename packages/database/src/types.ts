@@ -254,10 +254,6 @@ export interface Database {
           updated_at?: string
         }
       }
-    }
-    Views: {
-      [_ in never]: never
-    }
       newsletter_subscribers: {
         Row: {
           id: string
@@ -319,6 +315,9 @@ export interface Database {
           created_at?: string
         }
       }
+    }
+    Views: {
+      [_ in never]: never
     }
     Functions: {
       increment_product_view: {

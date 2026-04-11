@@ -38,7 +38,7 @@ export default async function UsersPage() {
         role: (u.user_metadata?.role as string) ?? 'editor',
         created_at: u.created_at,
         last_sign_in_at: u.last_sign_in_at ?? null,
-        invited_at: (u as Record<string, unknown>).invited_at as string | null ?? null,
+        invited_at: (u as unknown as Record<string, unknown>).invited_at as string | null ?? null,
       }));
     }
   } catch { /* ignore */ }

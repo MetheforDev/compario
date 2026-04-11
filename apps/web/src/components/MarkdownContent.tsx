@@ -76,9 +76,9 @@ marked.setOptions({ renderer, gfm: true, breaks: true });
 
 // ─── Split rendered HTML and inject React ComparisonCard components ───────────
 function splitAndRender(html: string): React.ReactNode[] {
-  const parts = html.split(/(<compare-card>.*?<\/compare-card>)/s);
+  const parts = html.split(/(<compare-card>[\s\S]*?<\/compare-card>)/);
   return parts.map((part, i) => {
-    const match = part.match(/^<compare-card>(.*)<\/compare-card>$/s);
+    const match = part.match(/^<compare-card>([\s\S]*)<\/compare-card>$/);
     if (match) {
       const raw = decodeURIComponent(match[1]);
       return <ComparisonCard key={i} raw={raw} />;
