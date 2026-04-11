@@ -4,6 +4,7 @@ import { useState, useEffect, useTransition } from 'react';
 import { useRouter } from 'next/navigation';
 import { toast } from 'react-hot-toast';
 import type { Category, Segment, Product, ProductInput, ProductStatus } from '@compario/database';
+import { ImageUpload } from '@/components/admin/ImageUpload';
 
 // ─── Spec Templates ───────────────────────────────────────────────────────────
 
@@ -102,6 +103,7 @@ export function ProductForm({
   const [priceMin, setPriceMin]       = useState(product?.price_min?.toString() ?? '');
   const [priceMax, setPriceMax]       = useState(product?.price_max?.toString() ?? '');
   const [status, setStatus]           = useState<ProductStatus>((product?.status as ProductStatus) ?? 'draft');
+  const [imageUrl, setImageUrl]       = useState(product?.image_url ?? '');
 
   // Specs
   const [specEntries, setSpecEntries] = useState<SpecEntry[]>(() => {
@@ -185,6 +187,7 @@ export function ProductForm({
       model:       model.trim(),
       price_min:   priceMin ? Number(priceMin) : null,
       price_max:   priceMax ? Number(priceMax) : null,
+      image_url:   imageUrl || null,
       specs,
       status,
     };
@@ -303,6 +306,12 @@ export function ProductForm({
               className={inputCls}
             />
             {errors.model && <p className={errorCls}>{errors.model}</p>}
+          </div>
+
+          {/* Görsel */}
+          <div className="md:col-span-2">
+            <label className={labelCls}>Ürün Görseli</label>
+            <ImageUpload value={imageUrl} onChange={setImageUrl} />
           </div>
 
         </div>

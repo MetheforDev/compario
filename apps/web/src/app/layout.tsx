@@ -2,6 +2,9 @@ import type { Metadata, Viewport } from 'next';
 import { Orbitron, JetBrains_Mono } from 'next/font/google';
 import './globals.css';
 import { CompareProvider } from '@/lib/compare-store';
+import { Analytics } from '@vercel/analytics/react';
+import { GoogleAnalytics } from '@/components/GoogleAnalytics';
+import { CookieConsent } from '@/components/CookieConsent';
 
 const orbitron = Orbitron({
   subsets: ['latin'],
@@ -45,23 +48,22 @@ export const metadata: Metadata = {
     title: 'Compario — Her Şeyi Karşılaştır, En İyisine Karar Ver',
     description: '2026 model araçlar ve teknoloji ürünleri karşılaştırma platformu',
     locale: 'tr_TR',
-    images: [{ url: '/images/web/og-image-default.png', width: 1200, height: 630, alt: 'Compario' }],
   },
   twitter: {
     card: 'summary_large_image',
     title: 'Compario',
     description: 'Her Şeyi Karşılaştır, En İyisine Karar Ver',
-    images: ['/images/web/og-image-default.png'],
   },
   icons: {
     icon: [
-      { url: '/images/logos/favicon.png', sizes: '32x32', type: 'image/png' },
-      { url: '/icons/icon-192x192.png', sizes: '192x192', type: 'image/png' },
-      { url: '/icons/icon-512x512.png', sizes: '512x512', type: 'image/png' },
+      { url: '/images/logo/favicon.ico',       sizes: 'any',    type: 'image/x-icon' },
+      { url: '/images/logo/favicon-32x32.png', sizes: '32x32',  type: 'image/png' },
+      { url: '/images/logo/logo-icon.png',     sizes: '256x256', type: 'image/png' },
     ],
     apple: [
-      { url: '/icons/icon-152x152.png', sizes: '152x152', type: 'image/png' },
+      { url: '/images/logo/apple-touch-icon.png', sizes: '180x180', type: 'image/png' },
     ],
+    shortcut: '/images/logo/favicon.ico',
   },
 };
 
@@ -76,6 +78,7 @@ export default function RootLayout({
       className={`${orbitron.variable} ${jetbrainsMono.variable}`}
     >
       <head>
+        <link rel="alternate" type="application/rss+xml" title="Compario Haberleri" href="/rss.xml" />
         <meta name="application-name" content="Compario" />
         <meta name="apple-mobile-web-app-capable" content="yes" />
         <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
@@ -86,7 +89,12 @@ export default function RootLayout({
       <body className="bg-[#08090E] text-[#EDE8DF] font-mono antialiased">
         <CompareProvider>
           {children}
+          <CookieConsent />
         </CompareProvider>
+        <Analytics />
+        {process.env.NEXT_PUBLIC_GA_ID && (
+          <GoogleAnalytics gaId={process.env.NEXT_PUBLIC_GA_ID} />
+        )}
       </body>
     </html>
   );

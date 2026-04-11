@@ -9,6 +9,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const staticRoutes: MetadataRoute.Sitemap = [
     { url: BASE,                    lastModified: now, changeFrequency: 'daily',   priority: 1.0 },
     { url: `${BASE}/categories`,    lastModified: now, changeFrequency: 'weekly',  priority: 0.8 },
+    { url: `${BASE}/products`,      lastModified: now, changeFrequency: 'daily',   priority: 0.8 },
     { url: `${BASE}/news`,          lastModified: now, changeFrequency: 'daily',   priority: 0.9 },
     { url: `${BASE}/compare`,       lastModified: now, changeFrequency: 'monthly', priority: 0.5 },
     { url: `${BASE}/search`,        lastModified: now, changeFrequency: 'monthly', priority: 0.4 },
@@ -34,7 +35,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       url:             `${BASE}/products/${p.slug}`,
       lastModified:    new Date(p.updated_at),
       changeFrequency: 'weekly' as const,
-      priority:        0.6,
+      priority:        0.8,
     }));
   } catch { /* DB unavailable during build */ }
 
@@ -43,8 +44,8 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     newsRoutes = news.map((article) => ({
       url:             `${BASE}/news/${article.slug}`,
       lastModified:    new Date(article.updated_at),
-      changeFrequency: 'monthly' as const,
-      priority:        0.8,
+      changeFrequency: 'daily' as const,
+      priority:        0.85,
     }));
   } catch { /* DB unavailable during build */ }
 

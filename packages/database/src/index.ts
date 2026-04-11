@@ -30,16 +30,23 @@ export type {
 } from './types';
 
 // Product queries
+export type { SearchProductResult } from './queries/products';
 export {
   getProducts,
   getProductById,
   getProductBySlug,
   getProductsByIds,
+  searchProducts,
   createProduct,
   updateProduct,
   deleteProduct,
   incrementViewCount,
   getSimilarProducts,
+  incrementCompareCount,
+  getTrendingProducts,
+  getTopProductsByViews,
+  getTopProductsByCompares,
+  bulkCreateProducts,
 } from './queries/products';
 
 // Category queries
@@ -62,6 +69,29 @@ export {
   deleteSegment,
 } from './queries/segments';
 
+// Newsletter queries
+export type { NewsletterSubscriber, NewsletterSubscriberInsert } from './types';
+export {
+  subscribeNewsletter,
+  getNewsletterSubscribers,
+  getSubscriberCount,
+  unsubscribeNewsletter,
+  deleteSubscriber,
+} from './queries/newsletter';
+
+// Review queries
+export type { RatingSummary } from './queries/reviews';
+export type { Review, ReviewInsert, ReviewUpdate, ReviewStatus } from './types';
+export {
+  getApprovedReviews,
+  getRatingSummary,
+  createReview,
+  incrementHelpful,
+  getReviewsAdmin,
+  updateReviewStatus,
+  deleteReview,
+} from './queries/reviews';
+
 // News queries
 export type { NewsArticle, NewsArticleInput, NewsFilters } from './queries/news';
 export {
@@ -77,4 +107,20 @@ export {
   getDailyComparison,
   getRelatedNews,
   getAdjacentNews,
+  getTopNewsByViews,
+  publishScheduledArticles,
+  getNewsForProduct,
+  searchNews,
 } from './queries/news';
+
+// Price queries
+export type { PricePoint, PriceAlert } from './queries/prices';
+export {
+  getPriceHistory,
+  recordPrice,
+  recordDailyPrices,
+  createPriceAlert,
+  getActiveAlerts,
+  deactivateAlert,
+  unsubscribePriceAlert,
+} from './queries/prices';

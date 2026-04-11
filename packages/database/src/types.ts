@@ -258,6 +258,68 @@ export interface Database {
     Views: {
       [_ in never]: never
     }
+      newsletter_subscribers: {
+        Row: {
+          id: string
+          email: string
+          status: string
+          subscribed_at: string
+          unsubscribed_at: string | null
+        }
+        Insert: {
+          id?: string
+          email: string
+          status?: string
+          subscribed_at?: string
+          unsubscribed_at?: string | null
+        }
+        Update: {
+          id?: string
+          email?: string
+          status?: string
+          subscribed_at?: string
+          unsubscribed_at?: string | null
+        }
+      }
+      reviews: {
+        Row: {
+          id: string
+          product_id: string
+          user_id: string | null
+          reviewer_name: string | null
+          reviewer_email: string | null
+          rating: number
+          comment: string
+          helpful_count: number
+          status: string
+          created_at: string
+        }
+        Insert: {
+          id?: string
+          product_id: string
+          user_id?: string | null
+          reviewer_name?: string | null
+          reviewer_email?: string | null
+          rating: number
+          comment: string
+          helpful_count?: number
+          status?: string
+          created_at?: string
+        }
+        Update: {
+          id?: string
+          product_id?: string
+          user_id?: string | null
+          reviewer_name?: string | null
+          reviewer_email?: string | null
+          rating?: number
+          comment?: string
+          helpful_count?: number
+          status?: string
+          created_at?: string
+        }
+      }
+    }
     Functions: {
       increment_product_view: {
         Args: { product_uuid: string }
@@ -265,6 +327,10 @@ export interface Database {
       }
       increment_news_view: {
         Args: { article_uuid: string }
+        Returns: undefined
+      }
+      increment_compare_count: {
+        Args: { product_uuid: string }
         Returns: undefined
       }
     }
@@ -325,6 +391,15 @@ export interface PaginationParams {
   limit?: number
   offset?: number
 }
+
+export type NewsletterSubscriber = Tables<'newsletter_subscribers'>
+export type NewsletterSubscriberInsert = Inserts<'newsletter_subscribers'>
+
+export type Review = Tables<'reviews'>
+export type ReviewInsert = Inserts<'reviews'>
+export type ReviewUpdate = Updates<'reviews'>
+
+export type ReviewStatus = 'pending' | 'approved' | 'rejected'
 
 export type SortBy = 'newest' | 'price_asc' | 'price_desc' | 'name_asc'
 

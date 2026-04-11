@@ -114,10 +114,12 @@ export default async function DashboardPage() {
       <section>
         <p className="font-mono text-[10px] text-gray-600 uppercase tracking-widest mb-4">⬡ Hızlı İşlemler</p>
         <div className="flex flex-wrap gap-3">
-          <Link href="/admin/products/new"   className="btn-neon">+ Ürün Ekle</Link>
-          <Link href="/admin/news/new"       className="btn-neon">+ Haber Ekle</Link>
-          <Link href="/admin/categories/new" className="btn-neon-purple">+ Kategori Ekle</Link>
-          <Link href="/admin/segments/new"   className="btn-neon-purple">+ Segment Ekle</Link>
+          <Link href="/admin/products/new"    className="btn-neon">+ Ürün Ekle</Link>
+          <Link href="/admin/products/import" className="btn-neon">CSV Import</Link>
+          <Link href="/admin/news/new"        className="btn-neon">+ Haber Ekle</Link>
+          <Link href="/admin/categories/new"  className="btn-neon-purple">+ Kategori Ekle</Link>
+          <Link href="/admin/segments/new"    className="btn-neon-purple">+ Segment Ekle</Link>
+          <Link href="/admin/analytics"       className="btn-neon-purple">Analytics →</Link>
         </div>
       </section>
     </div>

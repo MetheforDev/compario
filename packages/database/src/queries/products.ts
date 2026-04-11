@@ -137,7 +137,7 @@ export async function getSimilarProducts(
 ): Promise<Product[]> {
   const { data, error } = await supabase
     .from('products')
-    .select('id, name, slug, brand, model, image_url, price_min, price_max, currency, status, is_featured, view_count, compare_count, category_id, segment_id, model_year, specs, short_description, description, meta_title, meta_description, meta_keywords, images, source, source_url, last_scraped_at, published_at, created_at, updated_at')
+    .select('*')
     .eq('category_id', categoryId)
     .eq('status', 'active')
     .neq('id', currentProductId)
@@ -146,4 +146,124 @@ export async function getSimilarProducts(
 
   if (error) throw new Error(`Failed to fetch similar products: ${error.message}`);
   return (data ?? []) as Product[];
+}
+
+export async function incrementCompareCount(ids: string[]): Promise<void> {
+  if (!ids.length) return;
+  // Fire individual updates; non-critical — swallow errors
+  await Promise.all(
+    ids.map((id) =>
+      supabase.rpc('increment_compare_count', { product_uuid: id }).then(() => null, () => null),
+    ),
+  );
+}
+
+export async function getTrendingProducts(limit = 6): Promise<Product[]> {
+  const { data, error } = await supabase
+    .from('products')
+    .select('*')
+    .eq('status', 'active')
+    .order('compare_count', { ascending: false })
+    .order('view_count', { ascending: false })
+    .limit(limit);
+  if (error) throw new Error(`Failed to fetch trending: ${error.message}`);
+  return (data ?? []) as Product[];
+}
+
+export async function getTopProductsByViews(limit = 10): Promise<Product[]> {
+  const admin = createAdminClient();
+  const { data, error } = await admin
+    .from('products')
+    .select('*')
+    .order('view_count', { ascending: false })
+    .limit(limit);
+  if (error) throw new Error(`Failed to fetch top by views: ${error.message}`);
+  return (data ?? []) as Product[];
+}
+
+export async function getTopProductsByCompares(limit = 10): Promise<Product[]> {
+  const admin = createAdminClient();
+  const { data, error } = await admin
+    .from('products')
+    .select('*')
+    .order('compare_count', { ascending: false })
+    .limit(limit);
+  if (error) throw new Error(`Failed to fetch top by compares: ${error.message}`);
+  return (data ?? []) as Product[];
+}
+
+export async function bulkCreateProducts(inputs: ProductInput[]): Promise<{ created: number; errors: string[] }> {
+  if (!inputs.length) return { created: 0, errors: [] };
+  const admin = createAdminClient();
+  const errors: string[] = [];
+  let created = 0;
+
+  // Insert in batches of 50
+  const BATCH = 50;
+  for (let i = 0; i < inputs.length; i += BATCH) {
+    const batch = inputs.slice(i, i + BATCH);
+    const { data, error } = await admin
+      .from('products')
+      .insert(batch as ProductInsert[])
+      .select('id');
+    if (error) {
+      errors.push(`Satır ${i + 1}–${i + batch.length}: ${error.message}`);
+    } else {
+      created += (data ?? []).length;
+    }
+  }
+  return { created, errors };
+}
+
+export interface SearchProductResult extends Product {
+  _matchType: 'exact' | 'prefix' | 'contains';
+}
+
+export async function searchProducts(
+  query: string,
+  limit = 8,
+): Promise<SearchProductResult[]> {
+  if (!query || query.trim().length < 2) return [];
+  const q = query.trim();
+
+  // Run exact/prefix and contains searches in parallel
+  const [exactRes, containsRes] = await Promise.all([
+    supabase
+      .from('products')
+      .select('*')
+      .eq('status', 'active')
+      .or(`name.ilike.${q}%,brand.ilike.${q}%,model.ilike.${q}%`)
+      .order('view_count', { ascending: false })
+      .limit(limit),
+    supabase
+      .from('products')
+      .select('*')
+      .eq('status', 'active')
+      .or(
+        `name.ilike.%${q}%,brand.ilike.%${q}%,model.ilike.%${q}%,description.ilike.%${q}%,short_description.ilike.%${q}%`,
+      )
+      .order('view_count', { ascending: false })
+      .limit(limit),
+  ]);
+
+  const exactIds = new Set<string>();
+  const results: SearchProductResult[] = [];
+
+  for (const p of exactRes.data ?? []) {
+    exactIds.add(p.id);
+    const lowerName = (p.name ?? '').toLowerCase();
+    const lowerQ = q.toLowerCase();
+    const matchType = lowerName === lowerQ || (p.brand ?? '').toLowerCase() === lowerQ
+      ? 'exact'
+      : 'prefix';
+    results.push({ ...(p as Product), _matchType: matchType });
+  }
+
+  for (const p of containsRes.data ?? []) {
+    if (!exactIds.has(p.id)) {
+      results.push({ ...(p as Product), _matchType: 'contains' });
+    }
+  }
+
+  return results.slice(0, limit);
 }

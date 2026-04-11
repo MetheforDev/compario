@@ -1,0 +1,20 @@
+{
+  "version": "1.0",
+  "model": "claude-sonnet-4-6",
+  "permissions": {
+    "read_files": true,
+    "write_files": true,
+    "execute_commands": true,
+    "network_access": true
+  },
+  "context": {
+    "max_tokens": 200000,
+    "include_project_files": true,
+    "include_memory": true
+  },
+  "features": {
+    "plan_mode": true,
+    "code_execution": true,
+    "web_search": false
+  }
+}
