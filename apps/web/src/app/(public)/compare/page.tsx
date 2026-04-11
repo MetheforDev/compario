@@ -323,8 +323,183 @@ export default async function ComparePage({ searchParams }: PageProps) {
           </div>
         )}
 
-        {/* ── Product Header Cards + Spec Table — horizontal scroll on mobile ── */}
-        <div className="overflow-x-auto -mx-4 sm:mx-0 px-4 sm:px-0">
+        {/* ── MOBILE: Product Cards + Spec Rows ── */}
+        <div className="md:hidden">
+          {/* Product mini-cards */}
+          <div className={`grid gap-3 mb-4 ${products.length === 3 ? 'grid-cols-3' : 'grid-cols-2'}`}>
+            {products.map((product, i) => {
+              const isCheapestM = product.price_min !== null && product.price_min === minPrice && validPrices.length > 0;
+              const isWinnerM = i === overallWinnerIdx && scores[i].total > 0;
+              const sM = scores[i];
+              return (
+                <div
+                  key={product.id}
+                  className="rounded-xl overflow-hidden flex flex-col"
+                  style={{
+                    background: isWinnerM ? 'rgba(0,255,247,0.03)' : '#0c0c18',
+                    border: isWinnerM
+                      ? '1px solid rgba(0,255,247,0.3)'
+                      : isCheapestM
+                      ? '1px solid rgba(196,154,60,0.25)'
+                      : '1px solid rgba(196,154,60,0.08)',
+                    borderTop: isWinnerM
+                      ? '2px solid rgba(0,255,247,0.5)'
+                      : isCheapestM
+                      ? '2px solid rgba(196,154,60,0.4)'
+                      : '2px solid transparent',
+                  }}
+                >
+                  {(isWinnerM || isCheapestM) && (
+                    <div className="px-2 pt-1.5">
+                      {isWinnerM ? (
+                        <span className="font-mono text-[7px] uppercase tracking-[0.15em] px-1.5 py-0.5 rounded"
+                          style={{ background: 'rgba(0,255,247,0.12)', color: '#00fff7', border: '1px solid rgba(0,255,247,0.3)' }}>
+                          ◆ Kazanan
+                        </span>
+                      ) : (
+                        <span className="font-mono text-[7px] uppercase tracking-[0.15em]" style={{ color: '#C49A3C' }}>
+                          ◆ En Uygun
+                        </span>
+                      )}
+                    </div>
+                  )}
+                  {product.image_url ? (
+                    <div className="relative w-full aspect-video">
+                      <Image src={product.image_url} alt={product.name} fill className="object-cover" sizes="50vw" />
+                    </div>
+                  ) : (
+                    <div className="w-full aspect-video flex items-center justify-center"
+                      style={{ background: 'rgba(196,154,60,0.04)' }}>
+                      <span className="text-xl opacity-20">◈</span>
+                    </div>
+                  )}
+                  <div className="p-2 flex flex-col gap-0.5 flex-1">
+                    {product.brand && (
+                      <p className="font-mono text-[7px] uppercase tracking-widest text-gray-600 truncate">{product.brand}</p>
+                    )}
+                    <Link href={`/products/${product.slug}`}>
+                      <h2 className="font-orbitron text-[9px] font-bold text-white leading-snug hover:text-neon-cyan transition-colors line-clamp-2">
+                        {product.name}
+                      </h2>
+                    </Link>
+                    {product.price_min && (
+                      <p className="font-orbitron text-[10px] font-black mt-1"
+                        style={{ color: isWinnerM ? '#00fff7' : isCheapestM ? '#C49A3C' : '#9ca3af' }}>
+                        ₺{product.price_min.toLocaleString('tr-TR')}
+                      </p>
+                    )}
+                    {sM.total > 0 && (
+                      <div className="flex items-center gap-1.5 mt-1 pt-1.5"
+                        style={{ borderTop: '1px solid rgba(255,255,255,0.04)' }}>
+                        <ScoreRing score={sM.score} size={32} />
+                        <p className="font-mono text-[7px] text-gray-600">{sM.wins} kazanılan</p>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+
+          {/* Spec table */}
+          {specKeyOrder.length > 0 ? (
+            <div className="rounded-xl overflow-hidden" style={{ border: '1px solid rgba(196,154,60,0.1)' }}>
+              {/* Header row: product abbreviations */}
+              <div className="grid px-3 py-2"
+                style={{
+                  gridTemplateColumns: `1fr repeat(${products.length}, minmax(0, 1fr))`,
+                  background: '#09090f',
+                  borderBottom: '1px solid rgba(255,255,255,0.04)',
+                }}>
+                <span className="font-mono text-[8px] text-gray-700 uppercase tracking-wider">Özellik</span>
+                {products.map((p, i) => {
+                  const isW = i === overallWinnerIdx && scores[i].total > 0;
+                  return (
+                    <span key={p.id} className="font-mono text-[8px] uppercase tracking-wider text-right"
+                      style={{ color: isW ? '#00fff7' : '#4b5563' }}>
+                      {(p.brand ?? p.name).slice(0, 6)}
+                    </span>
+                  );
+                })}
+              </div>
+
+              {/* Price range */}
+              {products.some((p) => p.price_max && p.price_max !== p.price_min) && (
+                <div className="grid px-3 py-2"
+                  style={{
+                    gridTemplateColumns: `1fr repeat(${products.length}, minmax(0, 1fr))`,
+                    background: '#0b0b15',
+                    borderBottom: '1px solid rgba(255,255,255,0.03)',
+                  }}>
+                  <span className="font-mono text-[9px] text-gray-600 uppercase tracking-wider">Fiyat Aralığı</span>
+                  {products.map((p, i) => (
+                    <span key={p.id} className="font-mono text-[9px] text-gray-500 text-right">
+                      {p.price_max && p.price_max !== p.price_min
+                        ? `₺${(p.price_min ?? 0).toLocaleString('tr-TR')}–${p.price_max.toLocaleString('tr-TR')}`
+                        : '—'}
+                    </span>
+                  ))}
+                </div>
+              )}
+
+              {/* Spec rows */}
+              {specKeyOrder.map((key, rowIdx) => {
+                const valuesM = specsPerProduct.map((s) => s[key] ?? '—');
+                const allSameM = valuesM.every((v) => v === valuesM[0]);
+                const { bestIdx: bestIdxM, bars: barsM, isNumeric: isNumericM } = analyzeSpec(key, valuesM);
+
+                return (
+                  <div key={key}
+                    style={{
+                      background: rowIdx % 2 === 0 ? '#09090f' : '#0b0b15',
+                      borderBottom: rowIdx < specKeyOrder.length - 1 ? '1px solid rgba(255,255,255,0.03)' : undefined,
+                    }}>
+                    <div className="grid px-3 pt-2.5 pb-1"
+                      style={{ gridTemplateColumns: `1fr repeat(${products.length}, minmax(0, 1fr))` }}>
+                      <span className="font-mono text-[9px] text-gray-600 uppercase tracking-wider leading-tight self-center">{key}</span>
+                      {valuesM.map((val, i) => {
+                        const isBestM = !allSameM && bestIdxM === i && val !== '—';
+                        return (
+                          <div key={i} className="flex flex-col items-end gap-0.5">
+                            <span className="font-mono text-[10px] font-semibold"
+                              style={{ color: isBestM ? '#00fff7' : '#6b7280', textShadow: isBestM ? '0 0 8px rgba(0,255,247,0.35)' : undefined }}>
+                              {isBestM && <span className="text-[7px] mr-0.5">▲</span>}{val}
+                            </span>
+                          </div>
+                        );
+                      })}
+                    </div>
+                    {isNumericM && (
+                      <div className="grid px-3 pb-2"
+                        style={{ gridTemplateColumns: `1fr repeat(${products.length}, minmax(0, 1fr))` }}>
+                        <span />
+                        {barsM.map((pct, i) => {
+                          const isBestM = !allSameM && bestIdxM === i;
+                          return (
+                            <div key={i} className="flex justify-end">
+                              <div className="h-0.5 w-full rounded-full overflow-hidden mt-0.5"
+                                style={{ background: 'rgba(255,255,255,0.04)' }}>
+                                <div className="h-full rounded-full"
+                                  style={{ width: `${pct}%`, background: isBestM ? '#00fff7' : '#1f2937' }} />
+                              </div>
+                            </div>
+                          );
+                        })}
+                      </div>
+                    )}
+                  </div>
+                );
+              })}
+            </div>
+          ) : (
+            <div className="py-10 text-center rounded-xl" style={{ border: '1px solid rgba(196,154,60,0.1)' }}>
+              <p className="font-mono text-xs text-gray-700">Bu ürünler için detaylı spec verisi henüz eklenmemiş.</p>
+            </div>
+          )}
+        </div>
+
+        {/* ── DESKTOP: Product Header Cards + Spec Table — horizontal scroll ── */}
+        <div className="hidden md:block overflow-x-auto -mx-4 sm:mx-0 px-4 sm:px-0">
         <div style={{ minWidth: `${160 + products.length * 200}px` }}>
 
         <div
@@ -490,7 +665,7 @@ export default async function ComparePage({ searchParams }: PageProps) {
           )}
         </div>
         </div>{/* end minWidth */}
-        </div>{/* end overflow-x-auto */}
+        </div>{/* end desktop: hidden md:block + overflow-x-auto */}
 
         {/* ── Karar Asistanı ── */}
         <div className="mt-8 rounded-xl overflow-hidden" style={{ border: '1px solid rgba(183,36,255,0.15)' }}>
