@@ -3,7 +3,6 @@ import Image from 'next/image';
 import { getCategories, getFeaturedNews, getDailyComparison, getTrendingProducts } from '@compario/database';
 import type { Category, NewsArticle, Product } from '@compario/database';
 import { NewsCard } from '@/components/NewsCard';
-import { ProductCard } from '@/components/ProductCard';
 import { Header } from '@/components/Header';
 import { CompareBar } from '@/components/CompareBar';
 import { CompareHistory } from '@/components/CompareHistory';
@@ -39,7 +38,6 @@ function CategoryCard({ category }: { category: Category }) {
         border: '1px solid rgba(196,154,60,0.08)',
         boxShadow: '0 4px 24px rgba(0,0,0,0.3)',
       }}
-      onMouseEnter={() => {}}
     >
       {/* Hover glow */}
       <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300 rounded-2xl"
