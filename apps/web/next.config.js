@@ -20,11 +20,8 @@ const nextConfig = {
   eslint: { ignoreDuringBuilds: true },
   images: {
     remotePatterns: [
-      {
-        protocol: 'https',
-        hostname: 'bxcwpdfeiyrfekzvvujj.supabase.co',
-        pathname: '/storage/v1/object/public/**',
-      },
+      { protocol: 'https', hostname: '**' },
+      { protocol: 'http',  hostname: '**' },
     ],
   },
 };

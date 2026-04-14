@@ -3,6 +3,7 @@ import Image from 'next/image';
 import { getCategories, getFeaturedNews, getDailyComparison, getTrendingProducts } from '@compario/database';
 import type { Category, NewsArticle, Product } from '@compario/database';
 import { NewsCard } from '@/components/NewsCard';
+import { HeroCompareWidget } from '@/components/HeroCompareWidget';
 import { Header } from '@/components/Header';
 import { CompareBar } from '@/components/CompareBar';
 import { CompareHistory } from '@/components/CompareHistory';
@@ -291,7 +292,19 @@ function Divider() {
 }
 
 // ─── Page ─────────────────────────────────────────────────────────────────────
-export default function HomePage() {
+export default async function HomePage() {
+  let heroProducts: Product[] = [];
+  try { heroProducts = await getTrendingProducts(2); } catch {}
+
+  const widgetProducts = heroProducts.map((p, i) => ({
+    name: p.name,
+    brand: p.brand,
+    image_url: p.image_url,
+    price_min: p.price_min,
+    score: i === 0 ? 87 : 68,
+    isWinner: i === 0,
+  }));
+
   return (
     <main className="min-h-screen bg-grid">
       <Header />
@@ -321,104 +334,15 @@ export default function HomePage() {
             Her Şeyi Karşılaştır, En İyisine Karar Ver
           </p>
 
-          <div className="flex flex-wrap gap-4 justify-center mb-14">
+          <div className="flex flex-wrap gap-4 justify-center mb-2">
             <Link href="/categories" className="btn-neon">Kategorilere Göz At</Link>
             <Link href="/categories" className="btn-neon-purple">Ürünleri Karşılaştır</Link>
           </div>
 
-          {/* 3D Comparison Preview Widget */}
-          <div className="relative max-w-sm mx-auto" style={{ perspective: '1200px' }}>
-            {/* Glow behind */}
-            <div className="absolute -inset-6 rounded-3xl blur-3xl opacity-[0.12] pointer-events-none"
-              style={{ background: 'radial-gradient(ellipse, #00fff7 0%, #b724ff 50%, transparent 80%)' }} />
-
-            <div
-              className="relative rounded-2xl p-5 text-left"
-              style={{
-                background: 'linear-gradient(135deg, rgba(14,14,26,0.96) 0%, rgba(9,9,18,0.99) 100%)',
-                border: '1px solid rgba(0,255,247,0.12)',
-                boxShadow: '0 30px 80px rgba(0,0,0,0.6), 0 0 0 1px rgba(0,255,247,0.04), inset 0 1px 0 rgba(255,255,255,0.04)',
-                transform: 'rotateX(8deg) rotateY(-3deg)',
-              }}
-            >
-              {/* Window dots */}
-              <div className="flex items-center justify-between mb-4">
-                <span className="font-mono text-[8px] uppercase tracking-[0.3em] text-gray-700">Canlı Karşılaştırma</span>
-                <div className="flex gap-1">
-                  <div className="w-2 h-2 rounded-full opacity-50" style={{ background: '#ef4444' }} />
-                  <div className="w-2 h-2 rounded-full opacity-50" style={{ background: '#eab308' }} />
-                  <div className="w-2 h-2 rounded-full opacity-50" style={{ background: '#22c55e' }} />
-                </div>
-              </div>
-
-              {/* Products row */}
-              <div className="flex items-stretch gap-3">
-                <div className="flex-1 rounded-xl p-3 text-center"
-                  style={{ background: 'rgba(0,255,247,0.05)', border: '1px solid rgba(0,255,247,0.15)' }}>
-                  <div className="w-10 h-10 rounded-lg mx-auto mb-2 flex items-center justify-center"
-                    style={{ background: 'rgba(0,255,247,0.08)' }}>
-                    <span className="text-lg">🚗</span>
-                  </div>
-                  <p className="font-mono text-[7px] text-gray-600 mb-0.5 uppercase">BMW</p>
-                  <p className="font-orbitron text-[9px] font-bold text-neon-cyan">3 Serisi</p>
-                  <p className="font-orbitron text-[10px] font-black text-neon-cyan mt-1.5">1.85M ₺</p>
-                  <div className="mt-2 flex items-center justify-center gap-1">
-                    <span className="font-mono text-[7px] px-1.5 py-0.5 rounded"
-                      style={{ background: 'rgba(0,255,247,0.12)', color: '#00fff7' }}>▲ KAZANAN</span>
-                  </div>
-                </div>
-
-                <div className="flex flex-col items-center justify-center gap-1.5 flex-shrink-0 px-1">
-                  <div className="w-7 h-7 rounded-full flex items-center justify-center"
-                    style={{ background: 'rgba(183,36,255,0.15)', border: '1px solid rgba(183,36,255,0.3)' }}>
-                    <span className="font-orbitron text-[8px] font-black text-neon-purple">VS</span>
-                  </div>
-                </div>
-
-                <div className="flex-1 rounded-xl p-3 text-center"
-                  style={{ background: 'rgba(196,154,60,0.04)', border: '1px solid rgba(196,154,60,0.1)' }}>
-                  <div className="w-10 h-10 rounded-lg mx-auto mb-2 flex items-center justify-center"
-                    style={{ background: 'rgba(196,154,60,0.07)' }}>
-                    <span className="text-lg">🚗</span>
-                  </div>
-                  <p className="font-mono text-[7px] text-gray-600 mb-0.5 uppercase">Mercedes</p>
-                  <p className="font-orbitron text-[9px] font-bold text-gray-400">C200</p>
-                  <p className="font-orbitron text-[10px] font-black text-gray-500 mt-1.5">2.10M ₺</p>
-                  <div className="mt-2">
-                    <span className="font-mono text-[7px] text-gray-600">%13 pahalı</span>
-                  </div>
-                </div>
-              </div>
-
-              {/* Score bars */}
-              <div className="mt-4 space-y-2.5">
-                {[
-                  { label: 'Motor Gücü', a: 82, b: 74 },
-                  { label: 'Yakıt Tüketimi', a: 90, b: 68 },
-                  { label: 'Fiyat / Perf.', a: 88, b: 61 },
-                ].map(({ label, a, b }) => (
-                  <div key={label}>
-                    <div className="flex items-center justify-between mb-1">
-                      <span className="font-mono text-[7px] text-gray-700 uppercase tracking-wider">{label}</span>
-                      <span className="font-mono text-[7px] text-neon-cyan">{a}%</span>
-                    </div>
-                    <div className="grid grid-cols-2 gap-1">
-                      <div className="h-1 rounded-full overflow-hidden" style={{ background: 'rgba(255,255,255,0.04)' }}>
-                        <div className="h-full rounded-full" style={{ width: `${a}%`, background: 'linear-gradient(to right, #00fff7, rgba(0,255,247,0.6))' }} />
-                      </div>
-                      <div className="h-1 rounded-full overflow-hidden" style={{ background: 'rgba(255,255,255,0.04)' }}>
-                        <div className="h-full rounded-full" style={{ width: `${b}%`, background: '#2d3748' }} />
-                      </div>
-                    </div>
-                  </div>
-                ))}
-              </div>
-
-              {/* Bottom reflection */}
-              <div className="absolute bottom-0 left-0 right-0 h-px"
-                style={{ background: 'linear-gradient(90deg, transparent, rgba(0,255,247,0.2), transparent)' }} />
-            </div>
-          </div>
+          {/* 3D animated comparison widget — real trending products */}
+          {widgetProducts.length >= 2 && (
+            <HeroCompareWidget products={widgetProducts} />
+          )}
         </div>
       </section>
 
