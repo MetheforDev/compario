@@ -51,7 +51,7 @@ export function Sidebar({ role = 'superadmin' }: SidebarProps) {
         <Link href="/" className="flex items-center gap-2.5 mb-0.5">
           <div className="relative flex-shrink-0" style={{ width: 28, height: 28 }}>
             <Image
-              src="/images/logo/logo-icon.png"
+              src="/images/logos/compario-logo-icon-only.png"
               alt="Compario"
               fill
               className="object-contain"

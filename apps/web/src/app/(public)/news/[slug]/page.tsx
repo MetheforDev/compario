@@ -127,7 +127,7 @@ export default async function NewsDetailPage({ params }: PageProps) {
       url: 'https://compario.tech',
       logo: {
         '@type': 'ImageObject',
-        url: 'https://compario.tech/images/logo/logo-icon.png',
+        url: 'https://compario.tech/images/logos/compario-logo-icon-only.png',
       },
     },
     mainEntityOfPage: {

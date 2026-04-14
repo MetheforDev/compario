@@ -56,14 +56,13 @@ export const metadata: Metadata = {
   },
   icons: {
     icon: [
-      { url: '/images/logo/favicon.ico',       sizes: 'any',    type: 'image/x-icon' },
-      { url: '/images/logo/favicon-32x32.png', sizes: '32x32',  type: 'image/png' },
-      { url: '/images/logo/logo-icon.png',     sizes: '256x256', type: 'image/png' },
+      { url: '/images/logos/favicon.png',                 sizes: '32x32',   type: 'image/png' },
+      { url: '/images/logos/compario-logo-icon-only.png', sizes: '256x256', type: 'image/png' },
     ],
     apple: [
-      { url: '/images/logo/apple-touch-icon.png', sizes: '180x180', type: 'image/png' },
+      { url: '/images/logos/compario-logo-icon-only.png', sizes: '180x180', type: 'image/png' },
     ],
-    shortcut: '/images/logo/favicon.ico',
+    shortcut: '/images/logos/favicon.png',
   },
 };
 

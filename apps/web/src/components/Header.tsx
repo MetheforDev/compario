@@ -78,7 +78,7 @@ export function Header() {
                 style={{ width: scrolled ? 28 : 36, height: scrolled ? 28 : 36 }}
               >
                 <Image
-                  src="/images/logo/logo-icon.png"
+                  src="/images/logos/compario-logo-icon-only.png"
                   alt="Compario"
                   fill
                   className="object-contain"

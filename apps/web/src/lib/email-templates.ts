@@ -58,7 +58,7 @@ export function welcomeEmailHtml(articles: NewsArticlePreview[]): string {
               <table cellpadding="0" cellspacing="0" role="presentation">
                 <tr>
                   <td style="padding-right:12px;">
-                    <img src="${appUrl}/images/logo/logo-icon.png" alt="Compario" width="36" height="36"
+                    <img src="${appUrl}/images/logos/compario-logo-icon-only.png" alt="Compario" width="36" height="36"
                          style="display:block;width:36px;height:36px;object-fit:contain;" />
                   </td>
                   <td>

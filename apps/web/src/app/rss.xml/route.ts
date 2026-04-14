@@ -69,7 +69,7 @@ ${categories}${article.author ? `\n      <dc:creator>${esc(article.author)}</dc:
     <ttl>60</ttl>
     <atom:link href="${BASE}/rss.xml" rel="self" type="application/rss+xml" />
     <image>
-      <url>${BASE}/images/logo/logo-icon.png</url>
+      <url>${BASE}/images/logos/compario-logo-icon-only.png</url>
       <title>${esc(SITE_TITLE)}</title>
       <link>${BASE}</link>
       <width>144</width>
