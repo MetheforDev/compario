@@ -1,11 +1,8 @@
 name: Araç Fiyatları Güncelle
 
 on:
-  # Her gün Türkiye saati 09:00 (UTC 06:00) çalışır
   schedule:
     - cron: '0 6 * * *'
-
-  # Elle de çalıştırılabilir (GitHub → Actions → Run workflow)
   workflow_dispatch:
 
 jobs:
@@ -21,20 +18,19 @@ jobs:
       - name: Node.js kur
         uses: actions/setup-node@v4
         with:
-          node-version: '20'
+          node-version: '22'
 
-      - name: Supabase client kur
-        run: npm install @supabase/supabase-js --prefix /tmp/scraper
+      - name: Bağımlılıkları kur
+        working-directory: scripts
+        run: npm install
 
       - name: Fiyatları çek ve güncelle
+        working-directory: scripts
         env:
           SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
           SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
-          NODE_PATH: /tmp/scraper/node_modules
-        run: |
-          export NODE_PATH=/tmp/scraper/node_modules
-          node --experimental-vm-modules scripts/scrape-car-prices.mjs
+        run: node scrape-car-prices.mjs
 
       - name: Sonuç özeti
         if: always()
-        run: echo "Tamamlandı. Sonuçlar yukarıdaki log'da."
+        run: echo "Tamamlandı."

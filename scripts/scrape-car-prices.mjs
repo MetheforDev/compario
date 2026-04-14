@@ -24,7 +24,7 @@ const __dir = dirname(fileURLToPath(import.meta.url));
 // ─── Env ─────────────────────────────────────────────────────────────────────
 function loadEnv() {
   try {
-    const raw = readFileSync(resolve(__dir, '../apps/web/.env.local'), 'utf8');
+    const raw = readFileSync(resolve(__dir, '..', 'apps/web/.env.local'), 'utf8');
     const vars = {};
     raw.split('\n').forEach((line) => {
       const [k, ...rest] = line.split('=');
