@@ -330,8 +330,8 @@ export default async function HomePage() {
             COMPARIO
           </h1>
 
-          <p className="font-orbitron text-xs sm:text-sm text-gray-500 uppercase tracking-[0.25em] sm:tracking-[0.35em] mb-10">
-            Her Şeyi Karşılaştır, En İyisine Karar Ver
+          <p className="font-mono text-[11px] text-gray-500 uppercase tracking-[0.3em] mb-10">
+            Her Şeyi Karşılaştır. En İyisine Karar Ver
           </p>
 
           <div className="flex flex-wrap gap-4 justify-center mb-2">
