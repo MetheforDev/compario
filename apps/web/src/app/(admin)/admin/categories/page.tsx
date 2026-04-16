@@ -56,7 +56,7 @@ export default async function CategoriesPage() {
                   <td className="px-4 py-3">
                     <div className="flex items-center gap-2">
                       <Link
-                        href={`/admin/categories/${cat.id}/edit`}
+                        href={`/admin/categories/${cat.id}/edit?name=${encodeURIComponent(cat.name)}&slug=${encodeURIComponent(cat.slug)}&icon=${encodeURIComponent(cat.icon ?? '')}&image_url=${encodeURIComponent(cat.image_url ?? '')}&description=${encodeURIComponent(cat.description ?? '')}&is_active=${cat.is_active}`}
                         className="px-3 py-1.5 font-mono text-[10px] uppercase tracking-wider border border-[rgba(183,36,255,0.3)]
                                    text-[rgba(183,36,255,0.7)] rounded hover:border-neon-purple hover:text-neon-purple transition-all"
                       >
