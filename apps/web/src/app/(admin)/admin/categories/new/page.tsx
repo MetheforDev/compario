@@ -28,6 +28,7 @@ export default function NewCategoryPage() {
   const [slug, setSlug]         = useState('');
   const [slugLocked, setSlugLocked] = useState(false);
   const [icon, setIcon]         = useState('');
+  const [imageUrl, setImageUrl] = useState('');
   const [description, setDesc]  = useState('');
   const [isActive, setIsActive] = useState(true);
 
@@ -46,6 +47,7 @@ export default function NewCategoryPage() {
         name: name.trim(),
         slug: slug.trim(),
         icon: icon.trim() || null,
+        image_url: imageUrl.trim() || null,
         description: description.trim() || null,
         is_active: isActive,
       });
@@ -95,6 +97,15 @@ export default function NewCategoryPage() {
             <label className={labelCls}>İkon (Emoji)</label>
             <input type="text" value={icon} onChange={(e) => setIcon(e.target.value)}
               placeholder="📱" className={inputCls} maxLength={4} />
+          </div>
+
+          <div>
+            <label className={labelCls}>Görsel URL (Opsiyonel)</label>
+            <input type="text" value={imageUrl} onChange={(e) => setImageUrl(e.target.value)}
+              placeholder="https://..." className={inputCls} />
+            {imageUrl && (
+              <img src={imageUrl} alt="önizleme" className="mt-2 h-24 w-full object-cover rounded opacity-70" />
+            )}
           </div>
 
           <div>

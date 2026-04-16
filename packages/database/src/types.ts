@@ -15,6 +15,7 @@ export interface Database {
           name: string
           slug: string
           icon: string | null
+          image_url: string | null
           description: string | null
           display_order: number
           is_active: boolean
@@ -26,6 +27,7 @@ export interface Database {
           name: string
           slug: string
           icon?: string | null
+          image_url?: string | null
           description?: string | null
           display_order?: number
           is_active?: boolean
@@ -37,6 +39,7 @@ export interface Database {
           name?: string
           slug?: string
           icon?: string | null
+          image_url?: string | null
           description?: string | null
           display_order?: number
           is_active?: boolean

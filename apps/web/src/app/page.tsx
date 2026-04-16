@@ -33,24 +33,45 @@ function CategoryCard({ category }: { category: Category }) {
   return (
     <Link
       href={`/categories/${category.slug}`}
-      className="group relative flex flex-col items-center gap-3 rounded-2xl p-5 overflow-hidden transition-all duration-300 hover:-translate-y-1"
+      className="group relative flex flex-col items-center gap-3 rounded-2xl overflow-hidden transition-all duration-300 hover:-translate-y-1"
       style={{
         background: 'linear-gradient(135deg, rgba(15,15,28,0.9) 0%, rgba(10,10,20,0.95) 100%)',
         border: '1px solid rgba(196,154,60,0.08)',
         boxShadow: '0 4px 24px rgba(0,0,0,0.3)',
       }}
     >
-      {/* Hover glow */}
-      <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300 rounded-2xl"
-        style={{ background: 'radial-gradient(ellipse at center, rgba(0,255,247,0.04) 0%, transparent 70%)' }} />
+      {/* Görsel veya emoji arka plan */}
+      {category.image_url ? (
+        <div className="relative w-full h-28 overflow-hidden">
+          <Image
+            src={category.image_url}
+            alt={category.name}
+            fill
+            className="object-cover group-hover:scale-105 transition-transform duration-500"
+            sizes="(max-width:640px) 50vw, 20vw"
+          />
+          {/* Altta gradient geçiş */}
+          <div className="absolute inset-0" style={{ background: 'linear-gradient(to top, rgba(10,10,20,1) 0%, rgba(10,10,20,0.2) 60%, transparent 100%)' }} />
+          {/* Hover overlay */}
+          <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300"
+            style={{ background: 'rgba(0,255,247,0.06)' }} />
+        </div>
+      ) : (
+        <div className="w-full h-28 flex items-center justify-center"
+          style={{ background: 'rgba(196,154,60,0.04)' }}>
+          <span className="text-4xl" aria-hidden="true">{category.icon ?? '📦'}</span>
+        </div>
+      )}
 
-      <span className="text-3xl relative z-10" aria-hidden="true">{category.icon ?? '📦'}</span>
-      <h3 className="font-orbitron text-[10px] font-bold text-gray-400 uppercase tracking-wider text-center group-hover:text-neon-cyan transition-colors relative z-10">
-        {category.name}
-      </h3>
-      <span className="font-mono text-[8px] text-neon-purple opacity-0 group-hover:opacity-100 transition-opacity tracking-widest relative z-10">
-        İNCELE →
-      </span>
+      {/* İsim */}
+      <div className="px-3 pb-4 text-center">
+        <h3 className="font-orbitron text-[10px] font-bold text-gray-400 uppercase tracking-wider group-hover:text-neon-cyan transition-colors">
+          {category.name}
+        </h3>
+        <span className="font-mono text-[8px] text-neon-purple opacity-0 group-hover:opacity-100 transition-opacity tracking-widest">
+          İNCELE →
+        </span>
+      </div>
     </Link>
   );
 }
