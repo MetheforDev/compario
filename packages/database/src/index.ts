@@ -50,8 +50,12 @@ export {
 } from './queries/products';
 
 // Category queries
+export type { CategoryWithChildren } from './queries/categories';
 export {
   getCategories,
+  getTopLevelCategories,
+  getSubCategories,
+  getCategoryTree,
   getCategoryById,
   getCategoryBySlug,
   createCategory,

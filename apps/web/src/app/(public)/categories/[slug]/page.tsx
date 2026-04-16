@@ -2,7 +2,7 @@ import type { Metadata } from 'next';
 import Link from 'next/link';
 import Image from 'next/image';
 import { notFound } from 'next/navigation';
-import { getCategoryBySlug, getProducts, getSegmentsByCategory } from '@compario/database';
+import { getCategoryBySlug, getSubCategories, getProducts, getSegmentsByCategory } from '@compario/database';
 import { ProductCard } from '@/components/ProductCard';
 
 const CATEGORY_BANNERS: Record<string, string> = {
@@ -39,15 +39,13 @@ const SORT_OPTIONS = [
 ];
 
 export default async function CategoryPage({ params, searchParams }: PageProps) {
-  const [category, segments] = await Promise.all([
-    getCategoryBySlug(params.slug).catch(() => null),
-    // segments fetched below
-    Promise.resolve([]),
-  ]);
-
+  const category = await getCategoryBySlug(params.slug).catch(() => null);
   if (!category) notFound();
 
-  const categorySegments = await getSegmentsByCategory(category.id).catch(() => []);
+  const [subCategories, categorySegments] = await Promise.all([
+    getSubCategories(category.id).catch(() => []),
+    getSegmentsByCategory(category.id).catch(() => []),
+  ]);
   const activeSegment = searchParams.segment ?? '';
   const activeSort = (searchParams.sort ?? 'newest') as 'newest' | 'price_asc' | 'price_desc' | 'name_asc';
 
@@ -111,6 +109,45 @@ export default async function CategoryPage({ params, searchParams }: PageProps) 
       <div className="max-w-7xl mx-auto px-4 sm:px-6">
         {/* Divider */}
         <div className="h-px mb-6 mt-6" style={{ background: 'rgba(196,154,60,0.08)' }} />
+
+        {/* Alt kategoriler */}
+        {subCategories.length > 0 && (
+          <div className="mb-10">
+            <p className="font-mono text-[10px] uppercase tracking-[0.35em] text-neon-purple opacity-70 mb-4">
+              ⬡ Alt Kategoriler
+            </p>
+            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-3">
+              {subCategories.map((sub) => (
+                <Link
+                  key={sub.id}
+                  href={`/categories/${sub.slug}`}
+                  className="group relative flex flex-col items-center gap-2 rounded-xl overflow-hidden transition-all duration-300 hover:-translate-y-1"
+                  style={{
+                    background: 'linear-gradient(135deg, rgba(15,15,28,0.95) 0%, rgba(10,10,20,0.98) 100%)',
+                    border: '1px solid rgba(0,255,247,0.08)',
+                    boxShadow: '0 2px 12px rgba(0,0,0,0.3)',
+                  }}
+                >
+                  {sub.image_url ? (
+                    <div className="relative w-full h-20 overflow-hidden">
+                      <Image src={sub.image_url} alt={sub.name} fill className="object-cover group-hover:scale-105 transition-transform duration-500" sizes="200px" />
+                      <div className="absolute inset-0" style={{ background: 'linear-gradient(to top, rgba(10,10,20,0.9) 0%, transparent 60%)' }} />
+                    </div>
+                  ) : (
+                    <div className="w-full h-16 flex items-center justify-center" style={{ background: 'rgba(0,255,247,0.03)' }}>
+                      <span className="text-2xl">{sub.icon ?? '📦'}</span>
+                    </div>
+                  )}
+                  <div className="px-2 pb-3 text-center">
+                    <p className="font-orbitron text-[9px] font-bold text-gray-400 uppercase tracking-wider group-hover:text-neon-cyan transition-colors leading-tight">
+                      {sub.name}
+                    </p>
+                  </div>
+                </Link>
+              ))}
+            </div>
+          </div>
+        )}
 
         {/* Filters row */}
         <div className="flex flex-wrap items-center gap-3 mb-8">

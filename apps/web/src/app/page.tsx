@@ -1,6 +1,6 @@
 import Link from 'next/link';
 import Image from 'next/image';
-import { getCategories, getFeaturedNews, getDailyComparison, getTrendingProducts } from '@compario/database';
+import { getTopLevelCategories, getFeaturedNews, getDailyComparison, getTrendingProducts } from '@compario/database';
 import type { Category, NewsArticle, Product } from '@compario/database';
 import { NewsCard } from '@/components/NewsCard';
 import { HeroCompareWidget } from '@/components/HeroCompareWidget';
@@ -78,7 +78,7 @@ function CategoryCard({ category }: { category: Category }) {
 
 async function CategoriesSection() {
   let categories: Category[] = [];
-  try { categories = await getCategories(true); } catch {}
+  try { categories = await getTopLevelCategories(true); } catch {}
   if (categories.length === 0) return (
     <p className="text-center py-16 text-gray-700 font-mono text-xs">[ KATEGORİ BULUNAMADI ]</p>
   );
