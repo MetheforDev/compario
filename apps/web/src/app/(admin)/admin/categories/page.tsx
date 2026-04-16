@@ -1,5 +1,6 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
+import Image from 'next/image';
 import { getCategories } from '@compario/database';
 import { DeleteCategoryButton } from './DeleteCategoryButton';
 
@@ -38,7 +39,15 @@ export default async function CategoriesPage() {
             <tbody className="divide-y divide-[rgba(0,255,247,0.04)]">
               {categories.map((cat) => (
                 <tr key={cat.id} className="hover:bg-[rgba(0,255,247,0.02)] transition-colors">
-                  <td className="px-4 py-3 text-2xl">{cat.icon ?? '📦'}</td>
+                  <td className="px-4 py-3">
+                    {cat.image_url ? (
+                      <div className="relative w-14 h-10 rounded overflow-hidden flex-shrink-0">
+                        <Image src={cat.image_url} alt={cat.name} fill className="object-cover" sizes="56px" />
+                      </div>
+                    ) : (
+                      <span className="text-2xl">{cat.icon ?? '📦'}</span>
+                    )}
+                  </td>
                   <td className="px-4 py-3">
                     <p className="font-mono text-xs text-gray-200">{cat.name}</p>
                     {cat.description && (
