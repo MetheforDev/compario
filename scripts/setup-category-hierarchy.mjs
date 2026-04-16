@@ -33,8 +33,12 @@ const db = createClient(URL_, KEY);
 // ─── Helpers ─────────────────────────────────────────────────────────────────
 
 async function getOrCreate(cat) {
-  const { data: existing } = await db.from('categories').select('id').eq('slug', cat.slug).single();
-  if (existing) return existing.id;
+  // slug kontrolü
+  const { data: bySlug } = await db.from('categories').select('id').eq('slug', cat.slug).single();
+  if (bySlug) return bySlug.id;
+  // name unique constraint — aynı isim varsa onu kullan
+  const { data: byName } = await db.from('categories').select('id').eq('name', cat.name).single();
+  if (byName) return byName.id;
   const { data, error } = await db.from('categories').insert(cat).select('id').single();
   if (error) throw new Error(`Insert failed (${cat.slug}): ${error.message}`);
   console.log(`  ✅ Yeni: ${cat.name}`);
@@ -107,9 +111,9 @@ const TREE = [
         description: 'Tam elektrikli (BEV) otomobiller',
         display_order: 5,
         children: [
-          { slug: 'elektrikli-suv-tum',   name: 'Elektrikli SUV',    icon: '🚙', display_order: 1 },
-          { slug: 'elektrikli-sedan-tum', name: 'Elektrikli Sedan',  icon: '🚗', display_order: 2 },
-          { slug: 'elektrikli-hatch-tum', name: 'Elektrikli Hatchback', icon: '🚘', display_order: 3 },
+          { slug: 'elektrikli-suv-tum',   name: 'BEV SUV',        icon: '🚙', display_order: 1 },
+          { slug: 'elektrikli-sedan-tum', name: 'BEV Sedan',      icon: '🚗', display_order: 2 },
+          { slug: 'elektrikli-hatch-tum', name: 'BEV Hatchback',  icon: '🚘', display_order: 3 },
         ],
       },
     ],
