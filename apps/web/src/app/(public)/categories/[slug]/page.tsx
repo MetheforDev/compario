@@ -2,7 +2,7 @@ import type { Metadata } from 'next';
 import Link from 'next/link';
 import Image from 'next/image';
 import { notFound } from 'next/navigation';
-import { getCategoryBySlug, getSubCategories, getProducts, getSegmentsByCategory } from '@compario/database';
+import { getCategoryBySlug, getCategoryById, getSubCategories, getProducts, getSegmentsByCategory } from '@compario/database';
 import { ProductCard } from '@/components/ProductCard';
 
 const CATEGORY_BANNERS: Record<string, string> = {
@@ -42,9 +42,10 @@ export default async function CategoryPage({ params, searchParams }: PageProps) 
   const category = await getCategoryBySlug(params.slug).catch(() => null);
   if (!category) notFound();
 
-  const [subCategories, categorySegments] = await Promise.all([
+  const [subCategories, categorySegments, parentCategory] = await Promise.all([
     getSubCategories(category.id).catch(() => []),
     getSegmentsByCategory(category.id).catch(() => []),
+    category.parent_id ? getCategoryById(category.parent_id).catch(() => null) : Promise.resolve(null),
   ]);
   const activeSegment = searchParams.segment ?? '';
   const activeSort = (searchParams.sort ?? 'newest') as 'newest' | 'price_asc' | 'price_desc' | 'name_asc';
@@ -82,6 +83,14 @@ export default async function CategoryPage({ params, searchParams }: PageProps) 
             <Link href="/" className="hover:text-neon-cyan transition-colors">Ana Sayfa</Link>
             <span>/</span>
             <Link href="/categories" className="hover:text-neon-cyan transition-colors">Kategoriler</Link>
+            {parentCategory && (
+              <>
+                <span>/</span>
+                <Link href={`/categories/${parentCategory.slug}`} className="hover:text-neon-cyan transition-colors">
+                  {parentCategory.name}
+                </Link>
+              </>
+            )}
             <span>/</span>
             <span className="text-neon-purple">{category.name}</span>
           </nav>

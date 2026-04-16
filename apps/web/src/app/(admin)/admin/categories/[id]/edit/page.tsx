@@ -12,6 +12,8 @@ const inputCls =
 
 const labelCls = 'block font-mono text-[10px] uppercase tracking-widest text-neon-cyan opacity-70 mb-1.5';
 
+interface FlatCat { id: string; name: string; parent_id: string | null; depth: number }
+
 interface PageProps {
   params: { id: string };
   searchParams: { name?: string; slug?: string; icon?: string; image_url?: string; description?: string; is_active?: string };
@@ -26,13 +28,37 @@ export default function EditCategoryPage({ params, searchParams }: PageProps) {
   const [slug, setSlug]         = useState('');
   const [icon, setIcon]         = useState('');
   const [imageUrl, setImageUrl] = useState('');
+  const [parentId, setParentId] = useState('');
   const [description, setDesc]  = useState('');
   const [isActive, setIsActive] = useState(true);
+  const [allCats, setAllCats]   = useState<FlatCat[]>([]);
 
-  // searchParams üzerinden başlangıç verisi gelmediyse API'den çek
+  // Tüm kategorileri çek (parent seçici için)
+  useEffect(() => {
+    fetch('/api/admin/categories')
+      .then(r => r.ok ? r.json() : [])
+      .then((cats: FlatCat[]) => {
+        // Tree → flat indented
+        const map = new Map<string, FlatCat & { children: FlatCat[] }>();
+        cats.forEach(c => map.set(c.id, { ...c, depth: 0, children: [] }));
+        const roots: (FlatCat & { children: FlatCat[] })[] = [];
+        map.forEach(n => {
+          if (n.parent_id && map.has(n.parent_id)) map.get(n.parent_id)!.children.push(n);
+          else roots.push(n);
+        });
+        const flat: FlatCat[] = [];
+        const walk = (nodes: typeof roots, depth: number) =>
+          nodes.forEach(n => { flat.push({ ...n, depth }); walk(n.children as typeof roots, depth + 1); });
+        walk(roots, 0);
+        // Kendi ID'sini listeden çıkar (döngüsel parent'ı önle)
+        setAllCats(flat.filter(c => c.id !== params.id));
+      })
+      .catch(() => {});
+  }, [params.id]);
+
+  // Kategori verisini yükle
   useEffect(() => {
     if (loaded) return;
-
     if (searchParams.name) {
       setName(searchParams.name);
       setSlug(searchParams.slug ?? '');
@@ -41,24 +67,23 @@ export default function EditCategoryPage({ params, searchParams }: PageProps) {
       setDesc(searchParams.description ?? '');
       setIsActive(searchParams.is_active !== 'false');
       setLoaded(true);
+      // parent_id için API'den çek
+      fetch(`/api/admin/categories/${params.id}`)
+        .then(r => r.ok ? r.json() : {})
+        .then(cat => setParentId(cat.parent_id ?? ''))
+        .catch(() => {});
       return;
     }
-
     fetch(`/api/admin/categories/${params.id}`)
-      .then((r) => r.ok ? r.json() : Promise.reject())
-      .then((cat) => {
-        setName(cat.name ?? '');
-        setSlug(cat.slug ?? '');
-        setIcon(cat.icon ?? '');
-        setImageUrl(cat.image_url ?? '');
-        setDesc(cat.description ?? '');
-        setIsActive(cat.is_active ?? true);
+      .then(r => r.ok ? r.json() : Promise.reject())
+      .then(cat => {
+        setName(cat.name ?? ''); setSlug(cat.slug ?? '');
+        setIcon(cat.icon ?? ''); setImageUrl(cat.image_url ?? '');
+        setDesc(cat.description ?? ''); setIsActive(cat.is_active ?? true);
+        setParentId(cat.parent_id ?? '');
         setLoaded(true);
       })
-      .catch(() => {
-        toast.error('Kategori yüklenemedi');
-        router.push('/admin/categories');
-      });
+      .catch(() => { toast.error('Yüklenemedi'); router.push('/admin/categories'); });
   }, [params.id, searchParams, loaded, router]);
 
   function handleSubmit(e: React.FormEvent) {
@@ -66,32 +91,26 @@ export default function EditCategoryPage({ params, searchParams }: PageProps) {
     if (!name.trim() || !slug.trim()) { toast.error('Ad ve Slug zorunludur.'); return; }
     startTransition(async () => {
       const result = await updateCategoryAction(params.id, {
-        name: name.trim(),
-        slug: slug.trim(),
-        icon: icon.trim() || null,
-        image_url: imageUrl.trim() || null,
-        description: description.trim() || null,
-        is_active: isActive,
+        name: name.trim(), slug: slug.trim(),
+        icon: icon.trim() || null, image_url: imageUrl.trim() || null,
+        parent_id: parentId || null,
+        description: description.trim() || null, is_active: isActive,
       });
       if (result.error) { toast.error(result.error); }
-      else { toast.success('Kategori güncellendi!'); router.push('/admin/categories'); router.refresh(); }
+      else { toast.success('Güncellendi!'); router.push('/admin/categories'); router.refresh(); }
     });
   }
 
-  if (!loaded) {
-    return (
-      <div className="p-8 flex items-center justify-center min-h-[400px]">
-        <p className="font-mono text-xs text-gray-600 animate-pulse uppercase tracking-widest">Yükleniyor...</p>
-      </div>
-    );
-  }
+  if (!loaded) return (
+    <div className="p-8 flex items-center justify-center min-h-[400px]">
+      <p className="font-mono text-xs text-gray-600 animate-pulse uppercase tracking-widest">Yükleniyor...</p>
+    </div>
+  );
 
   return (
     <div className="p-8">
       <div className="mb-8">
-        <Link href="/admin/categories" className="font-mono text-[10px] text-gray-600 hover:text-neon-cyan transition-colors uppercase tracking-widest">
-          ← Kategoriler
-        </Link>
+        <Link href="/admin/categories" className="font-mono text-[10px] text-gray-600 hover:text-neon-cyan transition-colors uppercase tracking-widest">← Kategoriler</Link>
         <h1 className="font-orbitron text-2xl font-black text-neon-cyan text-glow-cyan mt-3">KATEGORİ DÜZENLE</h1>
         <p className="font-mono text-xs text-gray-600 mt-1">{name}</p>
       </div>
@@ -106,16 +125,28 @@ export default function EditCategoryPage({ params, searchParams }: PageProps) {
             <label className={labelCls}>Slug *</label>
             <input type="text" value={slug} onChange={(e) => setSlug(e.target.value)} className={inputCls} />
           </div>
+
+          {/* Üst Kategori */}
+          <div>
+            <label className={labelCls}>Üst Kategori</label>
+            <select value={parentId} onChange={(e) => setParentId(e.target.value)} className={inputCls}>
+              <option value="">— Üst düzey (parent yok) —</option>
+              {allCats.map(c => (
+                <option key={c.id} value={c.id}>
+                  {'　'.repeat(c.depth)}{c.depth > 0 ? '└ ' : ''}{c.name}
+                </option>
+              ))}
+            </select>
+          </div>
+
           <div>
             <label className={labelCls}>İkon (Emoji)</label>
             <input type="text" value={icon} onChange={(e) => setIcon(e.target.value)} placeholder="🚙" className={inputCls} maxLength={4} />
           </div>
           <div>
             <label className={labelCls}>Görsel URL</label>
-            <input type="text" value={imageUrl} onChange={(e) => setImageUrl(e.target.value)} placeholder="https://images.pexels.com/..." className={inputCls} />
-            {imageUrl && (
-              <img src={imageUrl} alt="önizleme" className="mt-2 h-32 w-full object-cover rounded opacity-80" />
-            )}
+            <input type="text" value={imageUrl} onChange={(e) => setImageUrl(e.target.value)} placeholder="https://..." className={inputCls} />
+            {imageUrl && <img src={imageUrl} alt="önizleme" className="mt-2 h-32 w-full object-cover rounded opacity-80" />}
           </div>
           <div>
             <label className={labelCls}>Açıklama</label>

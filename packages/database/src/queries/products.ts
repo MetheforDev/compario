@@ -17,11 +17,14 @@ export async function getProducts(filters: ProductFilters = {}): Promise<Product
 
   if (category) {
     const { data: cat } = await supabase
-      .from('categories')
-      .select('*')
-      .eq('slug', category)
-      .single();
-    if (cat) query = query.eq('category_id', cat.id);
+      .from('categories').select('id').eq('slug', category).single();
+    if (cat) {
+      // Alt kategorilerin ID'lerini de topla (hiyerarşik filtre)
+      const { data: subs } = await supabase
+        .from('categories').select('id').eq('parent_id', cat.id);
+      const ids = [cat.id, ...(subs ?? []).map((s: { id: string }) => s.id)];
+      query = query.in('category_id', ids);
+    }
   }
 
   if (segment) {

@@ -223,9 +223,25 @@ export function ProductForm({
               className={inputCls}
             >
               <option value="">— Kategori Seçiniz —</option>
-              {categories.map((c) => (
-                <option key={c.id} value={c.id}>{c.name}</option>
-              ))}
+              {(() => {
+                // Hiyerarşik dropdown: tree → flat indented
+                const map = new Map<string, typeof categories[0] & { children: typeof categories }>();
+                categories.forEach(c => map.set(c.id, { ...c, children: [] }));
+                const roots: (typeof categories[0] & { children: typeof categories })[] = [];
+                map.forEach(n => {
+                  if ((n as typeof n & { parent_id?: string | null }).parent_id && map.has((n as typeof n & { parent_id?: string | null }).parent_id!)) {
+                    map.get((n as typeof n & { parent_id?: string | null }).parent_id!)!.children.push(n);
+                  } else roots.push(n);
+                });
+                const opts: React.ReactNode[] = [];
+                const walk = (nodes: typeof roots, depth: number) =>
+                  nodes.forEach(n => {
+                    opts.push(<option key={n.id} value={n.id}>{'　'.repeat(depth)}{depth > 0 ? '└ ' : ''}{n.name}</option>);
+                    walk(n.children as typeof roots, depth + 1);
+                  });
+                walk(roots, 0);
+                return opts;
+              })()}
             </select>
             {errors.categoryId && <p className={errorCls}>{errors.categoryId}</p>}
           </div>
