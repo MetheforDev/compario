@@ -5,6 +5,13 @@ import { getAdminUser } from '@/lib/admin-auth';
 
 export const metadata: Metadata = {
   title: { default: 'Admin', template: '%s | Admin — Compario' },
+  manifest: '/admin-manifest.json',
+  appleWebApp: {
+    capable: true,
+    statusBarStyle: 'black-translucent',
+    title: 'Compario Admin',
+  },
+  themeColor: '#00FFF7',
 };
 
 export default async function AdminLayout({ children }: { children: React.ReactNode }) {
@@ -13,6 +20,12 @@ export default async function AdminLayout({ children }: { children: React.ReactN
 
   return (
     <div className="min-h-screen flex bg-[#0a0a0f]">
+      {/* PWA: iOS home screen icon */}
+      <head>
+        <link rel="apple-touch-icon" href="/images/logos/compario-logo-icon-only.png" />
+        <meta name="mobile-web-app-capable" content="yes" />
+        <meta name="apple-mobile-web-app-title" content="Compario Admin" />
+      </head>
       <Sidebar role={role} />
       <main className="flex-1 overflow-auto">
         {children}

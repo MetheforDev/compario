@@ -1,0 +1,44 @@
+{
+  "name": "Compario Admin",
+  "short_name": "C·Admin",
+  "description": "Compario yönetici ve editör paneli",
+  "start_url": "/admin/dashboard",
+  "scope": "/admin",
+  "display": "standalone",
+  "background_color": "#08090E",
+  "theme_color": "#00FFF7",
+  "orientation": "portrait-primary",
+  "icons": [
+    {
+      "src": "/images/logos/favicon.png",
+      "sizes": "32x32",
+      "type": "image/png"
+    },
+    {
+      "src": "/images/logos/compario-logo-icon-only.png",
+      "sizes": "256x256",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "Yeni Haber",
+      "short_name": "Haber",
+      "url": "/admin/news/new",
+      "icons": [{ "src": "/images/logos/favicon.png", "sizes": "32x32" }]
+    },
+    {
+      "name": "Yeni Ürün",
+      "short_name": "Ürün",
+      "url": "/admin/products/new",
+      "icons": [{ "src": "/images/logos/favicon.png", "sizes": "32x32" }]
+    },
+    {
+      "name": "Dashboard",
+      "short_name": "Panel",
+      "url": "/admin/dashboard",
+      "icons": [{ "src": "/images/logos/favicon.png", "sizes": "32x32" }]
+    }
+  ]
+}
