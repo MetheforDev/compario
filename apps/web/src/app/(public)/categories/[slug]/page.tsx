@@ -2,6 +2,8 @@ import type { Metadata } from 'next';
 import Link from 'next/link';
 import Image from 'next/image';
 import { notFound } from 'next/navigation';
+
+export const revalidate = 3600;
 import { getCategoryBySlug, getCategoryById, getSubCategories, getProducts, getSegmentsByCategory } from '@compario/database';
 import { ProductCard } from '@/components/ProductCard';
 
@@ -60,8 +62,48 @@ export default async function CategoryPage({ params, searchParams }: PageProps) 
 
   const bannerSrc = CATEGORY_BANNERS[params.slug] ?? null;
 
+  const appUrl = 'https://compario.tech';
+
+  const breadcrumbItems = [
+    { name: 'Ana Sayfa', url: appUrl },
+    { name: 'Kategoriler', url: `${appUrl}/categories` },
+    ...(parentCategory ? [{ name: parentCategory.name, url: `${appUrl}/categories/${parentCategory.slug}` }] : []),
+    { name: category.name, url: `${appUrl}/categories/${params.slug}` },
+  ];
+
+  const jsonLd = [
+    {
+      '@context': 'https://schema.org',
+      '@type': 'CollectionPage',
+      name: `${category.name} Karşılaştırma`,
+      description: category.description ?? `${category.name} kategorisindeki ürünleri karşılaştırın.`,
+      url: `${appUrl}/categories/${params.slug}`,
+      mainEntity: {
+        '@type': 'ItemList',
+        numberOfItems: products.length,
+        itemListElement: products.slice(0, 10).map((p, i) => ({
+          '@type': 'ListItem',
+          position: i + 1,
+          url: `${appUrl}/products/${p.slug}`,
+          name: `${p.brand ? `${p.brand} ` : ''}${p.name}`,
+        })),
+      },
+    },
+    {
+      '@context': 'https://schema.org',
+      '@type': 'BreadcrumbList',
+      itemListElement: breadcrumbItems.map((item, i) => ({
+        '@type': 'ListItem',
+        position: i + 1,
+        name: item.name,
+        item: item.url,
+      })),
+    },
+  ];
+
   return (
     <main className="min-h-screen bg-grid pt-20 pb-24">
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
       {/* Category banner header */}
       <div className="relative w-full h-48 sm:h-64 overflow-hidden mb-0">
         {bannerSrc ? (

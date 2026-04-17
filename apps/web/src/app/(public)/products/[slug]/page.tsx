@@ -2,6 +2,8 @@ import type { Metadata } from 'next';
 import Image from 'next/image';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
+
+export const revalidate = 3600;
 import { getProductBySlug, getProducts, getNewsForProduct, incrementViewCount, getApprovedReviews, getRatingSummary, getCategoryById } from '@compario/database';
 import type { Json, Product, NewsArticle } from '@compario/database';
 import dynamic from 'next/dynamic';
@@ -275,9 +277,30 @@ export default async function ProductPage({ params }: PageProps) {
     } : {}),
   };
 
+  const appUrl = 'https://compario.tech';
+  const breadcrumbItems = [
+    { name: 'Ana Sayfa', url: appUrl },
+    ...(grandparentCategory ? [{ name: grandparentCategory.name, url: `${appUrl}/categories/${grandparentCategory.slug}` }] : []),
+    ...(parentCategory ? [{ name: parentCategory.name, url: `${appUrl}/categories/${parentCategory.slug}` }] : []),
+    ...(category ? [{ name: category.name, url: `${appUrl}/categories/${category.slug}` }] : [{ name: 'Ürünler', url: `${appUrl}/products` }]),
+    { name: product.name, url: `${appUrl}/products/${product.slug}` },
+  ];
+
+  const breadcrumbJsonLd = {
+    '@context': 'https://schema.org',
+    '@type': 'BreadcrumbList',
+    itemListElement: breadcrumbItems.map((item, i) => ({
+      '@type': 'ListItem',
+      position: i + 1,
+      name: item.name,
+      item: item.url,
+    })),
+  };
+
   return (
     <main className="min-h-screen bg-grid pb-24" style={{ paddingTop: '88px' }}>
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbJsonLd) }} />
 
       {product.image_url && (
         <div className="relative w-full h-[260px] sm:h-[380px] overflow-hidden">

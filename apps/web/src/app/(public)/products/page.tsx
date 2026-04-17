@@ -3,6 +3,8 @@ import Link from 'next/link';
 import { getProducts, getCategories } from '@compario/database';
 import { ProductCard } from '@/components/ProductCard';
 
+export const revalidate = 3600;
+
 export const metadata: Metadata = {
   title: 'Tüm Ürünler',
   description: 'Araçlar, telefonlar, laptoplar ve daha fazlasını karşılaştırın.',

@@ -1,6 +1,9 @@
 import type { Metadata } from 'next';
+import Image from 'next/image';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
+
+export const revalidate = 3600;
 import {
   getNewsArticleBySlug,
   getRelatedNews,
@@ -154,11 +157,13 @@ export default async function NewsDetailPage({ params }: PageProps) {
       {/* Cover Image */}
       {article.cover_image && (
         <div className="w-full h-[400px] sm:h-[500px] relative overflow-hidden">
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img
+          <Image
             src={article.cover_image}
             alt={article.title}
-            className="w-full h-full object-cover"
+            fill
+            className="object-cover"
+            priority
+            sizes="100vw"
           />
           <div className="absolute inset-0 bg-gradient-to-t from-[#0a0a0f] via-[#0a0a0f]/40 to-transparent" />
         </div>

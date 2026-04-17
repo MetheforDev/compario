@@ -66,6 +66,41 @@ export const metadata: Metadata = {
   },
 };
 
+const organizationJsonLd = {
+  '@context': 'https://schema.org',
+  '@graph': [
+    {
+      '@type': 'Organization',
+      '@id': 'https://compario.tech/#organization',
+      name: 'Compario',
+      url: 'https://compario.tech',
+      logo: {
+        '@type': 'ImageObject',
+        url: 'https://compario.tech/images/logos/compario-logo-icon-only.png',
+        width: 256,
+        height: 256,
+      },
+      sameAs: [
+        'https://twitter.com/compariotech',
+        'https://instagram.com/compariotech',
+      ],
+      description: "Türkiye'nin en kapsamlı ürün karşılaştırma ve teknoloji haber platformu.",
+    },
+    {
+      '@type': 'WebSite',
+      '@id': 'https://compario.tech/#website',
+      url: 'https://compario.tech',
+      name: 'Compario',
+      publisher: { '@id': 'https://compario.tech/#organization' },
+      potentialAction: {
+        '@type': 'SearchAction',
+        target: { '@type': 'EntryPoint', urlTemplate: 'https://compario.tech/search?q={search_term_string}' },
+        'query-input': 'required name=search_term_string',
+      },
+    },
+  ],
+};
+
 export default function RootLayout({
   children,
 }: {
@@ -77,6 +112,7 @@ export default function RootLayout({
       className={`${orbitron.variable} ${jetbrainsMono.variable}`}
     >
       <head>
+        <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(organizationJsonLd) }} />
         <link rel="alternate" type="application/rss+xml" title="Compario Haberleri" href="/rss.xml" />
         <meta name="application-name" content="Compario" />
         <meta name="apple-mobile-web-app-capable" content="yes" />
