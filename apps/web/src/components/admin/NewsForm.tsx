@@ -9,6 +9,7 @@ import { ImageUpload } from '@/components/admin/ImageUpload';
 import { SeoAnalyzer } from '@/components/admin/SeoAnalyzer';
 import { ContentStats } from '@/components/admin/ContentStats';
 import { PublishChecklist } from '@/components/admin/PublishChecklist';
+import { SocialShareGenerator } from '@/components/admin/SocialShareGenerator';
 
 const CATEGORIES = [
   { value: 'yeni-model', label: 'Yeni Model' },
@@ -610,6 +611,19 @@ export function NewsForm({ initial = {}, prefill, products = [], action, submitL
             ◈ Kapak görseli olmadan sosyal medya kartları görünmez — büyük etkileşim kaybı
           </p>
         )}
+      </div>
+
+      {/* Social Share Generator */}
+      <div className="border border-[rgba(196,154,60,0.12)] rounded-xl p-4 space-y-3">
+        <h3 className="font-mono text-[10px] text-[#C49A3C] uppercase tracking-widest">◈ Sosyal Medya Paylaşımı</h3>
+        <SocialShareGenerator
+          title={title}
+          excerpt={excerpt}
+          slug={slug}
+          categories={categories}
+          tags={tagsRaw.split(',').map(t => t.trim()).filter(Boolean)}
+          coverImage={coverImage}
+        />
       </div>
 
       {/* Actions */}
