@@ -225,23 +225,24 @@ export interface SearchProductResult extends Product {
 export async function searchProducts(
   query: string,
   limit = 8,
+  categoryIds?: string[],
 ): Promise<SearchProductResult[]> {
   if (!query || query.trim().length < 2) return [];
   const q = query.trim();
 
   // Run exact/prefix and contains searches in parallel
   const [exactRes, containsRes] = await Promise.all([
-    supabase
-      .from('products')
-      .select('*')
-      .eq('status', 'active')
+    (categoryIds && categoryIds.length > 0
+      ? supabase.from('products').select('*').eq('status', 'active').in('category_id', categoryIds)
+      : supabase.from('products').select('*').eq('status', 'active')
+    )
       .or(`name.ilike.${q}%,brand.ilike.${q}%,model.ilike.${q}%`)
       .order('view_count', { ascending: false })
       .limit(limit),
-    supabase
-      .from('products')
-      .select('*')
-      .eq('status', 'active')
+    (categoryIds && categoryIds.length > 0
+      ? supabase.from('products').select('*').eq('status', 'active').in('category_id', categoryIds)
+      : supabase.from('products').select('*').eq('status', 'active')
+    )
       .or(
         `name.ilike.%${q}%,brand.ilike.%${q}%,model.ilike.%${q}%,description.ilike.%${q}%,short_description.ilike.%${q}%`,
       )

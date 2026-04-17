@@ -1,7 +1,7 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
 import Image from 'next/image';
-import { getTopLevelCategories, getSubCategories } from '@compario/database';
+import { getTopLevelCategories, getSubCategories, getProductCountsByCategory, getCategories } from '@compario/database';
 import type { Category } from '@compario/database';
 
 export const metadata: Metadata = {
@@ -9,7 +9,7 @@ export const metadata: Metadata = {
   description: 'Araç, teknoloji, beyaz eşya ve daha fazlasını kategorilere göre karşılaştırın.',
 };
 
-async function CategoryCard({ category }: { category: Category }) {
+async function CategoryCard({ category, productCount }: { category: Category; productCount: number }) {
   const subs = await getSubCategories(category.id, true).catch(() => []);
 
   return (
@@ -44,9 +44,23 @@ async function CategoryCard({ category }: { category: Category }) {
         )}
 
         <div className="p-5 pb-3">
-          <h2 className="font-orbitron text-sm font-black text-neon-cyan uppercase tracking-wider group-hover:text-glow-cyan transition-all">
-            {category.name}
-          </h2>
+          <div className="flex items-start justify-between gap-2">
+            <h2 className="font-orbitron text-sm font-black text-neon-cyan uppercase tracking-wider group-hover:text-glow-cyan transition-all">
+              {category.name}
+            </h2>
+            {productCount > 0 && (
+              <span
+                className="flex-shrink-0 font-mono text-[9px] px-2 py-0.5 rounded-full"
+                style={{
+                  background: 'rgba(196,154,60,0.08)',
+                  border: '1px solid rgba(196,154,60,0.15)',
+                  color: 'rgba(196,154,60,0.6)',
+                }}
+              >
+                {productCount} ürün
+              </span>
+            )}
+          </div>
           {category.description && (
             <p className="font-mono text-[11px] text-gray-500 mt-1.5 leading-relaxed line-clamp-2">
               {category.description}
@@ -88,7 +102,30 @@ async function CategoryCard({ category }: { category: Category }) {
 }
 
 export default async function CategoriesPage() {
-  const categories = await getTopLevelCategories(true).catch(() => []);
+  const [categories, allCats, rawCounts] = await Promise.all([
+    getTopLevelCategories(true).catch(() => []),
+    getCategories(true).catch(() => []),
+    getProductCountsByCategory().catch(() => ({} as Record<string, number>)),
+  ]);
+
+  // Her üst düzey kategori için kendisi + tüm alt kategorilerindeki ürün sayısını topla
+  const allCatMap = new Map(allCats.map(c => [c.id, c]));
+
+  function getDescendantIds(catId: string): string[] {
+    const children = allCats.filter(c => c.parent_id === catId);
+    return [catId, ...children.flatMap(c => getDescendantIds(c.id))];
+  }
+
+  const categoryProductCounts = Object.fromEntries(
+    categories.map(cat => {
+      const ids = getDescendantIds(cat.id);
+      const total = ids.reduce((sum, id) => sum + (rawCounts[id] ?? 0), 0);
+      return [cat.id, total];
+    })
+  );
+
+  // allCatMap kullanılmadı uyarısını engellemek için
+  void allCatMap;
 
   return (
     <main className="min-h-screen bg-grid">
@@ -114,7 +151,11 @@ export default async function CategoriesPage() {
         ) : (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
             {categories.map((cat) => (
-              <CategoryCard key={cat.id} category={cat} />
+              <CategoryCard
+                key={cat.id}
+                category={cat}
+                productCount={categoryProductCounts[cat.id] ?? 0}
+              />
             ))}
           </div>
         )}

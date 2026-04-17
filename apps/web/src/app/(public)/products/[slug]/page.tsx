@@ -2,7 +2,7 @@ import type { Metadata } from 'next';
 import Image from 'next/image';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
-import { getProductBySlug, getProducts, getNewsForProduct, incrementViewCount, getApprovedReviews, getRatingSummary } from '@compario/database';
+import { getProductBySlug, getProducts, getNewsForProduct, incrementViewCount, getApprovedReviews, getRatingSummary, getCategoryById } from '@compario/database';
 import type { Json, Product, NewsArticle } from '@compario/database';
 import dynamic from 'next/dynamic';
 import { ShareButtons } from '@/components/ShareButtons';
@@ -55,32 +55,109 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   }
 }
 
-function SpecsTable({ specs }: { specs: Json }) {
-  if (!specs || typeof specs !== 'object' || Array.isArray(specs)) return null;
-  const entries = Object.entries(specs as Record<string, Json>);
-  if (entries.length === 0) return null;
+type VariantRow = Record<string, string | number>;
+
+function VariantTable({ label, variants }: { label: string; variants: VariantRow[] }) {
+  if (!variants.length) return null;
+  const keys = [...new Set(variants.flatMap(v => Object.keys(v)))];
 
   return (
     <section
-      className="rounded-xl overflow-hidden"
-      style={{ border: '1px solid rgba(196,154,60,0.1)', background: '#0a0a14' }}
+      className="rounded-xl overflow-hidden mb-4"
+      style={{ border: '1px solid rgba(196,154,60,0.15)', background: '#0a0a14' }}
     >
-      <div className="px-6 py-4 border-b" style={{ borderColor: 'rgba(196,154,60,0.08)', background: '#0d0d18' }}>
-        <h2 className="font-orbitron text-[10px] uppercase tracking-[0.3em] text-neon-cyan opacity-70">
-          ⬡ Teknik Özellikler
-        </h2>
+      <div className="px-6 py-4 border-b flex items-center gap-3" style={{ borderColor: 'rgba(196,154,60,0.1)', background: '#0d0d18' }}>
+        <span className="text-neon-cyan opacity-60 text-[10px]">⬡</span>
+        <h2 className="font-orbitron text-[10px] uppercase tracking-[0.3em] text-neon-cyan opacity-80">{label}</h2>
+        <span
+          className="ml-auto font-mono text-[9px] px-2 py-0.5 rounded-full"
+          style={{ background: 'rgba(196,154,60,0.08)', border: '1px solid rgba(196,154,60,0.2)', color: 'rgba(196,154,60,0.7)' }}
+        >
+          {variants.length} seçenek
+        </span>
       </div>
-      <dl className="px-6 divide-y divide-[rgba(0,255,247,0.04)]">
-        {entries.map(([key, value]) => (
-          <div key={key} className="flex gap-4 py-3">
-            <dt className="font-mono text-[10px] text-gray-600 uppercase tracking-wider w-40 flex-shrink-0 self-center">
-              {key.replace(/_/g, ' ')}
-            </dt>
-            <dd className="font-mono text-xs text-gray-400 flex-1">{String(value ?? '—')}</dd>
-          </div>
-        ))}
-      </dl>
+      <div className="overflow-x-auto">
+        <table className="w-full text-left min-w-[540px]">
+          <thead>
+            <tr style={{ background: 'rgba(0,255,247,0.03)', borderBottom: '1px solid rgba(0,255,247,0.06)' }}>
+              {keys.map(k => (
+                <th key={k} className="px-5 py-3 font-mono text-[9px] uppercase tracking-wider text-gray-600">
+                  {k}
+                </th>
+              ))}
+            </tr>
+          </thead>
+          <tbody className="divide-y divide-[rgba(0,255,247,0.04)]">
+            {variants.map((variant, i) => (
+              <tr
+                key={i}
+                className="transition-colors hover:bg-[rgba(0,255,247,0.02)]"
+                style={i === 0 ? { background: 'rgba(196,154,60,0.03)' } : undefined}
+              >
+                {keys.map(k => (
+                  <td key={k} className="px-5 py-3 font-mono text-xs text-gray-400">
+                    {k.toLowerCase().includes('fiyat') || k.toLowerCase().includes('price') ? (
+                      <span style={{ color: '#C49A3C', fontWeight: 600 }}>{String(variant[k] ?? '—')}</span>
+                    ) : k === keys[0] ? (
+                      <span className="text-gray-200 font-semibold">{String(variant[k] ?? '—')}</span>
+                    ) : (
+                      String(variant[k] ?? '—')
+                    )}
+                  </td>
+                ))}
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
     </section>
+  );
+}
+
+function SpecsTable({ specs }: { specs: Json }) {
+  if (!specs || typeof specs !== 'object' || Array.isArray(specs)) return null;
+  const allEntries = Object.entries(specs as Record<string, Json>);
+  if (allEntries.length === 0) return null;
+
+  // Variant array'lerini ve normal key-value spec'leri ayır
+  const variantEntries = allEntries.filter(
+    ([, v]) => Array.isArray(v) && v.length > 0 && v[0] !== null && typeof v[0] === 'object' && !Array.isArray(v[0])
+  ) as [string, VariantRow[]][];
+  const regularEntries = allEntries.filter(
+    ([, v]) => !(Array.isArray(v) && v.length > 0 && v[0] !== null && typeof v[0] === 'object' && !Array.isArray(v[0]))
+  );
+
+  return (
+    <div className="space-y-4">
+      {/* Önce variant tabloları (motor seçenekleri vb.) */}
+      {variantEntries.map(([key, variants]) => (
+        <VariantTable key={key} label={key} variants={variants} />
+      ))}
+
+      {/* Sonra normal teknik özellikler */}
+      {regularEntries.length > 0 && (
+        <section
+          className="rounded-xl overflow-hidden"
+          style={{ border: '1px solid rgba(196,154,60,0.1)', background: '#0a0a14' }}
+        >
+          <div className="px-6 py-4 border-b" style={{ borderColor: 'rgba(196,154,60,0.08)', background: '#0d0d18' }}>
+            <h2 className="font-orbitron text-[10px] uppercase tracking-[0.3em] text-neon-cyan opacity-70">
+              ⬡ Teknik Özellikler
+            </h2>
+          </div>
+          <dl className="px-6 divide-y divide-[rgba(0,255,247,0.04)]">
+            {regularEntries.map(([key, value]) => (
+              <div key={key} className="flex gap-4 py-3">
+                <dt className="font-mono text-[10px] text-gray-600 uppercase tracking-wider w-40 flex-shrink-0 self-center">
+                  {key.replace(/_/g, ' ')}
+                </dt>
+                <dd className="font-mono text-xs text-gray-400 flex-1">{String(value ?? '—')}</dd>
+              </div>
+            ))}
+          </dl>
+        </section>
+      )}
+    </div>
   );
 }
 
@@ -136,6 +213,17 @@ export default async function ProductPage({ params }: PageProps) {
   if (!product) notFound();
 
   incrementViewCount(product.id).catch(() => null);
+
+  // Kategori hiyerarşisini ve diğer verileri paralel çek
+  const category = product.category_id
+    ? await getCategoryById(product.category_id).catch(() => null)
+    : null;
+  const parentCategory = category?.parent_id
+    ? await getCategoryById(category.parent_id).catch(() => null)
+    : null;
+  const grandparentCategory = parentCategory?.parent_id
+    ? await getCategoryById(parentCategory.parent_id).catch(() => null)
+    : null;
 
   const [relatedNews, reviews, ratingSummary] = await Promise.all([
     getNewsForProduct(product.id).catch(() => [] as NewsArticle[]),
@@ -210,12 +298,40 @@ export default async function ProductPage({ params }: PageProps) {
 
       <div className="max-w-4xl mx-auto px-4 sm:px-6">
 
-        <nav className="flex items-center gap-2 font-mono text-[10px] text-gray-700 uppercase tracking-wider py-5">
+        <nav className="flex items-center gap-2 font-mono text-[10px] text-gray-700 uppercase tracking-wider py-5 flex-wrap">
           <Link href="/" className="hover:text-neon-cyan transition-colors">Ana Sayfa</Link>
+          {grandparentCategory && (
+            <>
+              <span>/</span>
+              <Link href={`/categories/${grandparentCategory.slug}`} className="hover:text-neon-cyan transition-colors">
+                {grandparentCategory.name}
+              </Link>
+            </>
+          )}
+          {parentCategory && (
+            <>
+              <span>/</span>
+              <Link href={`/categories/${parentCategory.slug}`} className="hover:text-neon-cyan transition-colors">
+                {parentCategory.name}
+              </Link>
+            </>
+          )}
+          {category && (
+            <>
+              <span>/</span>
+              <Link href={`/categories/${category.slug}`} className="hover:text-neon-cyan transition-colors">
+                {category.name}
+              </Link>
+            </>
+          )}
+          {!category && (
+            <>
+              <span>/</span>
+              <Link href="/products" className="hover:text-neon-cyan transition-colors">Ürünler</Link>
+            </>
+          )}
           <span>/</span>
-          <Link href="/products" className="hover:text-neon-cyan transition-colors">Ürünler</Link>
-          <span>/</span>
-          <span className="text-gray-500">{product.name}</span>
+          <span className="text-gray-500 truncate max-w-[200px]">{product.name}</span>
         </nav>
 
         <div className="rounded-xl p-6 sm:p-8 mb-6"

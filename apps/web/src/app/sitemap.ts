@@ -25,7 +25,8 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       url:             `${BASE}/categories/${cat.slug}`,
       lastModified:    new Date(cat.updated_at),
       changeFrequency: 'weekly' as const,
-      priority:        0.7,
+      // Üst düzey kategoriler daha yüksek öncelik
+      priority:        cat.parent_id ? 0.65 : 0.8,
     }));
   } catch { /* DB unavailable during build */ }
 

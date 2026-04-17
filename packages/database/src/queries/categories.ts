@@ -52,6 +52,16 @@ export async function getCategoryTree(activeOnly = true): Promise<CategoryWithCh
   return roots;
 }
 
+/** Aktif ürünlerin kategori başına sayısını döner: { [categoryId]: count } */
+export async function getProductCountsByCategory(): Promise<Record<string, number>> {
+  const { data } = await supabase.from('products').select('category_id').eq('status', 'active');
+  const counts: Record<string, number> = {};
+  for (const p of data ?? []) {
+    if (p.category_id) counts[p.category_id] = (counts[p.category_id] ?? 0) + 1;
+  }
+  return counts;
+}
+
 export async function getCategoryBySlug(slug: string): Promise<Category | null> {
   const { data, error } = await supabase.from('categories').select('*').eq('slug', slug).single();
   if (error) {

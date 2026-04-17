@@ -86,15 +86,42 @@ export function ProductCard({ product }: ProductCardProps) {
           </h3>
         </Link>
 
+        {/* Variant sayısı badge */}
+        {product.specs && typeof product.specs === 'object' && !Array.isArray(product.specs) && (() => {
+          const variantKey = Object.keys(product.specs as Record<string, unknown>).find(k =>
+            Array.isArray((product.specs as Record<string, unknown>)[k])
+          );
+          const count = variantKey
+            ? ((product.specs as Record<string, unknown[]>)[variantKey] as unknown[]).length
+            : 0;
+          return count > 1 ? (
+            <span
+              className="inline-block font-mono text-[9px] px-2 py-0.5 rounded-full w-fit"
+              style={{
+                background: 'rgba(0,255,247,0.05)',
+                border: '1px solid rgba(0,255,247,0.12)',
+                color: 'rgba(0,255,247,0.5)',
+              }}
+            >
+              {count} donanım seçeneği
+            </span>
+          ) : null;
+        })()}
+
         {product.price_min && (
-          <p className="font-orbitron text-sm font-black" style={{ color: '#C49A3C' }}>
-            ₺{product.price_min.toLocaleString('tr-TR')}
-            {product.price_max && product.price_max !== product.price_min && (
-              <span className="font-mono text-[10px] font-normal text-gray-600 ml-1">
-                — ₺{product.price_max.toLocaleString('tr-TR')}
-              </span>
-            )}
-          </p>
+          <div>
+            <span className="font-mono text-[8px] text-gray-700 uppercase tracking-wider">
+              {product.price_max && product.price_max !== product.price_min ? 'Başlayan fiyat' : 'Fiyat'}
+            </span>
+            <p className="font-orbitron text-sm font-black" style={{ color: '#C49A3C' }}>
+              ₺{product.price_min.toLocaleString('tr-TR')}
+              {product.price_max && product.price_max !== product.price_min && (
+                <span className="font-mono text-[10px] font-normal text-gray-600 ml-1">
+                  — ₺{product.price_max.toLocaleString('tr-TR')}
+                </span>
+              )}
+            </p>
+          </div>
         )}
 
         {/* Compare button */}

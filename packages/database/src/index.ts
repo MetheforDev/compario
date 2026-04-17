@@ -58,6 +58,7 @@ export {
   getCategoryTree,
   getCategoryById,
   getCategoryBySlug,
+  getProductCountsByCategory,
   createCategory,
   updateCategory,
   deleteCategory,

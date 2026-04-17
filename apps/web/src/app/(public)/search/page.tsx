@@ -1,12 +1,12 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
-import { searchProducts, searchNews } from '@compario/database';
+import { searchProducts, searchNews, getTopLevelCategories, getSubCategories, getCategoryBySlug } from '@compario/database';
 import type { SearchProductResult } from '@compario/database';
 import type { NewsArticle } from '@compario/database';
 import { SearchInput } from '@/components/SearchInput';
 
 interface PageProps {
-  searchParams: { q?: string; tab?: string };
+  searchParams: { q?: string; tab?: string; category?: string };
 }
 
 export function generateMetadata({ searchParams }: PageProps): Metadata {
@@ -125,6 +125,20 @@ function NewsResult({ article, q }: { article: NewsArticle; q: string }) {
 export default async function SearchPage({ searchParams }: PageProps) {
   const q = searchParams.q?.trim() ?? '';
   const tab = searchParams.tab ?? 'all';
+  const categorySlug = searchParams.category ?? '';
+
+  // Tüm üst düzey kategorileri filtre için çek
+  const topCategories = await getTopLevelCategories(true).catch(() => []);
+
+  // Kategori filtresi aktifse, o kategorinin tüm alt ID'lerini bul
+  let categoryIds: string[] | undefined;
+  if (categorySlug) {
+    const selectedCat = await getCategoryBySlug(categorySlug).catch(() => null);
+    if (selectedCat) {
+      const subs = await getSubCategories(selectedCat.id, true).catch(() => []);
+      categoryIds = [selectedCat.id, ...subs.map(s => s.id)];
+    }
+  }
 
   let products: SearchProductResult[] = [];
   let news: NewsArticle[] = [];
@@ -133,8 +147,8 @@ export default async function SearchPage({ searchParams }: PageProps) {
   if (q.length >= 2) {
     searchDone = true;
     [products, news] = await Promise.all([
-      searchProducts(q, 12).catch(() => []),
-      searchNews(q, 8).catch(() => []),
+      searchProducts(q, 12, categoryIds).catch(() => []),
+      categoryIds ? Promise.resolve([]) : searchNews(q, 8).catch(() => []),
     ]);
   }
 
@@ -162,6 +176,38 @@ export default async function SearchPage({ searchParams }: PageProps) {
             {q ? `"${q}"` : 'ARAMA'}
           </h1>
           <SearchInput initialValue={q} />
+
+          {/* Kategori filtresi */}
+          {topCategories.length > 0 && (
+            <div className="mt-4 flex flex-wrap gap-2">
+              <Link
+                href={q ? `/search?q=${encodeURIComponent(q)}` : '/search'}
+                className="px-3 py-1.5 rounded-full border font-mono text-[10px] uppercase tracking-wider transition-all"
+                style={{
+                  borderColor: !categorySlug ? 'rgba(0,255,247,0.4)' : 'rgba(0,255,247,0.1)',
+                  color: !categorySlug ? '#00fff7' : '#6b7280',
+                  background: !categorySlug ? 'rgba(0,255,247,0.06)' : 'transparent',
+                }}
+              >
+                Tümü
+              </Link>
+              {topCategories.map(cat => (
+                <Link
+                  key={cat.id}
+                  href={`/search?${q ? `q=${encodeURIComponent(q)}&` : ''}category=${cat.slug}`}
+                  className="flex items-center gap-1 px-3 py-1.5 rounded-full border font-mono text-[10px] uppercase tracking-wider transition-all"
+                  style={{
+                    borderColor: categorySlug === cat.slug ? 'rgba(0,255,247,0.4)' : 'rgba(0,255,247,0.1)',
+                    color: categorySlug === cat.slug ? '#00fff7' : '#6b7280',
+                    background: categorySlug === cat.slug ? 'rgba(0,255,247,0.06)' : 'transparent',
+                  }}
+                >
+                  {cat.icon && <span className="text-[12px] opacity-70">{cat.icon}</span>}
+                  {cat.name}
+                </Link>
+              ))}
+            </div>
+          )}
         </div>
 
         {/* Results */}
