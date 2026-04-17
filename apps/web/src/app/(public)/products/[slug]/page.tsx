@@ -10,6 +10,7 @@ import dynamic from 'next/dynamic';
 import { ShareButtons } from '@/components/ShareButtons';
 import { AddToCompareButton } from '@/components/AddToCompareButton';
 import { ProductReviews } from '@/components/ProductReviews';
+import { PriceAlertButton } from '@/components/PriceAlertButton';
 
 // dynamic + ssr:false removes recharts/victory-vendor/d3 (ESM-only) from server bundle
 const PriceHistory = dynamic(
@@ -404,6 +405,11 @@ export default async function ProductPage({ params }: PageProps) {
               name={product.name}
               brand={product.brand}
               image={product.image_url}
+            />
+            <PriceAlertButton
+              productId={product.id}
+              productName={product.name}
+              currentPrice={product.price_min}
             />
             <Link href="/products" className="btn-neon-purple text-xs">
               ← Ürünlere Dön
