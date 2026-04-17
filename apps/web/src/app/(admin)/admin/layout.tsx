@@ -27,7 +27,8 @@ export default async function AdminLayout({ children }: { children: React.ReactN
         <meta name="apple-mobile-web-app-title" content="Compario Admin" />
       </head>
       <Sidebar role={role} />
-      <main className="flex-1 overflow-auto">
+      {/* pt-14 = mobile top bar, pb-16 = mobile bottom nav, lg: sıfırla */}
+      <main className="flex-1 overflow-auto pt-14 pb-16 lg:pt-0 lg:pb-0">
         {children}
       </main>
       <Toaster
