@@ -28,6 +28,7 @@ const NAV_ITEMS = [
   { href: '/products',   label: 'Ürünler',     exact: false, hasMega: false },
   { href: '/trending',   label: 'Trend',       exact: false, hasMega: false },
   { href: '/news',       label: 'Haberler',    exact: false, hasMega: false },
+  { href: '/recommend',  label: '◆ AI Öneri',  exact: false, hasMega: false },
 ];
 
 export function Header() {
