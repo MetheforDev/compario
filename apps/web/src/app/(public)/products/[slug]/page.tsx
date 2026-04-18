@@ -164,6 +164,24 @@ function SpecsTable({ specs }: { specs: Json }) {
   );
 }
 
+function BuyButton({ sourceUrl, productName }: { sourceUrl?: string | null; productName: string }) {
+  const href = sourceUrl
+    ? sourceUrl
+    : `https://www.trendyol.com/sr?q=${encodeURIComponent(productName)}`;
+  return (
+    <a
+      href={href}
+      target="_blank"
+      rel="noopener noreferrer nofollow"
+      className="inline-flex items-center gap-2 font-mono text-xs uppercase tracking-wider px-4 py-2 rounded-lg transition-all"
+      style={{ background: 'rgba(196,154,60,0.12)', border: '1px solid rgba(196,154,60,0.35)', color: '#C49A3C' }}
+    >
+      <span>🛒</span>
+      <span>{sourceUrl ? 'Satın Al' : 'Trendyol\'da Ara'}</span>
+    </a>
+  );
+}
+
 async function RelatedProducts({ categoryId, currentId }: { categoryId: string; currentId: string }) {
   const all = await getProducts({ status: 'active', limit: 8 }).catch(() => [] as Product[]);
   const related = all.filter((p) => p.id !== currentId && p.category_id === categoryId).slice(0, 3);
@@ -410,6 +428,10 @@ export default async function ProductPage({ params }: PageProps) {
               productId={product.id}
               productName={product.name}
               currentPrice={product.price_min}
+            />
+            <BuyButton
+              sourceUrl={product.source_url}
+              productName={`${product.brand ?? ''} ${product.name}`.trim()}
             />
             <Link href="/products" className="btn-neon-purple text-xs">
               ← Ürünlere Dön
