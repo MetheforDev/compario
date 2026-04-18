@@ -2,8 +2,9 @@
 
 import Link from 'next/link';
 import Image from 'next/image';
-import { usePathname } from 'next/navigation';
+import { usePathname, useRouter } from 'next/navigation';
 import { useEffect, useState, useRef } from 'react';
+import { createClientComponentClient } from '@supabase/auth-helpers-nextjs';
 
 interface SubCat {
   id: string;
@@ -212,6 +213,9 @@ export function Header() {
                 </Link>
               );
             })}
+
+            {/* Kullanıcı menüsü */}
+            <UserMenuButton />
 
             {/* Arama ikonu */}
             <Link
@@ -514,5 +518,88 @@ export function Header() {
         />
       )}
     </>
+  );
+}
+
+function UserMenuButton() {
+  const router = useRouter();
+  const supabase = createClientComponentClient();
+  const [email, setEmail] = useState<string | null>(null);
+  const [open, setOpen] = useState(false);
+  const ref = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    supabase.auth.getSession().then(({ data }) => {
+      setEmail(data.session?.user.email ?? null);
+    });
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_e, session) => {
+      setEmail(session?.user.email ?? null);
+    });
+    return () => subscription.unsubscribe();
+  }, [supabase]);
+
+  useEffect(() => {
+    function onClick(e: MouseEvent) {
+      if (ref.current && !ref.current.contains(e.target as Node)) setOpen(false);
+    }
+    document.addEventListener('mousedown', onClick);
+    return () => document.removeEventListener('mousedown', onClick);
+  }, []);
+
+  async function handleLogout() {
+    await supabase.auth.signOut();
+    router.push('/');
+    router.refresh();
+  }
+
+  if (!email) {
+    return (
+      <Link
+        href="/giris"
+        className="hidden sm:flex items-center gap-1.5 font-mono text-[10px] uppercase tracking-wider px-3 py-1.5 rounded-lg transition-all"
+        style={{ border: '1px solid rgba(0,255,247,0.15)', color: 'rgba(0,255,247,0.6)' }}
+        onMouseEnter={e => { (e.currentTarget as HTMLElement).style.borderColor = 'rgba(0,255,247,0.4)'; (e.currentTarget as HTMLElement).style.color = '#00fff7'; }}
+        onMouseLeave={e => { (e.currentTarget as HTMLElement).style.borderColor = 'rgba(0,255,247,0.15)'; (e.currentTarget as HTMLElement).style.color = 'rgba(0,255,247,0.6)'; }}
+      >
+        Giriş
+      </Link>
+    );
+  }
+
+  return (
+    <div ref={ref} className="relative hidden sm:block">
+      <button
+        onClick={() => setOpen(v => !v)}
+        className="flex items-center gap-2 font-mono text-[10px] px-3 py-1.5 rounded-lg transition-all"
+        style={{ border: '1px solid rgba(0,255,247,0.2)', color: '#00fff7', background: 'rgba(0,255,247,0.05)' }}
+      >
+        <span className="w-5 h-5 rounded-full bg-neon-cyan/20 flex items-center justify-center text-[10px] font-bold text-neon-cyan">
+          {email[0].toUpperCase()}
+        </span>
+        <span className="max-w-[100px] truncate">{email.split('@')[0]}</span>
+      </button>
+
+      {open && (
+        <div
+          className="absolute right-0 top-full mt-2 w-44 rounded-xl overflow-hidden z-50"
+          style={{ background: '#0e0e1a', border: '1px solid rgba(0,255,247,0.12)', boxShadow: '0 20px 40px rgba(0,0,0,0.5)' }}
+        >
+          <Link
+            href="/profil"
+            onClick={() => setOpen(false)}
+            className="flex items-center gap-2 px-4 py-3 font-mono text-[11px] text-gray-400 hover:text-neon-cyan hover:bg-[rgba(0,255,247,0.04)] transition-colors"
+          >
+            ◉ Profilim
+          </Link>
+          <div className="h-px mx-3" style={{ background: 'rgba(0,255,247,0.06)' }} />
+          <button
+            onClick={handleLogout}
+            className="w-full text-left flex items-center gap-2 px-4 py-3 font-mono text-[11px] text-gray-600 hover:text-red-400 hover:bg-[rgba(220,38,38,0.04)] transition-colors"
+          >
+            ← Çıkış Yap
+          </button>
+        </div>
+      )}
+    </div>
   );
 }

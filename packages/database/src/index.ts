@@ -118,6 +118,15 @@ export {
   searchNews,
 } from './queries/news';
 
+// Favorites & user queries
+export {
+  getUserFavorites,
+  addFavorite,
+  removeFavorite,
+  isFavorite,
+  getUserPriceAlerts,
+} from './queries/favorites';
+
 // Price queries
 export type { PricePoint, PriceAlert } from './queries/prices';
 export {

@@ -11,6 +11,7 @@ import { ShareButtons } from '@/components/ShareButtons';
 import { AddToCompareButton } from '@/components/AddToCompareButton';
 import { ProductReviews } from '@/components/ProductReviews';
 import { PriceAlertButton } from '@/components/PriceAlertButton';
+import { FavoriteButton } from '@/components/FavoriteButton';
 
 // dynamic + ssr:false removes recharts/victory-vendor/d3 (ESM-only) from server bundle
 const PriceHistory = dynamic(
@@ -468,6 +469,7 @@ export default async function ProductPage({ params }: PageProps) {
               brand={product.brand}
               image={product.image_url}
             />
+            <FavoriteButton productId={product.id} productName={product.slug} />
             <PriceAlertButton
               productId={product.id}
               productName={product.name}
