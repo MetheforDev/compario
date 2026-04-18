@@ -1,6 +1,8 @@
 import Link from 'next/link';
 import Image from 'next/image';
 import { getTopLevelCategories, getFeaturedNews, getDailyComparison, getTrendingProducts } from '@compario/database';
+
+export const revalidate = 3600;
 import type { Category, NewsArticle, Product } from '@compario/database';
 import { NewsCard } from '@/components/NewsCard';
 import { HeroCompareWidget } from '@/components/HeroCompareWidget';

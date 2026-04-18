@@ -1,6 +1,8 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
 import { getNewsArticles } from '@compario/database';
+
+export const revalidate = 3600;
 import type { NewsArticle } from '@compario/database';
 import { NewsCard } from '@/components/NewsCard';
 

@@ -4,6 +4,8 @@ import Image from 'next/image';
 import { getTrendingProducts, getTopProductsByViews } from '@compario/database';
 import type { Product } from '@compario/database';
 
+export const revalidate = 3600;
+
 export const metadata: Metadata = {
   title: 'Trend Ürünler | Compario',
   description: 'En çok karşılaştırılan ve en çok görüntülenen ürünler. Compario trend listesi.',
