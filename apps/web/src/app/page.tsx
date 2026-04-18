@@ -30,15 +30,18 @@ function SectionHeading({ label, color = 'cyan' }: { label: string; color?: 'cya
   );
 }
 
+const NEW_CATEGORY_SLUGS = new Set(['tabletler', 'akilli-saatler', 'oyun-konsollari']);
+
 // ─── Category Card ───────────────────────────────────────────────────────────
 function CategoryCard({ category }: { category: Category }) {
+  const isNew = NEW_CATEGORY_SLUGS.has(category.slug);
   return (
     <Link
       href={`/categories/${category.slug}`}
       className="group relative flex flex-col items-center gap-3 rounded-2xl overflow-hidden transition-all duration-300 hover:-translate-y-1"
       style={{
         background: 'linear-gradient(135deg, rgba(15,15,28,0.9) 0%, rgba(10,10,20,0.95) 100%)',
-        border: '1px solid rgba(196,154,60,0.08)',
+        border: `1px solid ${isNew ? 'rgba(0,255,247,0.15)' : 'rgba(196,154,60,0.08)'}`,
         boxShadow: '0 4px 24px rgba(0,0,0,0.3)',
       }}
     >
@@ -67,9 +70,17 @@ function CategoryCard({ category }: { category: Category }) {
 
       {/* İsim */}
       <div className="px-3 pb-4 text-center">
-        <h3 className="font-orbitron text-[10px] font-bold text-gray-400 uppercase tracking-wider group-hover:text-neon-cyan transition-colors">
-          {category.name}
-        </h3>
+        <div className="flex items-center justify-center gap-1.5 mb-0.5">
+          <h3 className="font-orbitron text-[10px] font-bold text-gray-400 uppercase tracking-wider group-hover:text-neon-cyan transition-colors">
+            {category.name}
+          </h3>
+          {isNew && (
+            <span className="font-mono text-[8px] font-bold px-1.5 py-0.5 rounded uppercase tracking-wider"
+              style={{ background: 'rgba(0,255,247,0.12)', color: '#00fff7', border: '1px solid rgba(0,255,247,0.25)' }}>
+              YENİ
+            </span>
+          )}
+        </div>
         <span className="font-mono text-[8px] text-neon-purple opacity-0 group-hover:opacity-100 transition-opacity tracking-widest">
           İNCELE →
         </span>
