@@ -70,7 +70,7 @@ export default function EditCategoryPage({ params, searchParams }: PageProps) {
       // parent_id için API'den çek
       fetch(`/api/admin/categories/${params.id}`)
         .then(r => r.ok ? r.json() : {})
-        .then(cat => setParentId(cat.parent_id ?? ''))
+        .then((cat: { parent_id?: string }) => setParentId(cat.parent_id ?? ''))
         .catch(() => {});
       return;
     }
