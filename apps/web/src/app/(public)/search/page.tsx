@@ -1,5 +1,6 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
+import Image from 'next/image';
 import { searchProducts, searchNews, getTopLevelCategories, getSubCategories, getCategoryBySlug } from '@compario/database';
 import type { SearchProductResult } from '@compario/database';
 import type { NewsArticle } from '@compario/database';
@@ -45,10 +46,9 @@ function ProductResult({ product, q }: { product: SearchProductResult; q: string
       href={`/products/${product.slug}`}
       className="flex gap-4 p-4 rounded-xl border border-[rgba(0,255,247,0.08)] bg-[rgba(255,255,255,0.02)] hover:border-neon-cyan/30 hover:bg-[rgba(0,255,247,0.03)] transition-all group"
     >
-      <div className="w-16 h-16 rounded-lg border border-[rgba(0,255,247,0.1)] bg-[#0a0a14] flex-shrink-0 overflow-hidden">
+      <div className="relative w-16 h-16 rounded-lg border border-[rgba(0,255,247,0.1)] bg-[#0a0a14] flex-shrink-0 overflow-hidden">
         {product.image_url ? (
-          // eslint-disable-next-line @next/next/no-img-element
-          <img src={product.image_url} alt={product.name} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" />
+          <Image src={product.image_url} alt={product.name} fill className="object-cover group-hover:scale-105 transition-transform duration-300" sizes="64px" />
         ) : (
           <span className="w-full h-full flex items-center justify-center text-gray-700 font-mono">◈</span>
         )}
@@ -92,9 +92,8 @@ function NewsResult({ article, q }: { article: NewsArticle; q: string }) {
       className="flex gap-4 p-4 rounded-xl border border-[rgba(183,36,255,0.08)] bg-[rgba(255,255,255,0.02)] hover:border-neon-purple/30 hover:bg-[rgba(183,36,255,0.03)] transition-all group"
     >
       {article.cover_image && (
-        <div className="w-20 h-14 rounded-lg border border-[rgba(183,36,255,0.1)] bg-[#0a0a14] flex-shrink-0 overflow-hidden">
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src={article.cover_image} alt={article.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" />
+        <div className="relative w-20 h-14 rounded-lg border border-[rgba(183,36,255,0.1)] bg-[#0a0a14] flex-shrink-0 overflow-hidden">
+          <Image src={article.cover_image} alt={article.title} fill className="object-cover group-hover:scale-105 transition-transform duration-300" sizes="80px" />
         </div>
       )}
       <div className="flex-1 min-w-0">
