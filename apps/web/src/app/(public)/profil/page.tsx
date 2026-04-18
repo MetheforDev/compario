@@ -3,91 +3,214 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { redirect } from 'next/navigation';
 import { getPublicUser } from '@/lib/auth';
-import { getUserFavorites, getUserPriceAlerts } from '@compario/database';
+import { getUserFavorites, getUserPriceAlerts, getUserProfile } from '@compario/database';
+import { ProfileEditForm } from '@/components/ProfileEditForm';
 
-export const metadata: Metadata = {
-  title: 'Profilim | Compario',
-};
-
+export const metadata: Metadata = { title: 'Profilim | Compario' };
 export const dynamic = 'force-dynamic';
 
-export default async function ProfilePage() {
+const SOCIAL_ICONS: Record<string, { label: string; icon: string; color: string; buildUrl: (v: string) => string }> = {
+  twitter:   { label: 'X',         icon: '𝕏', color: '#e7e7e7', buildUrl: v => `https://x.com/${v.replace('@','')}` },
+  instagram: { label: 'Instagram', icon: '◎', color: '#E1306C', buildUrl: v => `https://instagram.com/${v.replace('@','')}` },
+  youtube:   { label: 'YouTube',   icon: '▶', color: '#FF0000', buildUrl: v => `https://youtube.com/@${v}` },
+  website:   { label: 'Website',   icon: '⬡', color: '#00fff7', buildUrl: v => v.startsWith('http') ? v : `https://${v}` },
+};
+
+export default async function ProfilePage({
+  searchParams,
+}: {
+  searchParams: { tab?: string };
+}) {
   const user = await getPublicUser();
   if (!user) redirect('/giris?next=/profil');
 
-  const [favorites, alerts] = await Promise.all([
+  const tab = searchParams.tab ?? 'favoriler';
+
+  const [profile, favorites, alerts] = await Promise.all([
+    getUserProfile(user.id).catch(() => null),
     getUserFavorites(user.id).catch(() => []),
     getUserPriceAlerts(user.id).catch(() => []),
   ]);
 
+  const displayName = profile?.display_name ?? user.name ?? user.email.split('@')[0];
+  const initials = displayName.slice(0, 2).toUpperCase();
+
+  const socialLinks = Object.entries(SOCIAL_ICONS).filter(
+    ([key]) => profile?.[key as keyof typeof profile],
+  );
+
   return (
     <main className="min-h-screen bg-grid pb-24" style={{ paddingTop: '88px' }}>
-      <div className="max-w-4xl mx-auto px-4 sm:px-6 pt-12">
 
-        {/* Header */}
-        <div className="flex items-center justify-between mb-10">
-          <div>
-            <p className="font-mono text-[10px] text-neon-purple uppercase tracking-[0.4em] opacity-70 mb-1">
-              ⬡ Compario
-            </p>
-            <h1 className="font-orbitron text-3xl font-black text-neon-cyan text-glow-cyan">
-              PROFİLİM
-            </h1>
-            <p className="font-mono text-xs text-gray-600 mt-1">{user.email}</p>
+      {/* ── Hero banner ─────────────────────────────────────────────────── */}
+      <div className="relative h-36 sm:h-48 overflow-hidden"
+        style={{ background: 'linear-gradient(135deg, #0a0a18 0%, #0d0820 50%, #080d18 100%)' }}>
+        <div className="absolute inset-0"
+          style={{ background: 'radial-gradient(ellipse 80% 100% at 30% 50%, rgba(0,255,247,0.07) 0%, transparent 60%)' }} />
+        <div className="absolute inset-0"
+          style={{ background: 'radial-gradient(ellipse 60% 100% at 80% 50%, rgba(183,36,255,0.07) 0%, transparent 60%)' }} />
+        <div className="absolute bottom-0 left-0 right-0 h-24"
+          style={{ background: 'linear-gradient(to top, #08090e, transparent)' }} />
+        {/* Grid pattern */}
+        <div className="absolute inset-0 opacity-[0.03]"
+          style={{ backgroundImage: 'radial-gradient(circle, rgba(0,255,247,1) 1px, transparent 1px)', backgroundSize: '28px 28px' }} />
+      </div>
+
+      <div className="max-w-4xl mx-auto px-4 sm:px-6">
+
+        {/* ── Profile header ───────────────────────────────────────────────── */}
+        <div className="relative -mt-16 sm:-mt-20 mb-8">
+          <div className="flex flex-col sm:flex-row sm:items-end gap-4">
+
+            {/* Avatar */}
+            <div
+              className="w-24 h-24 sm:w-28 sm:h-28 rounded-2xl flex items-center justify-center font-orbitron text-3xl font-black flex-shrink-0 ring-4"
+              style={{
+                background: 'linear-gradient(135deg, rgba(0,255,247,0.2) 0%, rgba(183,36,255,0.2) 100%)',
+                border: '2px solid rgba(0,255,247,0.3)',
+                outline: '4px solid #08090e',
+                color: '#00fff7',
+                boxShadow: '0 0 40px rgba(0,255,247,0.15), 0 0 80px rgba(183,36,255,0.08)',
+              }}
+            >
+              {profile?.avatar_url ? (
+                <Image src={profile.avatar_url} alt={displayName} fill className="object-cover rounded-2xl" sizes="112px" />
+              ) : initials}
+            </div>
+
+            {/* Name + meta */}
+            <div className="flex-1 pb-1">
+              <div className="flex flex-wrap items-center gap-3 mb-1">
+                <h1 className="font-orbitron text-2xl sm:text-3xl font-black text-white">
+                  {displayName}
+                </h1>
+                <Link
+                  href={`/u/${user.id}`}
+                  className="font-mono text-[9px] px-2 py-1 rounded-full uppercase tracking-wider"
+                  style={{ border: '1px solid rgba(0,255,247,0.15)', color: 'rgba(0,255,247,0.5)' }}
+                >
+                  Genel Profil →
+                </Link>
+              </div>
+              {profile?.bio && (
+                <p className="font-mono text-sm text-gray-500 max-w-lg leading-relaxed">{profile.bio}</p>
+              )}
+
+              {/* Sosyal linkler */}
+              {socialLinks.length > 0 && (
+                <div className="flex flex-wrap gap-2 mt-3">
+                  {socialLinks.map(([key, s]) => {
+                    const val = profile![key as keyof typeof profile] as string;
+                    return (
+                      <a
+                        key={key}
+                        href={s.buildUrl(val)}
+                        target="_blank"
+                        rel="noopener noreferrer nofollow"
+                        className="flex items-center gap-1.5 font-mono text-[10px] px-3 py-1 rounded-full transition-all hover:opacity-80"
+                        style={{
+                          border: `1px solid ${s.color}30`,
+                          background: `${s.color}10`,
+                          color: s.color,
+                        }}
+                      >
+                        <span className="text-[11px]">{s.icon}</span>
+                        <span>{val.replace('@', '')}</span>
+                      </a>
+                    );
+                  })}
+                </div>
+              )}
+            </div>
+
+            {/* Logout */}
+            <form action="/api/auth/logout" method="POST" className="flex-shrink-0">
+              <button type="submit"
+                className="font-mono text-[10px] uppercase tracking-wider px-4 py-2 rounded-lg transition-all"
+                style={{ border: '1px solid rgba(220,38,38,0.25)', color: 'rgba(220,38,38,0.6)' }}>
+                Çıkış
+              </button>
+            </form>
           </div>
-          <LogoutButton />
+
+          {/* Stats row */}
+          <div className="flex gap-6 mt-5 pt-5 border-t border-[rgba(255,255,255,0.04)]">
+            {[
+              { label: 'Favori',      value: favorites.length, color: '#00fff7' },
+              { label: 'Fiyat Alarmı', value: alerts.length,  color: '#C49A3C' },
+              { label: 'Yorum',       value: 0,               color: '#b724ff' },
+            ].map(s => (
+              <div key={s.label} className="text-center">
+                <p className="font-orbitron text-xl font-black" style={{ color: s.color }}>{s.value}</p>
+                <p className="font-mono text-[9px] uppercase tracking-wider text-gray-600">{s.label}</p>
+              </div>
+            ))}
+          </div>
         </div>
 
-        {/* Stats */}
-        <div className="grid grid-cols-2 gap-4 mb-10">
+        {/* ── Tabs ────────────────────────────────────────────────────────── */}
+        <div className="flex gap-0 mb-8 border-b border-[rgba(0,255,247,0.06)]">
           {[
-            { label: 'Favori Ürün', value: favorites.length, color: '#00fff7' },
-            { label: 'Fiyat Alarmı', value: alerts.length, color: '#C49A3C' },
-          ].map(s => (
-            <div key={s.label} className="rounded-xl p-5 text-center"
-              style={{ background: '#0c0c18', border: '1px solid rgba(255,255,255,0.04)' }}>
-              <p className="font-orbitron text-3xl font-black" style={{ color: s.color }}>{s.value}</p>
-              <p className="font-mono text-[10px] uppercase tracking-wider text-gray-600 mt-1">{s.label}</p>
-            </div>
+            { key: 'favoriler',  label: 'Favoriler',     count: favorites.length },
+            { key: 'alarmlar',   label: 'Fiyat Alarmları', count: alerts.length },
+            { key: 'duzenle',    label: 'Profili Düzenle', count: null },
+          ].map(t => (
+            <Link
+              key={t.key}
+              href={`/profil?tab=${t.key}`}
+              className={`flex items-center gap-1.5 px-4 py-2.5 font-mono text-[11px] uppercase tracking-wider border-b-2 transition-colors -mb-px ${
+                tab === t.key
+                  ? 'border-neon-cyan text-neon-cyan'
+                  : 'border-transparent text-gray-600 hover:text-gray-400'
+              }`}
+            >
+              {t.label}
+              {t.count !== null && (
+                <span className={`text-[9px] px-1.5 py-0.5 rounded-full border ${
+                  tab === t.key
+                    ? 'border-neon-cyan/30 bg-neon-cyan/10 text-neon-cyan'
+                    : 'border-gray-700 text-gray-700'
+                }`}>
+                  {t.count}
+                </span>
+              )}
+            </Link>
           ))}
         </div>
 
-        {/* Favorites */}
-        <section className="mb-12">
-          <div className="flex items-center gap-3 mb-5">
-            <h2 className="font-orbitron text-xs uppercase tracking-[0.3em] text-neon-cyan opacity-80">
-              ⬡ Favori Ürünler
-            </h2>
-            <div className="h-px flex-1 bg-gradient-to-r from-neon-cyan/10 to-transparent" />
-          </div>
-
-          {favorites.length === 0 ? (
-            <div className="text-center py-12 rounded-xl border border-[rgba(0,255,247,0.06)]">
-              <p className="font-mono text-sm text-gray-600 mb-3">Henüz favori ürün yok.</p>
-              <Link href="/products" className="btn-neon text-xs">Ürünlere Göz At →</Link>
-            </div>
+        {/* ── Tab: Favoriler ──────────────────────────────────────────────── */}
+        {tab === 'favoriler' && (
+          favorites.length === 0 ? (
+            <EmptyState
+              icon="♡"
+              text="Henüz favori ürün eklemedin."
+              cta={{ href: '/products', label: 'Ürünlere Göz At →' }}
+            />
           ) : (
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-              {favorites.map((product) => (
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+              {favorites.map(product => (
                 <Link
                   key={product.id}
                   href={`/products/${product.slug}`}
-                  className="flex gap-3 p-3 rounded-xl border border-[rgba(0,255,247,0.08)] bg-[rgba(255,255,255,0.02)] hover:border-neon-cyan/25 transition-all group"
+                  className="group flex flex-col rounded-xl overflow-hidden border border-[rgba(0,255,247,0.08)] bg-[rgba(255,255,255,0.02)] hover:border-neon-cyan/25 transition-all hover:-translate-y-0.5"
                 >
-                  <div className="relative w-14 h-14 rounded-lg bg-[#0a0a14] flex-shrink-0 overflow-hidden border border-[rgba(0,255,247,0.08)]">
-                    {product.image_url
-                      ? <Image src={product.image_url} alt={product.name} fill className="object-cover" sizes="56px" />
-                      : <span className="w-full h-full flex items-center justify-center text-gray-700">◈</span>}
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    {product.brand && (
-                      <p className="font-mono text-[9px] text-gray-600 uppercase tracking-wider">{product.brand}</p>
+                  <div className="relative w-full h-36 bg-[#0a0a14] overflow-hidden">
+                    {product.image_url ? (
+                      <Image src={product.image_url} alt={product.name} fill
+                        className="object-cover group-hover:scale-105 transition-transform duration-300" sizes="(max-width:640px) 100vw, 33vw" />
+                    ) : (
+                      <div className="w-full h-full flex items-center justify-center text-gray-700 text-4xl">◈</div>
                     )}
-                    <p className="font-orbitron text-xs font-bold text-gray-200 group-hover:text-neon-cyan transition-colors truncate">
+                  </div>
+                  <div className="p-4">
+                    {product.brand && (
+                      <p className="font-mono text-[9px] uppercase tracking-widest text-gray-600">{product.brand}</p>
+                    )}
+                    <p className="font-orbitron text-xs font-bold text-gray-200 group-hover:text-neon-cyan transition-colors line-clamp-2 mt-0.5">
                       {product.name}
                     </p>
                     {product.price_min && (
-                      <p className="font-mono text-xs font-bold mt-0.5" style={{ color: '#C49A3C' }}>
+                      <p className="font-orbitron text-sm font-black mt-2" style={{ color: '#C49A3C' }}>
                         ₺{product.price_min.toLocaleString('tr-TR')}
                       </p>
                     )}
@@ -95,51 +218,44 @@ export default async function ProfilePage() {
                 </Link>
               ))}
             </div>
-          )}
-        </section>
+          )
+        )}
 
-        {/* Price Alerts */}
-        <section>
-          <div className="flex items-center gap-3 mb-5">
-            <h2 className="font-orbitron text-xs uppercase tracking-[0.3em] opacity-80" style={{ color: '#C49A3C' }}>
-              ⬡ Fiyat Alarmları
-            </h2>
-            <div className="h-px flex-1 bg-gradient-to-r from-[rgba(196,154,60,0.15)] to-transparent" />
-          </div>
-
-          {alerts.length === 0 ? (
-            <div className="text-center py-12 rounded-xl border border-[rgba(196,154,60,0.08)]">
-              <p className="font-mono text-sm text-gray-600 mb-3">Aktif fiyat alarmın yok.</p>
-              <Link href="/products" className="font-mono text-xs" style={{ color: '#C49A3C' }}>
-                Ürünlere Göz At →
-              </Link>
-            </div>
+        {/* ── Tab: Fiyat Alarmları ─────────────────────────────────────────── */}
+        {tab === 'alarmlar' && (
+          alerts.length === 0 ? (
+            <EmptyState
+              icon="🔔"
+              text="Aktif fiyat alarmın yok."
+              cta={{ href: '/products', label: 'Ürün Bak ve Alarm Kur →' }}
+            />
           ) : (
             <div className="space-y-3">
               {alerts.map((alert: {
                 id: string;
                 target_price: number | null;
-                last_price: number | null;
-                products: { id: string; name: string; slug: string; brand: string | null; image_url: string | null; price_min: number | null } | null;
+                products: { name: string; slug: string; brand: string | null; image_url: string | null; price_min: number | null } | null;
               }) => {
-                const product = alert.products;
-                if (!product) return null;
+                const p = alert.products;
+                if (!p) return null;
                 return (
                   <div key={alert.id}
                     className="flex items-center gap-4 p-4 rounded-xl border border-[rgba(196,154,60,0.1)] bg-[rgba(255,255,255,0.02)]">
-                    <div className="relative w-12 h-12 rounded-lg bg-[#0a0a14] flex-shrink-0 overflow-hidden border border-[rgba(196,154,60,0.1)]">
-                      {product.image_url
-                        ? <Image src={product.image_url} alt={product.name} fill className="object-cover" sizes="48px" />
-                        : <span className="w-full h-full flex items-center justify-center text-gray-700 text-xs">◈</span>}
+                    <div className="relative w-14 h-14 rounded-lg bg-[#0a0a14] flex-shrink-0 overflow-hidden border border-[rgba(196,154,60,0.1)]">
+                      {p.image_url
+                        ? <Image src={p.image_url} alt={p.name} fill className="object-cover" sizes="56px" />
+                        : <span className="w-full h-full flex items-center justify-center text-gray-700">◈</span>}
                     </div>
                     <div className="flex-1 min-w-0">
-                      <Link href={`/products/${product.slug}`} className="font-orbitron text-xs font-bold text-gray-200 hover:text-neon-cyan transition-colors truncate block">
-                        {product.name}
+                      {p.brand && <p className="font-mono text-[9px] text-gray-600 uppercase">{p.brand}</p>}
+                      <Link href={`/products/${p.slug}`}
+                        className="font-orbitron text-sm font-bold text-gray-200 hover:text-neon-cyan transition-colors truncate block">
+                        {p.name}
                       </Link>
-                      <div className="flex items-center gap-3 mt-1">
-                        {product.price_min && (
+                      <div className="flex flex-wrap items-center gap-3 mt-1">
+                        {p.price_min && (
                           <span className="font-mono text-[10px] text-gray-500">
-                            Şu an: <span style={{ color: '#C49A3C' }}>₺{product.price_min.toLocaleString('tr-TR')}</span>
+                            Şu an: <span style={{ color: '#C49A3C' }}>₺{p.price_min.toLocaleString('tr-TR')}</span>
                           </span>
                         )}
                         {alert.target_price && (
@@ -149,31 +265,32 @@ export default async function ProfilePage() {
                         )}
                       </div>
                     </div>
-                    <span className="font-mono text-[9px] px-2 py-1 rounded-full border"
+                    <span className="font-mono text-[9px] px-2 py-1 rounded-full border flex-shrink-0"
                       style={{ borderColor: 'rgba(34,197,94,0.3)', color: '#22c55e', background: 'rgba(34,197,94,0.05)' }}>
-                      Aktif
+                      ● Aktif
                     </span>
                   </div>
                 );
               })}
             </div>
-          )}
-        </section>
+          )
+        )}
+
+        {/* ── Tab: Profili Düzenle ─────────────────────────────────────────── */}
+        {tab === 'duzenle' && (
+          <ProfileEditForm userId={user.id} profile={profile} email={user.email} />
+        )}
       </div>
     </main>
   );
 }
 
-function LogoutButton() {
+function EmptyState({ icon, text, cta }: { icon: string; text: string; cta: { href: string; label: string } }) {
   return (
-    <form action="/api/auth/logout" method="POST">
-      <button
-        type="submit"
-        className="font-mono text-[10px] uppercase tracking-wider px-4 py-2 rounded-lg transition-all"
-        style={{ border: '1px solid rgba(220,38,38,0.3)', color: 'rgba(220,38,38,0.7)' }}
-      >
-        Çıkış Yap
-      </button>
-    </form>
+    <div className="text-center py-20 rounded-xl border border-[rgba(0,255,247,0.06)]">
+      <p className="text-4xl mb-4 opacity-30">{icon}</p>
+      <p className="font-mono text-sm text-gray-600 mb-4">{text}</p>
+      <Link href={cta.href} className="btn-neon text-xs">{cta.label}</Link>
+    </div>
   );
 }

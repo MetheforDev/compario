@@ -118,6 +118,10 @@ export {
   searchNews,
 } from './queries/news';
 
+// User profiles
+export type { UserProfile } from './queries/profiles';
+export { getUserProfile, upsertUserProfile } from './queries/profiles';
+
 // Favorites & user queries
 export {
   getUserFavorites,
