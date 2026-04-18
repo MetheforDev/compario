@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useRef, useCallback, DragEvent } from 'react';
+import { useState, useRef, useCallback, DragEvent, KeyboardEvent } from 'react';
 
 // ─── Types ─────────────────────────────────────────────────────────────────────
 
@@ -41,6 +41,8 @@ export function ImageUpload(props: Props) {
   const [dragging, setDragging] = useState(false);
   const [loading, setLoading] = useState(false);
   const [uploadError, setUploadError] = useState('');
+  const [urlInput, setUrlInput] = useState('');
+  const [showUrlInput, setShowUrlInput] = useState(false);
 
   const currentUrls: string[] = multiple
     ? (props as MultiProps).value
@@ -70,6 +72,19 @@ export function ImageUpload(props: Props) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
     [multiple, multiple ? (props as MultiProps).value : (props as SingleProps).value],
   );
+
+  const handleUrlAdd = () => {
+    const trimmed = urlInput.trim();
+    if (!trimmed) return;
+    if (multiple) {
+      const p = props as MultiProps;
+      p.onChange([...p.value, trimmed]);
+    } else {
+      (props as SingleProps).onChange(trimmed);
+    }
+    setUrlInput('');
+    setShowUrlInput(false);
+  };
 
   const removeUrl = (url: string) => {
     if (multiple) {
@@ -137,6 +152,39 @@ export function ImageUpload(props: Props) {
           </div>
         )}
       </div>
+
+      {/* URL input toggle */}
+      <div className="flex items-center gap-2">
+        <button
+          type="button"
+          onClick={() => { setShowUrlInput((v) => !v); setUrlInput(''); setUploadError(''); }}
+          className="font-mono text-[9px] uppercase tracking-wider text-gray-600 hover:text-neon-cyan transition-colors"
+        >
+          {showUrlInput ? '✕ İptal' : '🔗 URL\'den ekle'}
+        </button>
+      </div>
+
+      {showUrlInput && (
+        <div className="flex gap-2">
+          <input
+            type="url"
+            value={urlInput}
+            onChange={(e) => setUrlInput(e.target.value)}
+            onKeyDown={(e: KeyboardEvent<HTMLInputElement>) => e.key === 'Enter' && (e.preventDefault(), handleUrlAdd())}
+            placeholder="https://example.com/image.jpg"
+            className="flex-1 bg-[#0c0c16] border border-[rgba(0,255,247,0.12)] rounded px-3 py-1.5 font-mono text-[11px] text-gray-300 placeholder-gray-700 focus:outline-none focus:border-neon-cyan/40"
+          />
+          <button
+            type="button"
+            onClick={handleUrlAdd}
+            disabled={!urlInput.trim()}
+            className="px-3 py-1.5 rounded font-mono text-[10px] uppercase tracking-wider transition-all disabled:opacity-30"
+            style={{ background: 'rgba(0,255,247,0.08)', border: '1px solid rgba(0,255,247,0.2)', color: '#00fff7' }}
+          >
+            Ekle
+          </button>
+        </div>
+      )}
 
       {uploadError && (
         <p className="font-mono text-[10px] text-red-400">✕ {uploadError}</p>
