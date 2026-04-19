@@ -71,23 +71,41 @@ export function CategorySidebar({
               border: '1px solid rgba(0,255,247,0.15)',
             }}
           >
-            {category.icon && <span className="text-base">{category.icon}</span>}
+            {(() => {
+              const isLogo = category.image_url &&
+                (category.image_url.includes('simpleicons.org') || category.image_url.endsWith('.svg'));
+              return isLogo ? (
+                /* eslint-disable-next-line @next/next/no-img-element */
+                <img src={category.image_url!} alt={category.name} className="w-4 h-4 object-contain opacity-80" />
+              ) : category.icon ? (
+                <span className="text-base">{category.icon}</span>
+              ) : null;
+            })()}
             <span className="font-orbitron text-[10px] font-bold text-neon-cyan uppercase tracking-wider">
               {category.name}
             </span>
           </div>
 
           {/* Subcategories */}
-          {subCategories.map((sub) => (
-            <Link
-              key={sub.id}
-              href={`/categories/${sub.slug}`}
-              className="flex items-center gap-2 px-3 py-1.5 rounded-lg font-mono text-[10px] text-gray-500 hover:text-gray-200 hover:bg-white/5 transition-all uppercase tracking-wider ml-3"
-            >
-              {sub.icon && <span className="text-sm">{sub.icon}</span>}
-              {sub.name}
-            </Link>
-          ))}
+          {subCategories.map((sub) => {
+            const isLogo = sub.image_url &&
+              (sub.image_url.includes('simpleicons.org') || sub.image_url.endsWith('.svg'));
+            return (
+              <Link
+                key={sub.id}
+                href={`/categories/${sub.slug}`}
+                className="flex items-center gap-2 px-3 py-1.5 rounded-lg font-mono text-[10px] text-gray-500 hover:text-gray-200 hover:bg-white/5 transition-all uppercase tracking-wider ml-3"
+              >
+                {isLogo ? (
+                  /* eslint-disable-next-line @next/next/no-img-element */
+                  <img src={sub.image_url!} alt={sub.name} className="w-4 h-4 object-contain opacity-70" />
+                ) : sub.icon ? (
+                  <span className="text-sm">{sub.icon}</span>
+                ) : null}
+                {sub.name}
+              </Link>
+            );
+          })}
         </div>
       </div>
 
