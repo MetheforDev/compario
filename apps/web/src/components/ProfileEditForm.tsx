@@ -36,6 +36,7 @@ export function ProfileEditForm({ userId, profile, email }: Props) {
 
   const [avatarUrl, setAvatarUrl] = useState(profile?.avatar_url ?? '');
   const [coverUrl, setCoverUrl] = useState(profile?.cover_image ?? '');
+  const [coverPos, setCoverPos] = useState(profile?.cover_position ?? 50);
 
   const [uploadingAvatar, setUploadingAvatar] = useState(false);
   const [uploadingCover, setUploadingCover] = useState(false);
@@ -64,7 +65,7 @@ export function ProfileEditForm({ userId, profile, email }: Props) {
       const path = `${userId}/${folder}-${Date.now()}.${ext}`;
       const { error: upErr } = await supabase.storage
         .from('user-media')
-        .upload(path, file, { upsert: true });
+        .upload(path, file, { upsert: true, contentType: file.type });
       if (upErr) throw upErr;
 
       const { data } = supabase.storage.from('user-media').getPublicUrl(path);
@@ -89,6 +90,7 @@ export function ProfileEditForm({ userId, profile, email }: Props) {
           bio: bio.trim() || null,
           avatar_url: avatarUrl || null,
           cover_image: coverUrl || null,
+          cover_position: coverPos,
           twitter: twitter.trim() || null,
           instagram: instagram.trim() || null,
           youtube: youtube.trim() || null,
@@ -122,14 +124,20 @@ export function ProfileEditForm({ userId, profile, email }: Props) {
         <div
           className="relative h-36 sm:h-44 cursor-pointer group"
           style={{
-            background: coverUrl
-              ? 'transparent'
-              : 'linear-gradient(135deg,#0a0a18,#0d0820)',
+            background: coverUrl ? 'transparent' : 'linear-gradient(135deg,#0a0a18,#0d0820)',
           }}
           onClick={() => coverRef.current?.click()}
         >
           {coverUrl && (
-            <Image src={coverUrl} alt="Kapak" fill className="object-cover" sizes="100vw" />
+            <Image
+              src={coverUrl}
+              alt="Kapak"
+              fill
+              className="object-cover transition-all duration-200"
+              style={{ objectPosition: `center ${coverPos}%` }}
+              sizes="100vw"
+              unoptimized={coverUrl.endsWith('.gif')}
+            />
           )}
           {/* Hover overlay */}
           <div
@@ -142,7 +150,7 @@ export function ProfileEditForm({ userId, profile, email }: Props) {
               <>
                 <span className="text-2xl">⬡</span>
                 <span className="font-mono text-[10px] text-neon-cyan uppercase tracking-wider">
-                  Kapak Görseli Yükle
+                  {coverUrl ? 'Görseli Değiştir' : 'Kapak Görseli Yükle'}
                 </span>
               </>
             )}
@@ -155,9 +163,31 @@ export function ProfileEditForm({ userId, profile, email }: Props) {
             onChange={e => {
               const f = e.target.files?.[0];
               if (f) uploadImage(f, 'covers', setCoverUrl, setUploadingCover);
+              e.target.value = '';
             }}
           />
         </div>
+
+        {/* Position slider — only when cover is set */}
+        {coverUrl && (
+          <div
+            className="px-5 py-3 flex items-center gap-3"
+            style={{ background: '#0a0a14', borderTop: '1px solid rgba(0,255,247,0.06)' }}
+            onClick={e => e.stopPropagation()}
+          >
+            <span className="font-mono text-[9px] text-gray-600 uppercase tracking-wider shrink-0">↕ Konum</span>
+            <input
+              type="range"
+              min={0}
+              max={100}
+              value={coverPos}
+              onChange={e => setCoverPos(Number(e.target.value))}
+              className="flex-1 h-1 rounded-full appearance-none cursor-pointer"
+              style={{ accentColor: '#00fff7' }}
+            />
+            <span className="font-mono text-[9px] text-gray-600 w-8 text-right shrink-0">{coverPos}%</span>
+          </div>
+        )}
 
         {/* Avatar + name */}
         <div className="px-5 pb-5 pt-0 bg-[#0d0d1a]">

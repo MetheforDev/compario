@@ -11,11 +11,12 @@ import {
   getUserComments,
 } from '@compario/database';
 import { ProfileEditForm } from '@/components/ProfileEditForm';
+import { ProfileHeroEdit } from '@/components/ProfileHeroEdit';
 
 export const metadata: Metadata = { title: 'Profilim | Compario' };
 export const dynamic = 'force-dynamic';
 
-const SOCIAL_ICONS: Record<string, { label: string; icon: string; color: string; buildUrl: (v: string) => string }> = {
+const SOCIAL_DEFS: Record<string, { label: string; icon: string; color: string; buildUrl: (v: string) => string }> = {
   twitter:   { label: 'X',         icon: '𝕏', color: '#e7e7e7', buildUrl: v => `https://x.com/${v.replace('@','')}` },
   instagram: { label: 'Instagram', icon: '◎', color: '#E1306C', buildUrl: v => `https://instagram.com/${v.replace('@','')}` },
   youtube:   { label: 'YouTube',   icon: '▶', color: '#FF0000', buildUrl: v => `https://youtube.com/@${v}` },
@@ -43,136 +44,42 @@ export default async function ProfilePage({
   const displayName = profile?.display_name ?? user.name ?? user.email.split('@')[0];
   const initials = displayName.slice(0, 2).toUpperCase();
 
-  const socialLinks = Object.entries(SOCIAL_ICONS).filter(
-    ([key]) => profile?.[key as keyof typeof profile],
-  );
+  const socialLinks = Object.entries(SOCIAL_DEFS)
+    .filter(([key]) => profile?.[key as keyof typeof profile])
+    .map(([key, s]) => {
+      const val = profile![key as keyof typeof profile] as string;
+      return { key, ...s, val, url: s.buildUrl(val) };
+    });
+
+  const stats = [
+    { label: 'Favori',       value: favorites.length, color: '#00fff7' },
+    { label: 'Fiyat Alarmı', value: alerts.length,   color: '#C49A3C' },
+    { label: 'Yorum',        value: commentCount,     color: '#b724ff' },
+  ];
 
   return (
     <main className="min-h-screen bg-grid pb-24" style={{ paddingTop: '88px' }}>
 
-      {/* ── Cover banner ──────────────────────────────────────────────── */}
-      <div className="relative h-44 sm:h-56 overflow-hidden">
-        {profile?.cover_image ? (
-          <Image
-            src={profile.cover_image}
-            alt="Kapak"
-            fill
-            className="object-cover"
-            sizes="100vw"
-            priority
-          />
-        ) : (
-          <div
-            className="absolute inset-0"
-            style={{ background: 'linear-gradient(135deg, #0a0a18 0%, #0d0820 50%, #080d18 100%)' }}
-          >
-            <div className="absolute inset-0"
-              style={{ background: 'radial-gradient(ellipse 80% 100% at 30% 50%, rgba(0,255,247,0.07) 0%, transparent 60%)' }} />
-            <div className="absolute inset-0"
-              style={{ background: 'radial-gradient(ellipse 60% 100% at 80% 50%, rgba(183,36,255,0.07) 0%, transparent 60%)' }} />
-            <div className="absolute inset-0 opacity-[0.03]"
-              style={{ backgroundImage: 'radial-gradient(circle, rgba(0,255,247,1) 1px, transparent 1px)', backgroundSize: '28px 28px' }} />
-          </div>
-        )}
-        {/* bottom fade */}
-        <div className="absolute bottom-0 left-0 right-0 h-24"
-          style={{ background: 'linear-gradient(to top, #0D0F1A, transparent)' }} />
-      </div>
+      {/* ── Cover + Avatar + Name — client component (hover upload) ── */}
+      <ProfileHeroEdit
+        userId={user.id}
+        profile={profile}
+        displayName={displayName}
+        initials={initials}
+        bio={profile?.bio ?? null}
+        socialLinks={socialLinks}
+        stats={stats}
+      />
 
       <div className="max-w-4xl mx-auto px-4 sm:px-6">
 
-        {/* ── Profile header ─────────────────────────────────────────── */}
-        <div className="relative -mt-16 sm:-mt-20 mb-8">
-          <div className="flex flex-col sm:flex-row sm:items-end gap-4">
-
-            {/* Avatar */}
-            <div
-              className="relative w-24 h-24 sm:w-28 sm:h-28 rounded-2xl flex items-center justify-center font-orbitron text-3xl font-black flex-shrink-0"
-              style={{
-                background: profile?.avatar_url ? 'transparent' : 'linear-gradient(135deg, rgba(0,255,247,0.2) 0%, rgba(183,36,255,0.2) 100%)',
-                border: '2px solid rgba(0,255,247,0.3)',
-                outline: '4px solid #0D0F1A',
-                color: '#00fff7',
-                boxShadow: '0 0 40px rgba(0,255,247,0.15), 0 0 80px rgba(183,36,255,0.08)',
-              }}
-            >
-              {profile?.avatar_url ? (
-                <Image src={profile.avatar_url} alt={displayName} fill className="object-cover rounded-2xl" sizes="112px" />
-              ) : initials}
-            </div>
-
-            {/* Name + meta */}
-            <div className="flex-1 pb-1">
-              <div className="flex flex-wrap items-center gap-3 mb-1">
-                <h1 className="font-orbitron text-2xl sm:text-3xl font-black text-white">
-                  {displayName}
-                </h1>
-                <Link
-                  href={`/u/${user.id}`}
-                  className="font-mono text-[9px] px-2 py-1 rounded-full uppercase tracking-wider"
-                  style={{ border: '1px solid rgba(0,255,247,0.15)', color: 'rgba(0,255,247,0.5)' }}
-                >
-                  Genel Profil →
-                </Link>
-              </div>
-              {profile?.bio && (
-                <p className="font-mono text-sm text-gray-500 max-w-lg leading-relaxed">{profile.bio}</p>
-              )}
-
-              {socialLinks.length > 0 && (
-                <div className="flex flex-wrap gap-2 mt-3">
-                  {socialLinks.map(([key, s]) => {
-                    const val = profile![key as keyof typeof profile] as string;
-                    return (
-                      <a
-                        key={key}
-                        href={s.buildUrl(val)}
-                        target="_blank"
-                        rel="noopener noreferrer nofollow"
-                        className="flex items-center gap-1.5 font-mono text-[10px] px-3 py-1 rounded-full transition-all hover:opacity-80"
-                        style={{ border: `1px solid ${s.color}30`, background: `${s.color}10`, color: s.color }}
-                      >
-                        <span className="text-[11px]">{s.icon}</span>
-                        <span>{val.replace('@', '')}</span>
-                      </a>
-                    );
-                  })}
-                </div>
-              )}
-            </div>
-
-            {/* Logout */}
-            <form action="/api/auth/logout" method="POST" className="flex-shrink-0">
-              <button type="submit"
-                className="font-mono text-[10px] uppercase tracking-wider px-4 py-2 rounded-lg transition-all"
-                style={{ border: '1px solid rgba(220,38,38,0.25)', color: 'rgba(220,38,38,0.6)' }}>
-                Çıkış
-              </button>
-            </form>
-          </div>
-
-          {/* Stats row */}
-          <div className="flex gap-6 mt-5 pt-5 border-t border-[rgba(255,255,255,0.04)]">
-            {[
-              { label: 'Favori',       value: favorites.length, color: '#00fff7' },
-              { label: 'Fiyat Alarmı', value: alerts.length,   color: '#C49A3C' },
-              { label: 'Yorum',        value: commentCount,     color: '#b724ff' },
-            ].map(s => (
-              <div key={s.label} className="text-center">
-                <p className="font-orbitron text-xl font-black" style={{ color: s.color }}>{s.value}</p>
-                <p className="font-mono text-[9px] uppercase tracking-wider text-gray-600">{s.label}</p>
-              </div>
-            ))}
-          </div>
-        </div>
-
-        {/* ── Tabs ────────────────────────────────────────────────────── */}
+        {/* ── Tabs ──────────────────────────────────────────────────── */}
         <div className="flex gap-0 mb-8 border-b border-[rgba(0,255,247,0.06)] overflow-x-auto">
           {[
-            { key: 'favoriler', label: 'Favoriler',      count: favorites.length },
+            { key: 'favoriler', label: 'Favoriler',       count: favorites.length },
             { key: 'alarmlar',  label: 'Fiyat Alarmları', count: alerts.length },
-            { key: 'yorumlar',  label: 'Yorumlar',        count: commentCount },
-            { key: 'duzenle',   label: 'Profili Düzenle', count: null },
+            { key: 'yorumlar',  label: 'Yorumlar',         count: commentCount },
+            { key: 'duzenle',   label: 'Profili Düzenle',  count: null },
           ].map(t => (
             <Link
               key={t.key}
@@ -213,7 +120,8 @@ export default async function ProfilePage({
                   <div className="relative w-full h-36 bg-[#0a0a14] overflow-hidden">
                     {product.image_url ? (
                       <Image src={product.image_url} alt={product.name} fill
-                        className="object-cover group-hover:scale-105 transition-transform duration-300" sizes="(max-width:640px) 100vw, 33vw" />
+                        className="object-cover group-hover:scale-105 transition-transform duration-300"
+                        sizes="(max-width:640px) 100vw, 33vw" />
                     ) : (
                       <div className="w-full h-full flex items-center justify-center text-gray-700 text-4xl">◈</div>
                     )}
@@ -299,7 +207,6 @@ export default async function ProfilePage({
               {comments.map(c => (
                 <div key={c.id}
                   className="p-4 rounded-xl border border-[rgba(183,36,255,0.1)] bg-[rgba(255,255,255,0.02)]">
-                  {/* product ref */}
                   {c.product_slug && (
                     <Link
                       href={`/products/${c.product_slug}`}

@@ -6,6 +6,7 @@ export interface UserProfile {
   bio: string | null;
   avatar_url: string | null;
   cover_image: string | null;
+  cover_position: number | null;
   twitter: string | null;
   instagram: string | null;
   youtube: string | null;
