@@ -4,7 +4,7 @@ import Image from 'next/image';
 import { getTopLevelCategories, getSubCategories, getProductCountsByCategory, getCategories } from '@compario/database';
 import type { Category } from '@compario/database';
 
-export const revalidate = 3600;
+export const revalidate = 60;
 
 const APP_URL = 'https://compario.tech';
 
