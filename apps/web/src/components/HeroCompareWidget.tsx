@@ -44,7 +44,7 @@ export function HeroCompareWidget({ products }: HeroCompareWidgetProps) {
 
   return (
     <div
-      className="relative max-w-sm mx-auto mt-14"
+      className="relative w-full max-w-sm"
       style={{
         perspective: '1000px',
         opacity: visible ? 1 : 0,
