@@ -67,7 +67,7 @@ export function Footer() {
             <Link href="/" className="inline-flex items-center gap-3 mb-4">
               <div className="relative flex-shrink-0" style={{ width: 44, height: 44 }}>
                 <Image
-                  src="/images/logo/logo-white.png"
+                  src="/images/logos/compario-logo-icon-only.png"
                   alt="Compario"
                   fill
                   className="object-contain"
