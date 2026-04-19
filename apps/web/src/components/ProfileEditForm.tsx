@@ -103,8 +103,9 @@ export function ProfileEditForm({ userId, profile, email }: Props) {
       setSaved(true);
       router.refresh();
       setTimeout(() => setSaved(false), 3000);
-    } catch {
-      setError('Kaydedilemedi, tekrar dene.');
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : String(err);
+      setError(`Kaydedilemedi: ${msg}`);
     } finally {
       setSaving(false);
     }
