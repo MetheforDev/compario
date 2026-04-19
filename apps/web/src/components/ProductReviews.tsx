@@ -3,10 +3,17 @@
 import { useState, useTransition } from 'react';
 import type { Review, RatingSummary } from '@compario/database';
 
+interface CurrentUser {
+  id: string;
+  name: string | null;
+  email: string;
+}
+
 interface ProductReviewsProps {
   productId: string;
   initialReviews: Review[];
   initialSummary: RatingSummary;
+  currentUser?: CurrentUser | null;
 }
 
 function StarSelector({ value, onChange }: { value: number; onChange: (v: number) => void }) {
@@ -135,11 +142,11 @@ function ReviewCard({ review }: { review: Review }) {
   );
 }
 
-function ReviewForm({ productId, onSuccess }: { productId: string; onSuccess: () => void }) {
+function ReviewForm({ productId, onSuccess, currentUser }: { productId: string; onSuccess: () => void; currentUser?: CurrentUser | null }) {
   const [rating, setRating] = useState(0);
   const [comment, setComment] = useState('');
-  const [name, setName] = useState('');
-  const [email, setEmail] = useState('');
+  const [name, setName] = useState(currentUser?.name ?? '');
+  const [email, setEmail] = useState(currentUser?.email ?? '');
   const [status, setStatus] = useState<'idle' | 'loading' | 'done' | 'error'>('idle');
   const [errorMsg, setErrorMsg] = useState('');
 
@@ -209,40 +216,54 @@ function ReviewForm({ productId, onSuccess }: { productId: string; onSuccess: ()
         <p className="font-mono text-[10px] text-gray-700 mt-1 text-right">{comment.length}/1000</p>
       </div>
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-        <div>
-          <label className="block font-mono text-[10px] uppercase tracking-wider text-gray-600 mb-2">
-            İsim <span className="text-gray-700">(opsiyonel)</span>
-          </label>
-          <input
-            type="text"
-            value={name}
-            onChange={(e) => setName(e.target.value)}
-            placeholder="Adınız"
-            maxLength={60}
-            className="w-full rounded-lg px-4 py-2.5 font-mono text-sm text-gray-300 placeholder-gray-700 focus:outline-none transition-colors"
-            style={{ background: '#0a0a14', border: '1px solid rgba(196,154,60,0.15)' }}
-            onFocus={(e) => { e.currentTarget.style.borderColor = 'rgba(196,154,60,0.4)'; }}
-            onBlur={(e) => { e.currentTarget.style.borderColor = 'rgba(196,154,60,0.15)'; }}
-          />
+      {currentUser ? (
+        <div className="flex items-center gap-3 px-3 py-2 rounded-lg"
+          style={{ background: 'rgba(0,255,247,0.04)', border: '1px solid rgba(0,255,247,0.1)' }}>
+          <div className="w-7 h-7 rounded-full flex items-center justify-center font-orbitron text-xs font-black flex-shrink-0"
+            style={{ background: 'rgba(0,255,247,0.15)', color: '#00fff7', border: '1px solid rgba(0,255,247,0.3)' }}>
+            {(currentUser.name ?? currentUser.email)[0].toUpperCase()}
+          </div>
+          <div>
+            <p className="font-mono text-xs text-gray-300">{currentUser.name ?? currentUser.email.split('@')[0]}</p>
+            <p className="font-mono text-[9px] text-gray-600">Hesabınla yorum yapıyorsun</p>
+          </div>
         </div>
-        <div>
-          <label className="block font-mono text-[10px] uppercase tracking-wider text-gray-600 mb-2">
-            E-posta <span className="text-gray-700">(opsiyonel, gizli)</span>
-          </label>
-          <input
-            type="email"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            placeholder="ornek@mail.com"
-            maxLength={120}
-            className="w-full rounded-lg px-4 py-2.5 font-mono text-sm text-gray-300 placeholder-gray-700 focus:outline-none transition-colors"
-            style={{ background: '#0a0a14', border: '1px solid rgba(196,154,60,0.15)' }}
-            onFocus={(e) => { e.currentTarget.style.borderColor = 'rgba(196,154,60,0.4)'; }}
-            onBlur={(e) => { e.currentTarget.style.borderColor = 'rgba(196,154,60,0.15)'; }}
-          />
+      ) : (
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div>
+            <label className="block font-mono text-[10px] uppercase tracking-wider text-gray-600 mb-2">
+              İsim <span className="text-gray-700">(opsiyonel)</span>
+            </label>
+            <input
+              type="text"
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+              placeholder="Adınız"
+              maxLength={60}
+              className="w-full rounded-lg px-4 py-2.5 font-mono text-sm text-gray-300 placeholder-gray-700 focus:outline-none transition-colors"
+              style={{ background: '#0a0a14', border: '1px solid rgba(196,154,60,0.15)' }}
+              onFocus={(e) => { e.currentTarget.style.borderColor = 'rgba(196,154,60,0.4)'; }}
+              onBlur={(e) => { e.currentTarget.style.borderColor = 'rgba(196,154,60,0.15)'; }}
+            />
+          </div>
+          <div>
+            <label className="block font-mono text-[10px] uppercase tracking-wider text-gray-600 mb-2">
+              E-posta <span className="text-gray-700">(opsiyonel, gizli)</span>
+            </label>
+            <input
+              type="email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              placeholder="ornek@mail.com"
+              maxLength={120}
+              className="w-full rounded-lg px-4 py-2.5 font-mono text-sm text-gray-300 placeholder-gray-700 focus:outline-none transition-colors"
+              style={{ background: '#0a0a14', border: '1px solid rgba(196,154,60,0.15)' }}
+              onFocus={(e) => { e.currentTarget.style.borderColor = 'rgba(196,154,60,0.4)'; }}
+              onBlur={(e) => { e.currentTarget.style.borderColor = 'rgba(196,154,60,0.15)'; }}
+            />
+          </div>
         </div>
-      </div>
+      )}
 
       {errorMsg && (
         <p className="font-mono text-xs text-red-400">{errorMsg}</p>
@@ -271,7 +292,7 @@ function ReviewForm({ productId, onSuccess }: { productId: string; onSuccess: ()
   );
 }
 
-export function ProductReviews({ productId, initialReviews, initialSummary }: ProductReviewsProps) {
+export function ProductReviews({ productId, initialReviews, initialSummary, currentUser }: ProductReviewsProps) {
   const [reviews, setReviews] = useState<Review[]>(initialReviews);
   const [showForm, setShowForm] = useState(false);
   const summary = initialSummary;
@@ -328,6 +349,7 @@ export function ProductReviews({ productId, initialReviews, initialSummary }: Pr
             </p>
             <ReviewForm
               productId={productId}
+              currentUser={currentUser}
               onSuccess={() => {
                 setShowForm(false);
               }}

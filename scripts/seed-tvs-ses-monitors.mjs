@@ -1,0 +1,481 @@
+// LED TV, Hoparlör, Gaming Kulaklık, Ev Sineması, İş Monitörü, Ultrawide Monitör
+import { createClient } from '@supabase/supabase-js';
+
+const s = createClient(
+  process.env.NEXT_PUBLIC_SUPABASE_URL,
+  process.env.SUPABASE_SERVICE_KEY
+);
+
+const CATS = {
+  ledTv:      'd48b82f4-a1f2-4d5e-9f09-19e6d4eaf48a',
+  hoparlor:   'c785da52-5b85-47e3-9d73-a7fd37ecaf6e',
+  kulaklik:   '13e20b80-0e62-43fe-b29c-2a317f9729d0',
+  evSinema:   '7c15fa83-10c0-43b3-a743-f2f5e21abb35',
+  isMonitor:  '8a518529-cd09-4a80-8cf8-3b632a7c1e0a',
+  ultrawide:  'd54c173e-490a-419d-a52b-82bc2427193a',
+};
+
+const products = [
+  // ── LED TV ──
+  {
+    name: 'OLED C4 65"', slug: 'lg-oled-c4-65', brand: 'LG', model: 'OLED C4',
+    category_id: CATS.ledTv, status: 'active', price_min: 59999, price_max: 89999, currency: 'TRY',
+    image_url: 'https://images.unsplash.com/photo-1593359677879-a4bb92f4834c?w=800&q=80',
+    short_description: '65" OLED evo, 4K, 120Hz, webOS 24, Dolby Vision IQ.',
+    specs: {
+      'Ekran Boyutu': '65"',
+      'Panel Tipi': 'OLED evo',
+      'Çözünürlük': '4K Ultra HD (3840×2160)',
+      'Yenileme Hızı': '120Hz (144Hz TruMotion)',
+      'HDR': 'Dolby Vision IQ, HDR10, HLG',
+      'İşlemci': 'α9 Gen7 AI Processor',
+      'Ses': '40W, Dolby Atmos',
+      'İşletim Sistemi': 'webOS 24',
+      'HDMI': '4x HDMI 2.1',
+      'Donanım Seçenekleri': [
+        { 'Versiyon': '55"', 'Fiyat': '59.999 ₺' },
+        { 'Versiyon': '65"', 'Fiyat': '74.999 ₺' },
+        { 'Versiyon': '77"', 'Fiyat': '89.999 ₺' },
+      ],
+    },
+  },
+  {
+    name: 'QN90D Neo QLED 65"', slug: 'samsung-qn90d-neo-qled-65', brand: 'Samsung', model: 'QN90D',
+    category_id: CATS.ledTv, status: 'active', price_min: 54999, price_max: 79999, currency: 'TRY',
+    image_url: 'https://images.unsplash.com/photo-1593359677879-a4bb92f4834c?w=800&q=80',
+    short_description: '65" Neo QLED 4K, 144Hz, Tizen OS, Neural Quantum Processor.',
+    specs: {
+      'Ekran Boyutu': '65"',
+      'Panel Tipi': 'Neo QLED (Mini-LED)',
+      'Çözünürlük': '4K Ultra HD',
+      'Yenileme Hızı': '144Hz',
+      'HDR': 'Quantum HDR 32x, Dolby Atmos',
+      'İşlemci': 'Neural Quantum Processor 4K',
+      'Ses': '60W, Dolby Atmos, Q-Symphony',
+      'İşletim Sistemi': 'Tizen OS',
+      'HDMI': '4x HDMI 2.1',
+      'Donanım Seçenekleri': [
+        { 'Versiyon': '55"', 'Fiyat': '54.999 ₺' },
+        { 'Versiyon': '65"', 'Fiyat': '67.999 ₺' },
+        { 'Versiyon': '75"', 'Fiyat': '79.999 ₺' },
+      ],
+    },
+  },
+  {
+    name: 'X90L BRAVIA XR 55"', slug: 'sony-x90l-55', brand: 'Sony', model: 'BRAVIA X90L',
+    category_id: CATS.ledTv, status: 'active', price_min: 42999, price_max: 65999, currency: 'TRY',
+    image_url: 'https://images.unsplash.com/photo-1593359677879-a4bb92f4834c?w=800&q=80',
+    short_description: '55" Full Array LED, 4K, XR Cognitive Processor, Google TV.',
+    specs: {
+      'Ekran Boyutu': '55"',
+      'Panel Tipi': 'Full Array LED',
+      'Çözünürlük': '4K Ultra HD',
+      'Yenileme Hızı': '120Hz',
+      'HDR': 'Dolby Vision, HDR10, HLG',
+      'İşlemci': 'XR Cognitive Processor',
+      'Ses': '20W, Dolby Atmos',
+      'İşletim Sistemi': 'Google TV',
+      'HDMI': '4x HDMI 2.1',
+      'Donanım Seçenekleri': [
+        { 'Versiyon': '55"', 'Fiyat': '42.999 ₺' },
+        { 'Versiyon': '65"', 'Fiyat': '55.999 ₺' },
+        { 'Versiyon': '75"', 'Fiyat': '65.999 ₺' },
+      ],
+    },
+  },
+  {
+    name: 'Hisense U7N 65"', slug: 'hisense-u7n-65', brand: 'Hisense', model: 'U7N',
+    category_id: CATS.ledTv, status: 'active', price_min: 29999, price_max: 44999, currency: 'TRY',
+    image_url: 'https://images.unsplash.com/photo-1593359677879-a4bb92f4834c?w=800&q=80',
+    short_description: '65" Mini-LED ULED 4K, 144Hz, Dolby Vision, Google TV.',
+    specs: {
+      'Ekran Boyutu': '65"',
+      'Panel Tipi': 'Mini-LED ULED',
+      'Çözünürlük': '4K Ultra HD',
+      'Yenileme Hızı': '144Hz',
+      'HDR': 'Dolby Vision, HDR10+',
+      'İşlemci': 'Hi-View Engine Pro',
+      'Ses': '60W, Dolby Atmos',
+      'İşletim Sistemi': 'Google TV',
+      'Donanım Seçenekleri': [
+        { 'Versiyon': '55"', 'Fiyat': '29.999 ₺' },
+        { 'Versiyon': '65"', 'Fiyat': '37.999 ₺' },
+        { 'Versiyon': '75"', 'Fiyat': '44.999 ₺' },
+      ],
+    },
+  },
+  {
+    name: 'Philips OLED808 55"', slug: 'philips-oled808-55', brand: 'Philips', model: 'OLED808',
+    category_id: CATS.ledTv, status: 'active', price_min: 49999, price_max: 69999, currency: 'TRY',
+    image_url: 'https://images.unsplash.com/photo-1593359677879-a4bb92f4834c?w=800&q=80',
+    short_description: '55" OLED 4K, 120Hz, Ambilight 4K, P5 AI Perfect Picture Engine.',
+    specs: {
+      'Ekran Boyutu': '55"',
+      'Panel Tipi': 'OLED',
+      'Çözünürlük': '4K Ultra HD',
+      'Yenileme Hızı': '120Hz',
+      'Özellik': 'Ambilight 4K (4 taraflı)',
+      'İşlemci': 'P5 AI Perfect Picture Engine',
+      'Ses': '70W, Bowers & Wilkins',
+      'İşletim Sistemi': 'Google TV',
+      'Donanım Seçenekleri': [
+        { 'Versiyon': '55"', 'Fiyat': '49.999 ₺' },
+        { 'Versiyon': '65"', 'Fiyat': '69.999 ₺' },
+      ],
+    },
+  },
+  {
+    name: 'Vestel 65UA9600', slug: 'vestel-65ua9600', brand: 'Vestel', model: '65UA9600',
+    category_id: CATS.ledTv, status: 'active', price_min: 18999, price_max: 18999, currency: 'TRY',
+    image_url: 'https://images.unsplash.com/photo-1593359677879-a4bb92f4834c?w=800&q=80',
+    short_description: '65" 4K QLED, 120Hz, Google TV, Dolby Vision.',
+    specs: {
+      'Ekran Boyutu': '65"',
+      'Panel Tipi': 'QLED',
+      'Çözünürlük': '4K Ultra HD',
+      'Yenileme Hızı': '120Hz',
+      'HDR': 'Dolby Vision, HDR10+',
+      'Ses': '30W',
+      'İşletim Sistemi': 'Google TV',
+      'Fiyat': '18.999 ₺',
+    },
+  },
+
+  // ── Bluetooth Hoparlör ──
+  {
+    name: 'Charge 5', slug: 'jbl-charge-5', brand: 'JBL', model: 'Charge 5',
+    category_id: CATS.hoparlor, status: 'active', price_min: 3499, price_max: 3499, currency: 'TRY',
+    image_url: 'https://images.unsplash.com/photo-1608043152269-423dbba4e7e1?w=800&q=80',
+    short_description: 'IP67 su geçirmez, 20 saat batarya, güçlü bas.',
+    specs: {
+      'Su Direnci': 'IP67',
+      'Batarya': '20 saat',
+      'Güç': '30W',
+      'Bağlantı': 'Bluetooth 5.1, USB-C şarj',
+      'Ağırlık': '960 g',
+      'Boyutlar': '22.3 × 9.6 × 9.5 cm',
+      'Fiyat': '3.499 ₺',
+    },
+  },
+  {
+    name: 'SoundLink Max', slug: 'bose-soundlink-max', brand: 'Bose', model: 'SoundLink Max',
+    category_id: CATS.hoparlor, status: 'active', price_min: 8999, price_max: 8999, currency: 'TRY',
+    image_url: 'https://images.unsplash.com/photo-1608043152269-423dbba4e7e1?w=800&q=80',
+    short_description: 'Premium ses kalitesi, IP67, 20 saat, USB-C şarj.',
+    specs: {
+      'Su Direnci': 'IP67',
+      'Batarya': '20 saat',
+      'Bağlantı': 'Bluetooth 5.3, USB-C',
+      'Ağırlık': '1.33 kg',
+      'Özellik': 'Çift cihaz bağlantısı, PartyUp',
+      'Fiyat': '8.999 ₺',
+    },
+  },
+  {
+    name: 'Flip 6', slug: 'jbl-flip-6', brand: 'JBL', model: 'Flip 6',
+    category_id: CATS.hoparlor, status: 'active', price_min: 2199, price_max: 2199, currency: 'TRY',
+    image_url: 'https://images.unsplash.com/photo-1608043152269-423dbba4e7e1?w=800&q=80',
+    short_description: 'IP67, 12 saat batarya, JBL PartyBoost.',
+    specs: {
+      'Su Direnci': 'IP67',
+      'Batarya': '12 saat',
+      'Güç': '20W',
+      'Bağlantı': 'Bluetooth 5.1',
+      'Ağırlık': '550 g',
+      'Fiyat': '2.199 ₺',
+    },
+  },
+  {
+    name: 'Xtreme 4', slug: 'jbl-xtreme-4', brand: 'JBL', model: 'Xtreme 4',
+    category_id: CATS.hoparlor, status: 'active', price_min: 6999, price_max: 6999, currency: 'TRY',
+    image_url: 'https://images.unsplash.com/photo-1608043152269-423dbba4e7e1?w=800&q=80',
+    short_description: 'IP67, 24 saat batarya, güçlü 100W ses.',
+    specs: {
+      'Su Direnci': 'IP67',
+      'Batarya': '24 saat',
+      'Güç': '100W',
+      'Bağlantı': 'Bluetooth 5.3',
+      'Ağırlık': '2.2 kg',
+      'Özellik': 'USB-C şarj çıkışı, PartyBoost',
+      'Fiyat': '6.999 ₺',
+    },
+  },
+
+  // ── Gaming Kulaklık ──
+  {
+    name: 'Cloud Alpha', slug: 'hyperx-cloud-alpha', brand: 'HyperX', model: 'Cloud Alpha',
+    category_id: CATS.kulaklik, status: 'active', price_min: 1799, price_max: 1799, currency: 'TRY',
+    image_url: 'https://images.unsplash.com/photo-1599669454699-248893623440?w=800&q=80',
+    short_description: 'Çift odacıklı ses sürücüsü, kırmızı-siyah tasarım, 300 saat batarya.',
+    specs: {
+      'Bağlantı': 'Kablolu (3.5mm + USB ses kartı)',
+      'Sürücü': '50mm çift odacıklı',
+      'Mikrofon': 'Çıkarılabilir, uni-yönlü',
+      'Frekans': '13Hz – 27kHz',
+      'Ağırlık': '298 g',
+      'Uyumluluk': 'PC, PS, Xbox, Switch',
+      'Fiyat': '1.799 ₺',
+    },
+  },
+  {
+    name: 'Arctis Nova Pro Wireless', slug: 'steelseries-arctis-nova-pro-wireless', brand: 'SteelSeries', model: 'Arctis Nova Pro Wireless',
+    category_id: CATS.kulaklik, status: 'active', price_min: 11999, price_max: 11999, currency: 'TRY',
+    image_url: 'https://images.unsplash.com/photo-1599669454699-248893623440?w=800&q=80',
+    short_description: 'Çift kablosuz sistem, ANC, Hi-Fi kalite, değiştirilebilir batarya.',
+    specs: {
+      'Bağlantı': 'Kablosuz 2.4GHz + Bluetooth',
+      'Batarya': '22 saat (hot-swap)',
+      'ANC': 'Aktif Gürültü Engelleme',
+      'Sürücü': '40mm neodymium',
+      'Mikrofon': 'Katlanır, ClearCast Gen 2',
+      'Uyumluluk': 'PC, PS5, PS4',
+      'Fiyat': '11.999 ₺',
+    },
+  },
+  {
+    name: 'QuadCast S', slug: 'hyperx-quadcast-s', brand: 'HyperX', model: 'QuadCast S',
+    category_id: CATS.kulaklik, status: 'active', price_min: 3299, price_max: 3299, currency: 'TRY',
+    image_url: 'https://images.unsplash.com/photo-1599669454699-248893623440?w=800&q=80',
+    short_description: 'USB kondenser mikrofon, RGB, 4 kutuplama modu, anti-vibrasyon yuva.',
+    specs: {
+      'Tip': 'USB Kondenser Mikrofon',
+      'Kutuplama': '4 mod (stereo, omni, kardioid, çift yön)',
+      'Örnek Hız': '48kHz / 16-bit',
+      'Bağlantı': 'USB-A + 3.5mm kulaklık çıkışı',
+      'RGB': 'Var',
+      'Fiyat': '3.299 ₺',
+    },
+  },
+  {
+    name: 'WH-1000XM5', slug: 'sony-wh-1000xm5', brand: 'Sony', model: 'WH-1000XM5',
+    category_id: CATS.kulaklik, status: 'active', price_min: 7999, price_max: 7999, currency: 'TRY',
+    image_url: 'https://images.unsplash.com/photo-1599669454699-248893623440?w=800&q=80',
+    short_description: 'Sektörün en iyi ANC\'i, 30 saat batarya, LDAC, Multipoint.',
+    specs: {
+      'ANC': 'Lider sınıf, 8 mikrofon',
+      'Batarya': '30 saat (ANC açık)',
+      'Hızlı Şarj': '3 dk → 3 saat',
+      'Codec': 'LDAC, AAC, SBC',
+      'Bağlantı': 'Bluetooth 5.2, Multipoint',
+      'Ağırlık': '250 g',
+      'Fiyat': '7.999 ₺',
+    },
+  },
+  {
+    name: 'Pulse 3D', slug: 'sony-pulse-3d', brand: 'Sony', model: 'Pulse 3D',
+    category_id: CATS.kulaklik, status: 'active', price_min: 2999, price_max: 2999, currency: 'TRY',
+    image_url: 'https://images.unsplash.com/photo-1599669454699-248893623440?w=800&q=80',
+    short_description: 'PS5 için tasarlandı, 3D Audio, çift gürültü bastırmalı mikrofon.',
+    specs: {
+      'Bağlantı': 'Kablosuz (USB dongle) + 3.5mm',
+      'Batarya': '12 saat',
+      'Ses': 'PS5 Tempest 3D Audio optimizasyonu',
+      'Mikrofon': 'Çift gürültü bastırmalı',
+      'Uyumluluk': 'PS5, PS4, PC',
+      'Fiyat': '2.999 ₺',
+    },
+  },
+
+  // ── Ev Sineması ──
+  {
+    name: 'HW-Q990D', slug: 'samsung-hw-q990d', brand: 'Samsung', model: 'HW-Q990D',
+    category_id: CATS.evSinema, status: 'active', price_min: 34999, price_max: 34999, currency: 'TRY',
+    image_url: 'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=800&q=80',
+    short_description: '11.1.4 kanal, 656W, Dolby Atmos, kablosuz arka hoparlör.',
+    specs: {
+      'Kanal': '11.1.4',
+      'Güç': '656W',
+      'Ses Formatı': 'Dolby Atmos, DTS:X',
+      'Bağlantı': 'HDMI eARC, Bluetooth, Wi-Fi',
+      'Arka Hoparlör': 'Kablosuz',
+      'Fiyat': '34.999 ₺',
+    },
+  },
+  {
+    name: 'HT-A7000', slug: 'sony-ht-a7000', brand: 'Sony', model: 'HT-A7000',
+    category_id: CATS.evSinema, status: 'active', price_min: 24999, price_max: 24999, currency: 'TRY',
+    image_url: 'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=800&q=80',
+    short_description: '7.1.2 kanal, 500W, Dolby Atmos, HDMI 2.1 eARC.',
+    specs: {
+      'Kanal': '7.1.2',
+      'Güç': '500W',
+      'Ses Formatı': 'Dolby Atmos, DTS:X',
+      'HDMI': 'HDMI 2.1 eARC',
+      'Codec': 'Hi-Res Audio, 360 Reality Audio',
+      'Fiyat': '24.999 ₺',
+    },
+  },
+  {
+    name: 'Sonos Arc Ultra', slug: 'sonos-arc-ultra', brand: 'Sonos', model: 'Arc Ultra',
+    category_id: CATS.evSinema, status: 'active', price_min: 29999, price_max: 29999, currency: 'TRY',
+    image_url: 'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=800&q=80',
+    short_description: '9.1.4 sanal kanal, Sound Motion teknolojisi, HDMI eARC, Dolby Atmos.',
+    specs: {
+      'Kanal': '9.1.4 (sanal)',
+      'Teknoloji': 'Sound Motion',
+      'Ses Formatı': 'Dolby Atmos, DTS:X',
+      'Bağlantı': 'HDMI eARC, Wi-Fi, Ethernet',
+      'Trueplay': 'Otomatik oda kalibrasyonu',
+      'Fiyat': '29.999 ₺',
+    },
+  },
+  {
+    name: 'YAS-209', slug: 'yamaha-yas-209', brand: 'Yamaha', model: 'YAS-209',
+    category_id: CATS.evSinema, status: 'active', price_min: 8999, price_max: 8999, currency: 'TRY',
+    image_url: 'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=800&q=80',
+    short_description: '2.1 kanal, kablosuz subwoofer, DTS Virtual:X, Alexa.',
+    specs: {
+      'Kanal': '2.1',
+      'Güç': '200W',
+      'Ses Formatı': 'DTS Virtual:X, Dolby Digital',
+      'Subwoofer': 'Kablosuz',
+      'Sesli Asistan': 'Amazon Alexa',
+      'Bağlantı': 'HDMI ARC, Bluetooth, Optik',
+      'Fiyat': '8.999 ₺',
+    },
+  },
+
+  // ── İş Monitörü ──
+  {
+    name: 'U2723QE', slug: 'dell-u2723qe', brand: 'Dell', model: 'UltraSharp U2723QE',
+    category_id: CATS.isMonitor, status: 'active', price_min: 18999, price_max: 18999, currency: 'TRY',
+    image_url: 'https://images.unsplash.com/photo-1527443224154-c4a3942d3acf?w=800&q=80',
+    short_description: '27" 4K IPS Black, sRGB %100, USB-C 90W, KVM switch.',
+    specs: {
+      'Boyut': '27"',
+      'Çözünürlük': '4K (3840×2160)',
+      'Panel': 'IPS Black',
+      'Renk': 'sRGB %100, DCI-P3 %98',
+      'Bağlantı': 'USB-C 90W, Thunderbolt 4, HDMI 2.0, DP 1.4',
+      'KVM': 'Dahili KVM switch',
+      'Yenileme Hızı': '60Hz',
+      'Fiyat': '18.999 ₺',
+    },
+  },
+  {
+    name: 'BenQ PD2706UA', slug: 'benq-pd2706ua', brand: 'BenQ', model: 'PD2706UA',
+    category_id: CATS.isMonitor, status: 'active', price_min: 14999, price_max: 14999, currency: 'TRY',
+    image_url: 'https://images.unsplash.com/photo-1527443224154-c4a3942d3acf?w=800&q=80',
+    short_description: '27" 4K IPS, DCI-P3 %95, USB-C 65W, Thunderbolt 4, tasarımcılar için.',
+    specs: {
+      'Boyut': '27"',
+      'Çözünürlük': '4K (3840×2160)',
+      'Panel': 'IPS',
+      'Renk': 'DCI-P3 %95, sRGB %100',
+      'Bağlantı': 'USB-C 65W, Thunderbolt 4, HDMI, DP',
+      'Kalibrasyon': 'Fabrika kalibrasyonlu',
+      'Yenileme Hızı': '60Hz',
+      'Fiyat': '14.999 ₺',
+    },
+  },
+  {
+    name: 'ProArt PA278CV', slug: 'asus-proart-pa278cv', brand: 'ASUS', model: 'ProArt PA278CV',
+    category_id: CATS.isMonitor, status: 'active', price_min: 9499, price_max: 9499, currency: 'TRY',
+    image_url: 'https://images.unsplash.com/photo-1527443224154-c4a3942d3acf?w=800&q=80',
+    short_description: '27" WQHD IPS, sRGB %100, USB-C 65W, tasarımcı ve editörler için.',
+    specs: {
+      'Boyut': '27"',
+      'Çözünürlük': '2K WQHD (2560×1440)',
+      'Panel': 'IPS',
+      'Renk': 'sRGB %100, Rec.709 %100',
+      'Bağlantı': 'USB-C 65W, HDMI, DP, USB-A hub',
+      'Kalibrasyon': 'ProArt Calibration Technology',
+      'Yenileme Hızı': '75Hz',
+      'Fiyat': '9.499 ₺',
+    },
+  },
+  {
+    name: 'ViewSonic VP2776', slug: 'viewsonic-vp2776', brand: 'ViewSonic', model: 'VP2776',
+    category_id: CATS.isMonitor, status: 'active', price_min: 11999, price_max: 11999, currency: 'TRY',
+    image_url: 'https://images.unsplash.com/photo-1527443224154-c4a3942d3acf?w=800&q=80',
+    short_description: '27" 4K IPS, sRGB %100, hardware kalibrasyon, USB-C 60W.',
+    specs: {
+      'Boyut': '27"',
+      'Çözünürlük': '4K (3840×2160)',
+      'Panel': 'IPS',
+      'Renk': 'sRGB %100, DCI-P3 %98',
+      'Kalibrasyon': 'Hardware + software kalibrasyon',
+      'Bağlantı': 'USB-C 60W, HDMI 2.0, DP 1.4',
+      'Yenileme Hızı': '60Hz',
+      'Fiyat': '11.999 ₺',
+    },
+  },
+
+  // ── Ultrawide Monitör ──
+  {
+    name: '34GP83A-B', slug: 'lg-34gp83a-b', brand: 'LG', model: '34GP83A-B UltraGear',
+    category_id: CATS.ultrawide, status: 'active', price_min: 14999, price_max: 14999, currency: 'TRY',
+    image_url: 'https://images.unsplash.com/photo-1527443224154-c4a3942d3acf?w=800&q=80',
+    short_description: '34" UWQHD IPS 160Hz, 1ms GtG, NVIDIA G-Sync uyumlu, HDR10.',
+    specs: {
+      'Boyut': '34" (21:9)',
+      'Çözünürlük': 'UWQHD (3440×1440)',
+      'Panel': 'Nano IPS',
+      'Yenileme Hızı': '160Hz',
+      'Yanıt Süresi': '1ms GtG',
+      'G-Sync': 'Uyumlu',
+      'HDR': 'HDR10',
+      'Bağlantı': 'HDMI 2.0, DP 1.4, USB-A hub',
+      'Fiyat': '14.999 ₺',
+    },
+  },
+  {
+    name: 'Dell AW3423DWF', slug: 'dell-aw3423dwf', brand: 'Dell', model: 'Alienware AW3423DWF',
+    category_id: CATS.ultrawide, status: 'active', price_min: 29999, price_max: 29999, currency: 'TRY',
+    image_url: 'https://images.unsplash.com/photo-1527443224154-c4a3942d3acf?w=800&q=80',
+    short_description: '34" QD-OLED UWQHD, 165Hz, 0.1ms, sonsuz kontrast, AMD FreeSync.',
+    specs: {
+      'Boyut': '34" (21:9)',
+      'Çözünürlük': 'UWQHD (3440×1440)',
+      'Panel': 'QD-OLED',
+      'Yenileme Hızı': '165Hz',
+      'Yanıt Süresi': '0.1ms',
+      'Kontrast': 'Sonsuz (OLED)',
+      'FreeSync': 'AMD FreeSync Premium Pro',
+      'Fiyat': '29.999 ₺',
+    },
+  },
+  {
+    name: 'Samsung C34H890WGU', slug: 'samsung-c34h890wgu', brand: 'Samsung', model: 'C34H890WGU',
+    category_id: CATS.ultrawide, status: 'active', price_min: 11999, price_max: 11999, currency: 'TRY',
+    image_url: 'https://images.unsplash.com/photo-1527443224154-c4a3942d3acf?w=800&q=80',
+    short_description: '34" UWQHD VA, 100Hz, USB-C 65W, Thunderbolt 3 uyumlu.',
+    specs: {
+      'Boyut': '34" (21:9)',
+      'Çözünürlük': 'UWQHD (3440×1440)',
+      'Panel': 'VA',
+      'Yenileme Hızı': '100Hz',
+      'Bağlantı': 'USB-C 65W, HDMI, DP, 4x USB-A hub',
+      'Özellik': 'Picture-in-Picture / Picture-by-Picture',
+      'Fiyat': '11.999 ₺',
+    },
+  },
+  {
+    name: 'MSI MAG401QR', slug: 'msi-mag401qr', brand: 'MSI', model: 'MAG 401QR',
+    category_id: CATS.ultrawide, status: 'active', price_min: 27999, price_max: 27999, currency: 'TRY',
+    image_url: 'https://images.unsplash.com/photo-1527443224154-c4a3942d3acf?w=800&q=80',
+    short_description: '40" WQHD+ IPS 144Hz, geniş çalışma alanı, ultra-geniş panoramik.',
+    specs: {
+      'Boyut': '40" (21:9)',
+      'Çözünürlük': 'WQHD+ (5120×2160)',
+      'Panel': 'IPS',
+      'Yenileme Hızı': '144Hz',
+      'Yanıt Süresi': '1ms GTG',
+      'Bağlantı': 'HDMI 2.1, DP 1.4, USB-C, USB hub',
+      'Fiyat': '27.999 ₺',
+    },
+  },
+];
+
+async function seed() {
+  console.log(`Seeding ${products.length} products...`);
+  let ok = 0, fail = 0;
+  for (const p of products) {
+    const { error } = await s.from('products').upsert(p, { onConflict: 'slug' });
+    if (error) { console.error(`✗ ${p.slug}:`, error.message); fail++; }
+    else { console.log(`✓ ${p.slug}`); ok++; }
+  }
+  console.log(`\nDone: ${ok} inserted/updated, ${fail} failed`);
+}
+
+seed().catch(console.error);

@@ -9,11 +9,14 @@ import {
   getRelatedNews,
   getProductsByIds,
   incrementNewsView,
+  getComments,
 } from '@compario/database';
 import type { Product } from '@compario/database';
 import { MarkdownContent } from '@/components/MarkdownContent';
 import { NewsCard } from '@/components/NewsCard';
 import { ShareButtons } from '@/components/ShareButtons';
+import { CommentsSection } from '@/components/CommentsSection';
+import { getPublicUser } from '@/lib/auth';
 
 const CATEGORY_LABELS: Record<string, string> = {
   'yeni-model': 'Yeni Model',
@@ -45,9 +48,11 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
     const description = article.meta_description ?? article.excerpt ?? '';
     const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? 'https://compario.tech';
     const ogImage = `${appUrl}/api/og/news?slug=${params.slug}`;
+    const canonical = `${appUrl}/news/${params.slug}`;
     return {
       title: `${title} | Compario`,
       description,
+      alternates: { canonical },
       openGraph: {
         title,
         description,
@@ -55,6 +60,8 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
         type: 'article',
         publishedTime: article.published_at ?? undefined,
         siteName: 'Compario',
+        url: canonical,
+        locale: 'tr_TR',
       },
       twitter: {
         card: 'summary_large_image',
@@ -101,6 +108,11 @@ export default async function NewsDetailPage({ params }: PageProps) {
   }
 
   if (!article) notFound();
+
+  const [comments, currentUser] = await Promise.all([
+    getComments('news', article.id).catch(() => []),
+    getPublicUser().catch(() => null),
+  ]);
 
   const minutes = readingTime(article.content);
   const articleWithCats = article as typeof article & { categories?: string[] | null };
@@ -283,6 +295,16 @@ export default async function NewsDetailPage({ params }: PageProps) {
 
         {/* Share */}
         <ShareButtons title={article.title} slug={article.slug} />
+
+        {/* Comments */}
+        <div className="mt-12">
+          <CommentsSection
+            entityType="news"
+            entityId={article.id}
+            initialComments={comments}
+            currentUser={currentUser ? { id: currentUser.id, name: currentUser.name, email: currentUser.email } : null}
+          />
+        </div>
 
         {/* Related Products */}
         {relatedProducts.length > 0 && (

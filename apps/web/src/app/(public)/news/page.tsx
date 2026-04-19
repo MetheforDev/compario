@@ -27,12 +27,27 @@ interface PageProps {
 
 const PER_PAGE = 12;
 
+const APP_URL = 'https://compario.tech';
+
 export function generateMetadata({ searchParams }: PageProps): Metadata {
   const cat = CATEGORIES.find((c) => c.value === searchParams.category);
-  const title = cat?.value ? `${cat.label} Haberleri` : 'Haberler';
+  const isFiltered = !!cat?.value;
+  const title = isFiltered ? `${cat!.label} Haberleri` : 'Haberler';
+  const canonical = isFiltered ? `${APP_URL}/news?category=${cat!.value}` : `${APP_URL}/news`;
+  const description = 'Güncel karşılaştırmalar, teknoloji haberleri, yeni model lansmanları ve fiyat güncellemeleri.';
   return {
     title: `${title} | Compario`,
-    description: 'Güncel karşılaştırmalar, teknoloji haberleri, yeni model lansmanları ve fiyat güncellemeleri.',
+    description,
+    alternates: { canonical },
+    openGraph: {
+      title: `${title} | Compario`,
+      description,
+      url: canonical,
+      siteName: 'Compario',
+      locale: 'tr_TR',
+      type: 'website',
+    },
+    twitter: { card: 'summary', title: `${title} | Compario`, site: '@compariotech' },
   };
 }
 

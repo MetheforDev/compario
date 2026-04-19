@@ -49,6 +49,7 @@ export async function getRatingSummary(productId: string): Promise<RatingSummary
 
 export async function createReview(data: {
   product_id: string;
+  user_id?: string | null;
   reviewer_name?: string | null;
   reviewer_email?: string | null;
   rating: number;
@@ -56,6 +57,7 @@ export async function createReview(data: {
 }): Promise<Review> {
   const insert: ReviewInsert = {
     product_id: data.product_id,
+    user_id: data.user_id ?? null,
     reviewer_name: data.reviewer_name ?? null,
     reviewer_email: data.reviewer_email ?? null,
     rating: data.rating,

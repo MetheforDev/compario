@@ -1,9 +1,32 @@
+import type { Metadata } from 'next';
 import Link from 'next/link';
 import Image from 'next/image';
 import { getTopLevelCategories, getFeaturedNews, getDailyComparison, getTrendingProducts } from '@compario/database';
 
 export const revalidate = 3600;
 import type { Category, NewsArticle, Product } from '@compario/database';
+
+const APP_URL = 'https://compario.tech';
+
+export const metadata: Metadata = {
+  title: 'Compario — Her Şeyi Karşılaştır, En İyisine Karar Ver',
+  description: "Türkiye'nin en kapsamlı ürün karşılaştırma platformu. Araçlar, telefonlar, laptoplar, beyaz eşyalar ve daha fazlasını karşılaştırın.",
+  alternates: { canonical: APP_URL },
+  openGraph: {
+    title: 'Compario — Her Şeyi Karşılaştır, En İyisine Karar Ver',
+    description: "Türkiye'nin en kapsamlı ürün karşılaştırma platformu.",
+    url: APP_URL,
+    siteName: 'Compario',
+    locale: 'tr_TR',
+    type: 'website',
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: 'Compario — Her Şeyi Karşılaştır',
+    description: "Türkiye'nin en kapsamlı ürün karşılaştırma platformu.",
+    site: '@compariotech',
+  },
+};
 import { NewsCard } from '@/components/NewsCard';
 import { HeroCompareWidget } from '@/components/HeroCompareWidget';
 import { Header } from '@/components/Header';

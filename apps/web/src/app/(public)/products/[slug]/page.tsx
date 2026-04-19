@@ -5,6 +5,7 @@ import { notFound } from 'next/navigation';
 
 export const revalidate = 3600;
 import { getProductBySlug, getProducts, getNewsForProduct, incrementViewCount, getApprovedReviews, getRatingSummary, getCategoryById } from '@compario/database';
+import { getPublicUser } from '@/lib/auth';
 import type { Json, Product, NewsArticle } from '@compario/database';
 import dynamic from 'next/dynamic';
 import { ShareButtons } from '@/components/ShareButtons';
@@ -35,16 +36,19 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
     const ogImages = product.image_url
       ? [{ url: product.image_url, width: 1200, height: 630 }]
       : [];
+    const canonical = `${appUrl}/products/${product.slug}`;
     return {
       title,
       description,
+      alternates: { canonical },
       openGraph: {
         title,
         description,
         images: ogImages,
         type: 'website',
         siteName: 'Compario',
-        url: `${appUrl}/products/${product.slug}`,
+        url: canonical,
+        locale: 'tr_TR',
       },
       twitter: {
         card: product.image_url ? 'summary_large_image' : 'summary',
@@ -291,10 +295,11 @@ export default async function ProductPage({ params }: PageProps) {
     ? await getCategoryById(parentCategory.parent_id).catch(() => null)
     : null;
 
-  const [relatedNews, reviews, ratingSummary] = await Promise.all([
+  const [relatedNews, reviews, ratingSummary, currentUser] = await Promise.all([
     getNewsForProduct(product.id).catch(() => [] as NewsArticle[]),
     getApprovedReviews(product.id).catch(() => []),
     getRatingSummary(product.id).catch(() => ({ average: 0, count: 0, distribution: { 1: 0, 2: 0, 3: 0, 4: 0, 5: 0 } })),
+    getPublicUser().catch(() => null),
   ]);
 
   const productPath = `/products/${product.slug}`;
@@ -555,6 +560,7 @@ export default async function ProductPage({ params }: PageProps) {
             productId={product.id}
             initialReviews={reviews}
             initialSummary={ratingSummary}
+            currentUser={currentUser ? { id: currentUser.id, name: currentUser.name, email: currentUser.email } : null}
           />
         </div>
 

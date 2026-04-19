@@ -24,9 +24,29 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   try {
     const cat = await getCategoryBySlug(params.slug);
     if (!cat) return {};
+    const appUrl = 'https://compario.tech';
+    const canonical = `${appUrl}/categories/${params.slug}`;
+    const title = `${cat.name} Karşılaştırma`;
+    const description = cat.description ?? `${cat.name} kategorisindeki en iyi ürünleri karşılaştırın — fiyatlar, özellikler, yorumlar.`;
     return {
-      title: `${cat.name} Karşılaştırma`,
-      description: cat.description ?? `${cat.name} kategorisindeki ürünleri karşılaştırın.`,
+      title,
+      description,
+      alternates: { canonical },
+      openGraph: {
+        title,
+        description,
+        url: canonical,
+        type: 'website',
+        siteName: 'Compario',
+        locale: 'tr_TR',
+        ...(cat.image_url ? { images: [{ url: cat.image_url, width: 1200, height: 630 }] } : {}),
+      },
+      twitter: {
+        card: cat.image_url ? 'summary_large_image' : 'summary',
+        title,
+        description,
+        site: '@compariotech',
+      },
     };
   } catch {
     return {};

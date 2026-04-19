@@ -17,6 +17,7 @@ export function generateMetadata({ searchParams }: PageProps): Metadata {
     description: q
       ? `"${q}" için Compario arama sonuçları — ürünler, haberler`
       : "Compario'da ürün ve haber arayın",
+    robots: { index: false, follow: true },
   };
 }
 

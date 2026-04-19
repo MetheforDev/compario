@@ -283,6 +283,44 @@ export interface Database {
           unsubscribed_at?: string | null
         }
       }
+      comments: {
+        Row: {
+          id: string
+          entity_type: string
+          entity_id: string
+          user_id: string | null
+          author_name: string | null
+          author_email: string | null
+          content: string
+          helpful_count: number
+          status: string
+          created_at: string
+        }
+        Insert: {
+          id?: string
+          entity_type: string
+          entity_id: string
+          user_id?: string | null
+          author_name?: string | null
+          author_email?: string | null
+          content: string
+          helpful_count?: number
+          status?: string
+          created_at?: string
+        }
+        Update: {
+          id?: string
+          entity_type?: string
+          entity_id?: string
+          user_id?: string | null
+          author_name?: string | null
+          author_email?: string | null
+          content?: string
+          helpful_count?: number
+          status?: string
+          created_at?: string
+        }
+      }
       reviews: {
         Row: {
           id: string

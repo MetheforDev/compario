@@ -3,7 +3,7 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { redirect } from 'next/navigation';
 import { getPublicUser } from '@/lib/auth';
-import { getUserFavorites, getUserPriceAlerts, getUserProfile } from '@compario/database';
+import { getUserFavorites, getUserPriceAlerts, getUserProfile, getUserCommentCount } from '@compario/database';
 import { ProfileEditForm } from '@/components/ProfileEditForm';
 
 export const metadata: Metadata = { title: 'Profilim | Compario' };
@@ -26,10 +26,11 @@ export default async function ProfilePage({
 
   const tab = searchParams.tab ?? 'favoriler';
 
-  const [profile, favorites, alerts] = await Promise.all([
+  const [profile, favorites, alerts, commentCount] = await Promise.all([
     getUserProfile(user.id).catch(() => null),
     getUserFavorites(user.id).catch(() => []),
     getUserPriceAlerts(user.id).catch(() => []),
+    getUserCommentCount(user.id).catch(() => 0),
   ]);
 
   const displayName = profile?.display_name ?? user.name ?? user.email.split('@')[0];
@@ -138,7 +139,7 @@ export default async function ProfilePage({
             {[
               { label: 'Favori',      value: favorites.length, color: '#00fff7' },
               { label: 'Fiyat Alarmı', value: alerts.length,  color: '#C49A3C' },
-              { label: 'Yorum',       value: 0,               color: '#b724ff' },
+              { label: 'Yorum',       value: commentCount,    color: '#b724ff' },
             ].map(s => (
               <div key={s.label} className="text-center">
                 <p className="font-orbitron text-xl font-black" style={{ color: s.color }}>{s.value}</p>

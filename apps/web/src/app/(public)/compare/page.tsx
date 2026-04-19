@@ -266,65 +266,179 @@ export default async function ComparePage({ searchParams }: PageProps) {
           <span className="text-neon-purple">Karşılaştırma</span>
         </nav>
 
-        {/* Title */}
-        <div className="flex items-center gap-4 mb-6">
-          <div className="h-px flex-1" style={{ background: 'linear-gradient(90deg,rgba(196,154,60,0.3),transparent)' }} />
-          <h1 className="font-orbitron text-[11px] uppercase tracking-[0.4em] font-black text-neon-cyan">
-            {products.length} Ürün Karşılaştırması
-          </h1>
-          <div className="h-px flex-1" style={{ background: 'linear-gradient(270deg,rgba(196,154,60,0.3),transparent)' }} />
-        </div>
-
-        {/* ── Winner Banner ── */}
-        {scores.some((s) => s.total > 0) && (
-          <div
-            className="rounded-xl px-6 py-4 mb-6 flex items-center gap-5 flex-wrap"
-            style={{
-              background: 'linear-gradient(135deg, rgba(0,255,247,0.06) 0%, rgba(183,36,255,0.04) 100%)',
-              border: '1px solid rgba(0,255,247,0.15)',
-              boxShadow: '0 0 40px rgba(0,255,247,0.06)',
-            }}
-          >
-            <div className="flex-1 min-w-0">
-              <p className="font-mono text-[10px] text-gray-600 uppercase tracking-widest mb-1">
-                Genel Karşılaştırma Sonucu
-              </p>
-              <p className="font-orbitron text-lg font-black text-white leading-tight">
-                <span style={{ color: '#00fff7' }}>{productNames[overallWinnerIdx]}</span>
-                {' '}
-                <span className="text-gray-500 text-sm font-normal">öne çıkıyor</span>
-              </p>
-              <p className="font-mono text-xs text-gray-600 mt-1">
-                {scores[overallWinnerIdx].wins} / {scores[overallWinnerIdx].total} spec'te daha iyi
-                {products.length === 2 && scores[overallWinnerIdx].total > 0 && (
-                  <span className="ml-2 text-neon-cyan">
-                    (%{Math.round((scores[overallWinnerIdx].wins / scores[overallWinnerIdx].total) * 100)} üstünlük)
-                  </span>
-                )}
-              </p>
-            </div>
-            {/* Mini scores */}
-            <div className="flex items-center gap-4 flex-shrink-0">
-              {products.map((p, i) => {
-                const isWinner = i === overallWinnerIdx;
-                return (
-                  <div key={p.id} className="flex flex-col items-center gap-1">
-                    <ScoreRing score={scores[i].score} size={60} />
-                    <span
-                      className="font-mono text-[9px] uppercase tracking-wider text-center max-w-[70px] truncate"
-                      style={{ color: isWinner ? '#00fff7' : '#4b5563' }}
-                    >
-                      {p.brand ?? p.name.split(' ')[0]}
-                    </span>
-                  </div>
-                );
-              })}
-            </div>
+        {/* ── Hero: Product Showdown ── */}
+        <div className="relative mb-8">
+          {/* Section label */}
+          <div className="flex items-center gap-4 mb-5">
+            <div className="h-px flex-1" style={{ background: 'linear-gradient(90deg,rgba(196,154,60,0.25),transparent)' }} />
+            <h1 className="font-orbitron text-[10px] uppercase tracking-[0.45em] font-black" style={{ color: 'rgba(196,154,60,0.7)' }}>
+              {products.length} Ürün Karşılaştırması
+            </h1>
+            <div className="h-px flex-1" style={{ background: 'linear-gradient(270deg,rgba(196,154,60,0.25),transparent)' }} />
           </div>
-        )}
+
+          {/* Product cards grid */}
+          <div className={`relative grid gap-3 items-stretch ${
+            products.length === 2 ? 'grid-cols-[1fr_auto_1fr]' :
+            products.length === 3 ? 'grid-cols-3' : 'grid-cols-2 sm:grid-cols-4'
+          }`}>
+
+            {products.map((product, i) => {
+              const isWinner = i === overallWinnerIdx && scores[i].total > 0;
+              const isCheap = product.price_min !== null && product.price_min === minPrice && validPrices.length > 1;
+              const s = scores[i];
+
+              return (
+                <div key={product.id} className="flex flex-col rounded-2xl overflow-hidden relative"
+                  style={{
+                    background: isWinner
+                      ? 'linear-gradient(180deg, rgba(0,255,247,0.05) 0%, rgba(0,255,247,0.02) 100%)'
+                      : '#0c0c18',
+                    border: isWinner
+                      ? '1px solid rgba(0,255,247,0.35)'
+                      : isCheap
+                      ? '1px solid rgba(196,154,60,0.3)'
+                      : '1px solid rgba(255,255,255,0.06)',
+                    boxShadow: isWinner
+                      ? '0 0 40px rgba(0,255,247,0.12), 0 0 80px rgba(0,255,247,0.05), inset 0 0 30px rgba(0,255,247,0.03)'
+                      : undefined,
+                  }}>
+
+                  {/* Top accent bar */}
+                  <div className="h-0.5 w-full" style={{
+                    background: isWinner
+                      ? 'linear-gradient(90deg, transparent, #00fff7, transparent)'
+                      : isCheap
+                      ? 'linear-gradient(90deg, transparent, #C49A3C, transparent)'
+                      : 'transparent',
+                  }} />
+
+                  {/* Badge row */}
+                  <div className="px-3 pt-2.5 min-h-[24px] flex items-center">
+                    {isWinner && s.total > 0 ? (
+                      <span className="font-mono text-[8px] uppercase tracking-[0.2em] px-2 py-0.5 rounded-full"
+                        style={{ background: 'rgba(0,255,247,0.15)', color: '#00fff7', border: '1px solid rgba(0,255,247,0.4)' }}>
+                        ◆ Kazanan
+                      </span>
+                    ) : isCheap ? (
+                      <span className="font-mono text-[8px] uppercase tracking-[0.2em] px-2 py-0.5 rounded-full"
+                        style={{ background: 'rgba(196,154,60,0.12)', color: '#C49A3C', border: '1px solid rgba(196,154,60,0.3)' }}>
+                        ◆ En Uygun
+                      </span>
+                    ) : null}
+                  </div>
+
+                  {/* Image */}
+                  <div className="relative mx-3 rounded-xl overflow-hidden"
+                    style={{ aspectRatio: '4/3', background: 'rgba(255,255,255,0.02)' }}>
+                    {product.image_url ? (
+                      <Image src={product.image_url} alt={product.name} fill
+                        className="object-cover" sizes="(max-width:640px) 45vw, 25vw" />
+                    ) : (
+                      <div className="w-full h-full flex items-center justify-center text-3xl opacity-10">◈</div>
+                    )}
+                    {isWinner && (
+                      <div className="absolute inset-0 pointer-events-none"
+                        style={{ background: 'radial-gradient(ellipse at 50% 0%, rgba(0,255,247,0.08) 0%, transparent 70%)' }} />
+                    )}
+                  </div>
+
+                  {/* Info */}
+                  <div className="px-3 pt-3 pb-4 flex flex-col gap-1 flex-1">
+                    {product.brand && (
+                      <p className="font-mono text-[8px] uppercase tracking-widest"
+                        style={{ color: isWinner ? 'rgba(0,255,247,0.5)' : 'rgba(255,255,255,0.25)' }}>
+                        {product.brand}
+                      </p>
+                    )}
+                    <Link href={`/products/${product.slug}`}>
+                      <h2 className="font-orbitron text-xs sm:text-sm font-black leading-snug hover:opacity-80 transition-opacity"
+                        style={{ color: isWinner ? '#00fff7' : '#e5e7eb' }}>
+                        {product.name}
+                      </h2>
+                    </Link>
+                    {product.price_min && (
+                      <p className="font-orbitron text-sm sm:text-base font-black mt-1"
+                        style={{ color: isWinner ? '#00fff7' : isCheap ? '#C49A3C' : '#9ca3af' }}>
+                        ₺{product.price_min.toLocaleString('tr-TR')}
+                      </p>
+                    )}
+
+                    {/* Score ring + stats */}
+                    {s.total > 0 && (
+                      <div className="flex items-center gap-3 mt-auto pt-3"
+                        style={{ borderTop: '1px solid rgba(255,255,255,0.05)' }}>
+                        <ScoreRing score={s.score} size={48} />
+                        <div>
+                          <p className="font-mono text-[9px] font-bold" style={{ color: isWinner ? '#00fff7' : '#6b7280' }}>
+                            {s.wins} kazanılan
+                          </p>
+                          <p className="font-mono text-[8px] text-gray-700">{s.total - s.wins} kaybedilen</p>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              );
+            })}
+
+            {/* VS divider (only for 2 products) */}
+            {products.length === 2 && (
+              <div className="flex flex-col items-center justify-center gap-2 px-1">
+                <div className="w-px flex-1" style={{ background: 'linear-gradient(to bottom, transparent, rgba(196,154,60,0.15), transparent)' }} />
+                <div className="flex flex-col items-center gap-1">
+                  <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-full flex items-center justify-center font-orbitron text-[9px] sm:text-[10px] font-black"
+                    style={{
+                      background: 'linear-gradient(135deg, rgba(196,154,60,0.15), rgba(196,154,60,0.05))',
+                      border: '1px solid rgba(196,154,60,0.3)',
+                      color: '#C49A3C',
+                      boxShadow: '0 0 20px rgba(196,154,60,0.1)',
+                    }}>
+                    VS
+                  </div>
+                </div>
+                <div className="w-px flex-1" style={{ background: 'linear-gradient(to bottom, rgba(196,154,60,0.15), transparent)' }} />
+              </div>
+            )}
+          </div>
+
+          {/* Result summary strip */}
+          {scores.some((s) => s.total > 0) && (
+            <div className="mt-4 rounded-xl px-5 py-3.5 flex items-center gap-4 flex-wrap"
+              style={{
+                background: 'linear-gradient(90deg, rgba(0,255,247,0.04) 0%, rgba(0,255,247,0.02) 100%)',
+                border: '1px solid rgba(0,255,247,0.1)',
+              }}>
+              <div className="flex items-center gap-2">
+                <span className="font-mono text-[9px] uppercase tracking-widest text-gray-600">Sonuç:</span>
+                <span className="font-orbitron text-sm font-black" style={{ color: '#00fff7' }}>
+                  {productNames[overallWinnerIdx]}
+                </span>
+                <span className="font-mono text-xs text-gray-500">öne çıkıyor</span>
+              </div>
+              <div className="h-3 w-px bg-white/10" />
+              <span className="font-mono text-[10px] text-gray-600">
+                {scores[overallWinnerIdx].wins} / {scores[overallWinnerIdx].total} spec&apos;te üstün
+              </span>
+              {products.length === 2 && scores[overallWinnerIdx].total > 0 && (
+                <>
+                  <div className="h-3 w-px bg-white/10" />
+                  <span className="font-mono text-[10px] font-bold" style={{ color: '#00fff7' }}>
+                    %{Math.round((scores[overallWinnerIdx].wins / scores[overallWinnerIdx].total) * 100)} oranında üstün
+                  </span>
+                </>
+              )}
+            </div>
+          )}
+        </div>
 
         {/* ── MOBILE: Product Cards + Spec Rows ── */}
         <div className="md:hidden">
+          {/* Section title */}
+          <div className="flex items-center gap-3 mb-4">
+            <span className="font-mono text-[9px] uppercase tracking-[0.3em] text-gray-600">Teknik Özellikler</span>
+            <div className="h-px flex-1" style={{ background: 'rgba(255,255,255,0.04)' }} />
+          </div>
           {/* Product mini-cards */}
           <div className={`grid gap-3 mb-4 ${products.length === 3 ? 'grid-cols-3' : 'grid-cols-2'}`}>
             {products.map((product, i) => {
@@ -363,36 +477,43 @@ export default async function ComparePage({ searchParams }: PageProps) {
                       )}
                     </div>
                   )}
-                  {product.image_url ? (
-                    <div className="relative w-full aspect-video">
+                  <div className="relative w-full mx-auto overflow-hidden" style={{ aspectRatio: '1/1', background: 'rgba(255,255,255,0.02)' }}>
+                    {product.image_url ? (
                       <Image src={product.image_url} alt={product.name} fill className="object-cover" sizes="50vw" />
-                    </div>
-                  ) : (
-                    <div className="w-full aspect-video flex items-center justify-center"
-                      style={{ background: 'rgba(196,154,60,0.04)' }}>
-                      <span className="text-xl opacity-20">◈</span>
-                    </div>
-                  )}
-                  <div className="p-2 flex flex-col gap-0.5 flex-1">
+                    ) : (
+                      <div className="w-full h-full flex items-center justify-center text-xl opacity-10">◈</div>
+                    )}
+                    {isWinnerM && (
+                      <div className="absolute inset-0 pointer-events-none"
+                        style={{ background: 'radial-gradient(ellipse at 50% 0%, rgba(0,255,247,0.12) 0%, transparent 70%)' }} />
+                    )}
+                  </div>
+                  <div className="p-2.5 flex flex-col gap-1 flex-1">
                     {product.brand && (
-                      <p className="font-mono text-[7px] uppercase tracking-widest text-gray-600 truncate">{product.brand}</p>
+                      <p className="font-mono text-[7px] uppercase tracking-widest truncate"
+                        style={{ color: isWinnerM ? 'rgba(0,255,247,0.5)' : 'rgba(255,255,255,0.25)' }}>
+                        {product.brand}
+                      </p>
                     )}
                     <Link href={`/products/${product.slug}`}>
-                      <h2 className="font-orbitron text-[9px] font-bold text-white leading-snug hover:text-neon-cyan transition-colors line-clamp-2">
+                      <h2 className="font-orbitron text-[9px] font-bold leading-snug line-clamp-2"
+                        style={{ color: isWinnerM ? '#00fff7' : '#e5e7eb' }}>
                         {product.name}
                       </h2>
                     </Link>
                     {product.price_min && (
-                      <p className="font-orbitron text-[10px] font-black mt-1"
+                      <p className="font-orbitron text-[11px] font-black mt-0.5"
                         style={{ color: isWinnerM ? '#00fff7' : isCheapestM ? '#C49A3C' : '#9ca3af' }}>
                         ₺{product.price_min.toLocaleString('tr-TR')}
                       </p>
                     )}
                     {sM.total > 0 && (
-                      <div className="flex items-center gap-1.5 mt-1 pt-1.5"
+                      <div className="flex items-center gap-1.5 mt-auto pt-2"
                         style={{ borderTop: '1px solid rgba(255,255,255,0.04)' }}>
                         <ScoreRing score={sM.score} size={32} />
-                        <p className="font-mono text-[7px] text-gray-600">{sM.wins} kazanılan</p>
+                        <p className="font-mono text-[7px]" style={{ color: isWinnerM ? '#00fff7' : '#6b7280' }}>
+                          {sM.wins} kazanılan
+                        </p>
                       </div>
                     )}
                   </div>
@@ -403,7 +524,7 @@ export default async function ComparePage({ searchParams }: PageProps) {
 
           {/* Spec table */}
           {specKeyOrder.length > 0 ? (
-            <div className="rounded-xl overflow-hidden" style={{ border: '1px solid rgba(196,154,60,0.1)' }}>
+            <div className="rounded-xl overflow-hidden" style={{ border: '1px solid rgba(196,154,60,0.12)' }}>
               {/* Header row: product abbreviations */}
               <div className="grid px-3 py-2"
                 style={{
@@ -499,12 +620,18 @@ export default async function ComparePage({ searchParams }: PageProps) {
         </div>
 
         {/* ── DESKTOP: Product Header Cards + Spec Table — horizontal scroll ── */}
+        <div className="hidden md:block">
+          <div className="flex items-center gap-3 mb-4">
+            <span className="font-mono text-[9px] uppercase tracking-[0.3em] text-gray-600">Teknik Karşılaştırma Tablosu</span>
+            <div className="h-px flex-1" style={{ background: 'rgba(255,255,255,0.04)' }} />
+          </div>
+        </div>
         <div className="hidden md:block overflow-x-auto -mx-4 sm:mx-0 px-4 sm:px-0">
         <div style={{ minWidth: `${160 + products.length * 200}px` }}>
 
         <div
-          className="grid rounded-t-xl overflow-hidden"
-          style={{ gridTemplateColumns: gridCols, border: '1px solid rgba(196,154,60,0.1)', borderBottom: 'none' }}
+          className="grid rounded-t-2xl overflow-hidden"
+          style={{ gridTemplateColumns: gridCols, border: '1px solid rgba(196,154,60,0.12)', borderBottom: 'none' }}
         >
           {/* Label column header */}
           <div className="px-4 py-5 flex items-end" style={LABEL_STYLE}>
@@ -519,67 +646,80 @@ export default async function ComparePage({ searchParams }: PageProps) {
             return (
               <div
                 key={product.id}
-                className="px-4 py-5 flex flex-col gap-2"
+                className="flex flex-col gap-3 px-4 py-4"
                 style={{
-                  background: isWinner ? 'rgba(0,255,247,0.03)' : isCheapest ? 'rgba(196,154,60,0.03)' : '#0c0c18',
+                  background: isWinner
+                    ? 'linear-gradient(180deg, rgba(0,255,247,0.05) 0%, rgba(0,255,247,0.015) 100%)'
+                    : isCheapest ? 'rgba(196,154,60,0.03)' : '#0c0c18',
                   borderLeft: i > 0 ? '1px solid rgba(196,154,60,0.06)' : undefined,
                   borderTop: isWinner
-                    ? '2px solid rgba(0,255,247,0.5)'
+                    ? '2px solid rgba(0,255,247,0.55)'
                     : isCheapest
                     ? '2px solid rgba(196,154,60,0.4)'
                     : '2px solid transparent',
+                  boxShadow: isWinner ? 'inset 0 0 40px rgba(0,255,247,0.04)' : undefined,
                 }}
               >
                 {/* Badges */}
-                <div className="flex gap-2 flex-wrap min-h-[20px]">
+                <div className="flex gap-2 flex-wrap min-h-[22px] items-center">
                   {isWinner && s.total > 0 && (
-                    <span className="font-mono text-[8px] uppercase tracking-[0.25em] px-2 py-0.5 rounded"
-                      style={{ background: 'rgba(0,255,247,0.12)', color: '#00fff7', border: '1px solid rgba(0,255,247,0.3)' }}>
+                    <span className="font-mono text-[8px] uppercase tracking-[0.25em] px-2.5 py-1 rounded-full"
+                      style={{ background: 'rgba(0,255,247,0.15)', color: '#00fff7', border: '1px solid rgba(0,255,247,0.4)' }}>
                       ◆ Kazanan
                     </span>
                   )}
                   {isCheapest && !isWinner && (
-                    <span className="font-mono text-[8px] uppercase tracking-[0.25em]" style={{ color: '#C49A3C' }}>
+                    <span className="font-mono text-[8px] uppercase tracking-[0.25em] px-2.5 py-1 rounded-full"
+                      style={{ background: 'rgba(196,154,60,0.12)', color: '#C49A3C', border: '1px solid rgba(196,154,60,0.3)' }}>
                       ◆ En Uygun
                     </span>
                   )}
                 </div>
 
                 {/* Image */}
-                {product.image_url ? (
-                  <div className="relative w-full aspect-video rounded-lg overflow-hidden">
+                <div className="relative w-full rounded-xl overflow-hidden" style={{ aspectRatio: '4/3', background: 'rgba(255,255,255,0.02)' }}>
+                  {product.image_url ? (
                     <Image src={product.image_url} alt={product.name} fill className="object-cover" sizes="(max-width:640px) 90vw, 33vw" />
-                  </div>
-                ) : (
-                  <div className="w-full aspect-video rounded-lg flex items-center justify-center"
-                    style={{ background: 'rgba(196,154,60,0.04)', border: '1px solid rgba(196,154,60,0.08)' }}>
-                    <span className="text-2xl opacity-20">◈</span>
-                  </div>
-                )}
+                  ) : (
+                    <div className="w-full h-full flex items-center justify-center text-2xl opacity-10">◈</div>
+                  )}
+                  {isWinner && (
+                    <div className="absolute inset-0 pointer-events-none"
+                      style={{ background: 'radial-gradient(ellipse at 50% 0%, rgba(0,255,247,0.1) 0%, transparent 70%)' }} />
+                  )}
+                </div>
 
                 {product.brand && (
-                  <p className="font-mono text-[9px] uppercase tracking-widest" style={{ color: '#8B9BAC' }}>{product.brand}</p>
+                  <p className="font-mono text-[9px] uppercase tracking-widest"
+                    style={{ color: isWinner ? 'rgba(0,255,247,0.5)' : 'rgba(255,255,255,0.25)' }}>
+                    {product.brand}
+                  </p>
                 )}
                 <Link href={`/products/${product.slug}`}>
-                  <h2 className="font-orbitron text-xs font-bold text-white leading-snug hover:text-neon-cyan transition-colors">
+                  <h2 className="font-orbitron text-xs font-bold leading-snug hover:opacity-75 transition-opacity"
+                    style={{ color: isWinner ? '#00fff7' : '#e5e7eb' }}>
                     {product.name}
                   </h2>
                 </Link>
 
                 {/* Price */}
                 {product.price_min && (
-                  <p className="font-orbitron text-base font-black" style={{ color: isWinner ? '#00fff7' : isCheapest ? '#C49A3C' : '#9ca3af' }}>
+                  <p className="font-orbitron text-lg font-black"
+                    style={{ color: isWinner ? '#00fff7' : isCheapest ? '#C49A3C' : '#9ca3af',
+                      textShadow: isWinner ? '0 0 20px rgba(0,255,247,0.3)' : undefined }}>
                     ₺{product.price_min.toLocaleString('tr-TR')}
                   </p>
                 )}
 
                 {/* Score ring */}
                 {s.total > 0 && (
-                  <div className="flex items-center gap-3 mt-1 pt-2" style={{ borderTop: '1px solid rgba(255,255,255,0.04)' }}>
-                    <ScoreRing score={s.score} size={52} />
+                  <div className="flex items-center gap-3 mt-auto pt-3" style={{ borderTop: '1px solid rgba(255,255,255,0.05)' }}>
+                    <ScoreRing score={s.score} size={56} />
                     <div>
-                      <p className="font-mono text-[10px] text-gray-600">{s.wins} kazanılan</p>
-                      <p className="font-mono text-[10px] text-gray-700">{s.total - s.wins} kaybedilen</p>
+                      <p className="font-mono text-[10px] font-bold" style={{ color: isWinner ? '#00fff7' : '#6b7280' }}>
+                        {s.wins} kazanılan
+                      </p>
+                      <p className="font-mono text-[9px] text-gray-700">{s.total - s.wins} kaybedilen</p>
                     </div>
                   </div>
                 )}
@@ -589,7 +729,7 @@ export default async function ComparePage({ searchParams }: PageProps) {
         </div>
 
         {/* ── Spec Table ── */}
-        <div className="rounded-b-xl overflow-hidden" style={{ border: '1px solid rgba(196,154,60,0.1)' }}>
+        <div className="rounded-b-2xl overflow-hidden" style={{ border: '1px solid rgba(196,154,60,0.12)' }}>
 
           {/* Price range row */}
           {products.some((p) => p.price_max && p.price_max !== p.price_min) && (
@@ -668,9 +808,12 @@ export default async function ComparePage({ searchParams }: PageProps) {
         </div>{/* end desktop: hidden md:block + overflow-x-auto */}
 
         {/* ── Karar Asistanı ── */}
-        <div className="mt-8 rounded-xl overflow-hidden" style={{ border: '1px solid rgba(183,36,255,0.15)' }}>
-          <div className="px-6 py-4" style={{ background: 'rgba(183,36,255,0.04)', borderBottom: '1px solid rgba(183,36,255,0.1)' }}>
-            <h2 className="font-orbitron text-xs text-neon-purple uppercase tracking-widest">Karar Asistanı</h2>
+        <div className="mt-8 rounded-2xl overflow-hidden" style={{ border: '1px solid rgba(183,36,255,0.18)', boxShadow: '0 0 40px rgba(183,36,255,0.05)' }}>
+          <div className="px-6 py-4" style={{ background: 'linear-gradient(90deg, rgba(183,36,255,0.06) 0%, rgba(183,36,255,0.02) 100%)', borderBottom: '1px solid rgba(183,36,255,0.1)' }}>
+            <div className="flex items-center gap-3">
+              <span className="font-mono text-[9px] uppercase tracking-[0.3em] text-neon-purple opacity-60">⬡</span>
+              <h2 className="font-orbitron text-[10px] text-neon-purple uppercase tracking-widest">Karar Asistanı</h2>
+            </div>
             <p className="font-mono text-[10px] text-gray-600 mt-0.5">Önceliğinize göre hangi ürün sizin için daha iyi?</p>
           </div>
 
@@ -749,10 +892,11 @@ export default async function ComparePage({ searchParams }: PageProps) {
 
         {/* ── AI Asistanı ── */}
         <div
-          className="mt-6 rounded-xl px-6 py-5"
+          className="mt-6 rounded-2xl px-6 py-5"
           style={{
-            background: 'linear-gradient(135deg, rgba(183,36,255,0.06) 0%, rgba(0,255,247,0.03) 100%)',
-            border: '1px solid rgba(183,36,255,0.2)',
+            background: 'linear-gradient(135deg, rgba(183,36,255,0.07) 0%, rgba(0,255,247,0.03) 100%)',
+            border: '1px solid rgba(183,36,255,0.25)',
+            boxShadow: '0 0 60px rgba(183,36,255,0.06)',
           }}
         >
           <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4">
@@ -769,7 +913,7 @@ export default async function ComparePage({ searchParams }: PageProps) {
         </div>
 
         {/* ── Share & Actions ── */}
-        <div className="mt-4 rounded-xl px-6 py-5 flex flex-col sm:flex-row items-start sm:items-center gap-4"
+        <div className="mt-4 rounded-2xl px-6 py-5 flex flex-col sm:flex-row items-start sm:items-center gap-4"
           style={{ background: '#0c0c18', border: '1px solid rgba(196,154,60,0.1)' }}>
           <div className="flex-1">
             <p className="font-mono text-[10px] text-gray-600 uppercase tracking-wider mb-2">Bu Karşılaştırmayı Paylaş</p>

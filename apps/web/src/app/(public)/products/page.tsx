@@ -5,9 +5,21 @@ import { ProductCard } from '@/components/ProductCard';
 
 export const revalidate = 3600;
 
+const APP_URL = 'https://compario.tech';
+
 export const metadata: Metadata = {
-  title: 'Tüm Ürünler',
-  description: 'Araçlar, telefonlar, laptoplar ve daha fazlasını karşılaştırın.',
+  title: 'Tüm Ürünler | Compario',
+  description: "Araçlar, telefonlar, laptoplar ve daha fazlasını karşılaştırın. Türkiye'nin en kapsamlı ürün karşılaştırma platformu.",
+  alternates: { canonical: `${APP_URL}/products` },
+  openGraph: {
+    title: 'Tüm Ürünler | Compario',
+    description: "Araçlar, telefonlar, laptoplar ve daha fazlasını karşılaştırın.",
+    url: `${APP_URL}/products`,
+    siteName: 'Compario',
+    locale: 'tr_TR',
+    type: 'website',
+  },
+  twitter: { card: 'summary', title: 'Tüm Ürünler | Compario', site: '@compariotech' },
 };
 
 interface PageProps {
@@ -41,8 +53,27 @@ export default async function ProductsPage({ searchParams }: PageProps) {
     getCategories(true).catch(() => []),
   ]);
 
+  const jsonLd = {
+    '@context': 'https://schema.org',
+    '@type': 'CollectionPage',
+    name: 'Tüm Ürünler | Compario',
+    description: "Türkiye'nin en kapsamlı ürün karşılaştırma platformu.",
+    url: `${APP_URL}/products`,
+    mainEntity: {
+      '@type': 'ItemList',
+      numberOfItems: products.length,
+      itemListElement: products.slice(0, 12).map((p, i) => ({
+        '@type': 'ListItem',
+        position: i + 1,
+        name: `${p.brand ? `${p.brand} ` : ''}${p.name}`,
+        url: `${APP_URL}/products/${p.slug}`,
+      })),
+    },
+  };
+
   return (
     <main className="min-h-screen bg-grid pb-24" style={{ paddingTop: '88px' }}>
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
       <div className="max-w-7xl mx-auto px-4 sm:px-6">
 
         {/* Page header */}

@@ -131,6 +131,19 @@ export {
   getUserPriceAlerts,
 } from './queries/favorites';
 
+// Comments
+export type { Comment, CommentStatus } from './queries/comments';
+export {
+  getComments,
+  getCommentCount,
+  getUserCommentCount,
+  createComment,
+  incrementCommentHelpful,
+  getCommentsAdmin,
+  updateCommentStatus,
+  deleteComment,
+} from './queries/comments';
+
 // Price queries
 export type { PricePoint, PriceAlert } from './queries/prices';
 export {

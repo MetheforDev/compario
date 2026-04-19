@@ -2,7 +2,8 @@
   "permissions": {
     "allow": [
       "Bash(./node_modules/.bin/tsc --project apps/web/tsconfig.json --noEmit)",
-      "Bash(echo \"EXIT:$?\")"
+      "Bash(echo \"EXIT:$?\")",
+      "Bash(npx tsc *)"
     ]
   }
 }

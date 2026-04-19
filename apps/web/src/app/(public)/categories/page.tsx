@@ -6,9 +6,21 @@ import type { Category } from '@compario/database';
 
 export const revalidate = 3600;
 
+const APP_URL = 'https://compario.tech';
+
 export const metadata: Metadata = {
   title: 'Kategoriler | Compario',
-  description: 'Araç, teknoloji, beyaz eşya ve daha fazlasını kategorilere göre karşılaştırın.',
+  description: "Araç, teknoloji, beyaz eşya ve daha fazlasını kategorilere göre karşılaştırın. Türkiye'nin en kapsamlı karşılaştırma platformu.",
+  alternates: { canonical: `${APP_URL}/categories` },
+  openGraph: {
+    title: 'Kategoriler | Compario',
+    description: 'Araç, teknoloji, beyaz eşya ve daha fazlasını kategorilere göre karşılaştırın.',
+    url: `${APP_URL}/categories`,
+    siteName: 'Compario',
+    locale: 'tr_TR',
+    type: 'website',
+  },
+  twitter: { card: 'summary', title: 'Kategoriler | Compario', site: '@compariotech' },
 };
 
 async function CategoryCard({ category, productCount }: { category: Category; productCount: number }) {
@@ -126,11 +138,29 @@ export default async function CategoriesPage() {
     })
   );
 
-  // allCatMap kullanılmadı uyarısını engellemek için
   void allCatMap;
+
+  const jsonLd = {
+    '@context': 'https://schema.org',
+    '@type': 'CollectionPage',
+    name: 'Kategoriler | Compario',
+    description: 'Araç, teknoloji, beyaz eşya ve daha fazlasını kategorilere göre karşılaştırın.',
+    url: `${APP_URL}/categories`,
+    mainEntity: {
+      '@type': 'ItemList',
+      numberOfItems: categories.length,
+      itemListElement: categories.map((cat, i) => ({
+        '@type': 'ListItem',
+        position: i + 1,
+        name: cat.name,
+        url: `${APP_URL}/categories/${cat.slug}`,
+      })),
+    },
+  };
 
   return (
     <main className="min-h-screen bg-grid">
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
       <div className="max-w-7xl mx-auto px-4 sm:px-6 pt-28 pb-20">
         {/* Header */}
         <div className="mb-12">

@@ -17,8 +17,9 @@ const ADMIN_ITEMS = [
   { href: '/admin/products',   label: 'Ürünler',      icon: '◈', exact: false },
   { href: '/admin/categories', label: 'Kategoriler',  icon: '◇', exact: false },
   { href: '/admin/segments',   label: 'Segmentler',   icon: '◆', exact: false },
-  { href: '/admin/reviews',    label: 'Yorumlar',     icon: '★', exact: false },
-  { href: '/admin/newsletter', label: 'Newsletter',   icon: '✉', exact: false },
+  { href: '/admin/reviews',    label: 'Ürün Yorumları', icon: '★', exact: false },
+  { href: '/admin/comments',   label: 'Yorumlar',       icon: '◈', exact: false },
+  { href: '/admin/newsletter', label: 'Newsletter',     icon: '✉', exact: false },
   { href: '/admin/users',      label: 'Kullanıcılar', icon: '◎', exact: false },
 ];
 

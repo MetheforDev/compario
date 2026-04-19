@@ -1,5 +1,9 @@
 import { NextResponse } from 'next/server';
-import { createReview } from '@compario/database';
+import { cookies } from 'next/headers';
+import { createRouteHandlerClient } from '@supabase/auth-helpers-nextjs';
+import { createReview, getProductById } from '@compario/database';
+import type { Database } from '@compario/database';
+import { notifyAdminReview } from '@/lib/email';
 
 export const runtime = 'nodejs';
 
@@ -28,13 +32,32 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: 'Yorum en fazla 1000 karakter olabilir' }, { status: 400 });
     }
 
+    // Giriş yapan kullanıcıyı al (opsiyonel)
+    const supabase = createRouteHandlerClient<Database>({ cookies });
+    const { data: { session } } = await supabase.auth.getSession();
+    const userId = session?.user?.id ?? null;
+    const userEmail = session?.user?.email ?? null;
+
     const review = await createReview({
       product_id,
+      user_id: userId,
       reviewer_name: reviewer_name?.trim() || null,
-      reviewer_email: reviewer_email?.trim() || null,
+      reviewer_email: reviewer_email?.trim() || userEmail,
       rating,
       comment: comment.trim(),
     });
+
+    // Admin'e asenkron bildirim gönder
+    getProductById(product_id).then((product) => {
+      if (!product) return;
+      notifyAdminReview({
+        productName: `${product.brand ? product.brand + ' ' : ''}${product.name}`,
+        productSlug: product.slug,
+        reviewerName: reviewer_name?.trim() || 'Anonim',
+        rating,
+        comment: comment.trim(),
+      }).catch(() => {});
+    }).catch(() => {});
 
     return NextResponse.json({ review, message: 'Yorumunuz moderasyon bekliyor.' }, { status: 201 });
   } catch (err) {
