@@ -47,6 +47,7 @@ export {
   getTopProductsByViews,
   getTopProductsByCompares,
   bulkCreateProducts,
+  getBrandsByCategory,
 } from './queries/products';
 
 // Category queries

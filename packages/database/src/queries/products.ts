@@ -9,7 +9,7 @@ import type {
 
 export async function getProducts(filters: ProductFilters = {}): Promise<Product[]> {
   const {
-    category, segment, minPrice, maxPrice, status,
+    category, segment, brand, minPrice, maxPrice, status,
     limit = 20, offset = 0, search, sortBy = 'newest',
   } = filters;
 
@@ -19,7 +19,6 @@ export async function getProducts(filters: ProductFilters = {}): Promise<Product
     const { data: cat } = await supabase
       .from('categories').select('id').eq('slug', category).single();
     if (cat) {
-      // Alt kategorilerin ID'lerini de topla (hiyerarşik filtre)
       const { data: subs } = await supabase
         .from('categories').select('id').eq('parent_id', cat.id);
       const ids = [cat.id, ...(subs ?? []).map((s: { id: string }) => s.id)];
@@ -35,6 +34,8 @@ export async function getProducts(filters: ProductFilters = {}): Promise<Product
       .single();
     if (seg) query = query.eq('segment_id', seg.id);
   }
+
+  if (brand) query = query.ilike('brand', brand);
 
   if (minPrice !== undefined) query = query.gte('price_min', minPrice);
   if (maxPrice !== undefined) query = query.lte('price_max', maxPrice);
@@ -216,6 +217,36 @@ export async function bulkCreateProducts(inputs: ProductInput[]): Promise<{ crea
     }
   }
   return { created, errors };
+}
+
+export async function getBrandsByCategory(
+  categorySlug: string,
+): Promise<{ brand: string; count: number }[]> {
+  const { data: cat } = await supabase
+    .from('categories').select('id').eq('slug', categorySlug).single();
+  if (!cat) return [];
+
+  const { data: subs } = await supabase
+    .from('categories').select('id').eq('parent_id', cat.id);
+  const ids = [cat.id, ...(subs ?? []).map((s: { id: string }) => s.id)];
+
+  const { data } = await supabase
+    .from('products')
+    .select('brand')
+    .in('category_id', ids)
+    .eq('status', 'active')
+    .not('brand', 'is', null);
+
+  if (!data) return [];
+
+  const counts = new Map<string, number>();
+  for (const p of data) {
+    if (p.brand) counts.set(p.brand, (counts.get(p.brand) ?? 0) + 1);
+  }
+
+  return [...counts.entries()]
+    .map(([brand, count]) => ({ brand, count }))
+    .sort((a, b) => b.count - a.count);
 }
 
 export interface SearchProductResult extends Product {

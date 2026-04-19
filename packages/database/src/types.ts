@@ -449,6 +449,7 @@ export type SortBy = 'newest' | 'price_asc' | 'price_desc' | 'name_asc'
 export interface ProductFilters extends PaginationParams {
   category?: string
   segment?: string
+  brand?: string
   minPrice?: number
   maxPrice?: number
   status?: ProductStatus
