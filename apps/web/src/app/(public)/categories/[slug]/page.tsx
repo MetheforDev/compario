@@ -144,7 +144,7 @@ export default async function CategoryPage({ params, searchParams }: PageProps) 
         )}
         <div
           className="absolute inset-0"
-          style={{ background: 'linear-gradient(to bottom, rgba(8,9,14,0.4) 0%, rgba(8,9,14,0.75) 70%, #08090E 100%)' }}
+          style={{ background: 'linear-gradient(to bottom, rgba(13,15,26,0.4) 0%, rgba(13,15,26,0.75) 70%, #0D0F1A 100%)' }}
         />
         <div className="absolute inset-0 flex flex-col justify-end px-4 sm:px-8 pb-5 max-w-7xl mx-auto left-0 right-0">
           <nav className="flex items-center gap-2 font-mono text-[10px] text-gray-500 uppercase tracking-wider mb-3">

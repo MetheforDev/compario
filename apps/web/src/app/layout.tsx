@@ -121,7 +121,7 @@ export default function RootLayout({
         <meta name="mobile-web-app-capable" content="yes" />
         <meta name="theme-color" content="#C49A3C" />
       </head>
-      <body className="bg-[#08090E] text-[#EDE8DF] font-mono antialiased">
+      <body className="bg-[#0D0F1A] text-[#EDE8DF] font-mono antialiased">
         <CompareProvider>
           {children}
           <CookieConsent />

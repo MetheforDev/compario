@@ -41,7 +41,7 @@ export function SidebarDrawer({ children }: Props) {
           'w-64 shrink-0',
         ].join(' ')}
         style={{
-          background: 'rgba(8,9,14,0.98)',
+          background: 'rgba(13,15,26,0.98)',
           borderRight: '1px solid rgba(0,255,247,0.06)',
           padding: '80px 16px 32px',
         }}

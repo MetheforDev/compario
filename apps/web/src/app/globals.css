@@ -7,7 +7,7 @@
    Primary:   Gold    #C49A3C  rgb(196,154,60)
    Secondary: Platin  #8B9BAC  rgb(139,155,172)
    Success:   Zümrüt  #10B981
-   BG:        Lacivert-Siyah #08090E
+   BG:        Navy-Dark #0D0F1A
 ───────────────────────────────────────────────────────── */
 
 :root {
@@ -17,9 +17,9 @@
   --gold-bright:    rgba(196,154,60,0.5);
   --platinum:       #8B9BAC;
   --platinum-dim:   rgba(139,155,172,0.12);
-  --bg-primary:     #08090E;
-  --bg-secondary:   #0C1018;
-  --bg-card:        #101622;
+  --bg-primary:     #0D0F1A;
+  --bg-secondary:   #111420;
+  --bg-card:        #161928;
   --border-dim:     rgba(196,154,60,0.1);
   --border-glow:    rgba(196,154,60,0.35);
 }
@@ -46,8 +46,8 @@ body {
 /* Subtle luxury grid */
 .bg-grid {
   background-image:
-    linear-gradient(rgba(196,154,60,0.025) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(196,154,60,0.025) 1px, transparent 1px);
+    linear-gradient(rgba(196,154,60,0.04) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(196,154,60,0.04) 1px, transparent 1px);
   background-size: 60px 60px;
 }
 

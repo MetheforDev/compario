@@ -513,7 +513,7 @@ export function Header() {
       {(menuOpen || megaOpen) && (
         <div
           className={`fixed inset-0 z-40 ${menuOpen ? 'sm:hidden' : ''}`}
-          style={{ background: 'rgba(8,9,14,0.6)', backdropFilter: 'blur(4px)' }}
+          style={{ background: 'rgba(13,15,26,0.7)', backdropFilter: 'blur(4px)' }}
           onClick={() => { setMenuOpen(false); setMegaOpen(false); }}
         />
       )}
