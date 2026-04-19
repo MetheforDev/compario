@@ -200,10 +200,20 @@ export default async function CategoryPage({ params, searchParams }: PageProps) 
                   }}
                 >
                   {sub.image_url ? (
-                    <div className="relative w-full h-20 overflow-hidden">
-                      <Image src={sub.image_url} alt={sub.name} fill className="object-cover group-hover:scale-105 transition-transform duration-500" sizes="200px" />
-                      <div className="absolute inset-0" style={{ background: 'linear-gradient(to top, rgba(10,10,20,0.9) 0%, transparent 60%)' }} />
-                    </div>
+                    (() => {
+                      const isLogo = sub.image_url.includes('simpleicons.org') || sub.image_url.endsWith('.svg');
+                      return isLogo ? (
+                        <div className="w-full h-20 flex items-center justify-center" style={{ background: 'rgba(0,0,0,0.3)' }}>
+                          {/* eslint-disable-next-line @next/next/no-img-element */}
+                          <img src={sub.image_url} alt={sub.name} className="w-10 h-10 object-contain group-hover:scale-110 transition-transform duration-300" />
+                        </div>
+                      ) : (
+                        <div className="relative w-full h-20 overflow-hidden">
+                          <Image src={sub.image_url} alt={sub.name} fill className="object-cover group-hover:scale-105 transition-transform duration-500" sizes="200px" />
+                          <div className="absolute inset-0" style={{ background: 'linear-gradient(to top, rgba(10,10,20,0.9) 0%, transparent 60%)' }} />
+                        </div>
+                      );
+                    })()
                   ) : (
                     <div className="w-full h-16 flex items-center justify-center" style={{ background: 'rgba(0,255,247,0.03)' }}>
                       <span className="text-2xl">{sub.icon ?? '📦'}</span>
