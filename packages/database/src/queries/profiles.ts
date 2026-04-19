@@ -5,6 +5,7 @@ export interface UserProfile {
   display_name: string | null;
   bio: string | null;
   avatar_url: string | null;
+  cover_image: string | null;
   twitter: string | null;
   instagram: string | null;
   youtube: string | null;

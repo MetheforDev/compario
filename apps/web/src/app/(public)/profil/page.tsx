@@ -3,7 +3,13 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { redirect } from 'next/navigation';
 import { getPublicUser } from '@/lib/auth';
-import { getUserFavorites, getUserPriceAlerts, getUserProfile, getUserCommentCount } from '@compario/database';
+import {
+  getUserFavorites,
+  getUserPriceAlerts,
+  getUserProfile,
+  getUserCommentCount,
+  getUserComments,
+} from '@compario/database';
 import { ProfileEditForm } from '@/components/ProfileEditForm';
 
 export const metadata: Metadata = { title: 'Profilim | Compario' };
@@ -26,11 +32,12 @@ export default async function ProfilePage({
 
   const tab = searchParams.tab ?? 'favoriler';
 
-  const [profile, favorites, alerts, commentCount] = await Promise.all([
+  const [profile, favorites, alerts, commentCount, comments] = await Promise.all([
     getUserProfile(user.id).catch(() => null),
     getUserFavorites(user.id).catch(() => []),
     getUserPriceAlerts(user.id).catch(() => []),
     getUserCommentCount(user.id).catch(() => 0),
+    tab === 'yorumlar' ? getUserComments(user.id).catch(() => []) : Promise.resolve([]),
   ]);
 
   const displayName = profile?.display_name ?? user.name ?? user.email.split('@')[0];
@@ -43,33 +50,48 @@ export default async function ProfilePage({
   return (
     <main className="min-h-screen bg-grid pb-24" style={{ paddingTop: '88px' }}>
 
-      {/* ── Hero banner ─────────────────────────────────────────────────── */}
-      <div className="relative h-36 sm:h-48 overflow-hidden"
-        style={{ background: 'linear-gradient(135deg, #0a0a18 0%, #0d0820 50%, #080d18 100%)' }}>
-        <div className="absolute inset-0"
-          style={{ background: 'radial-gradient(ellipse 80% 100% at 30% 50%, rgba(0,255,247,0.07) 0%, transparent 60%)' }} />
-        <div className="absolute inset-0"
-          style={{ background: 'radial-gradient(ellipse 60% 100% at 80% 50%, rgba(183,36,255,0.07) 0%, transparent 60%)' }} />
+      {/* ── Cover banner ──────────────────────────────────────────────── */}
+      <div className="relative h-44 sm:h-56 overflow-hidden">
+        {profile?.cover_image ? (
+          <Image
+            src={profile.cover_image}
+            alt="Kapak"
+            fill
+            className="object-cover"
+            sizes="100vw"
+            priority
+          />
+        ) : (
+          <div
+            className="absolute inset-0"
+            style={{ background: 'linear-gradient(135deg, #0a0a18 0%, #0d0820 50%, #080d18 100%)' }}
+          >
+            <div className="absolute inset-0"
+              style={{ background: 'radial-gradient(ellipse 80% 100% at 30% 50%, rgba(0,255,247,0.07) 0%, transparent 60%)' }} />
+            <div className="absolute inset-0"
+              style={{ background: 'radial-gradient(ellipse 60% 100% at 80% 50%, rgba(183,36,255,0.07) 0%, transparent 60%)' }} />
+            <div className="absolute inset-0 opacity-[0.03]"
+              style={{ backgroundImage: 'radial-gradient(circle, rgba(0,255,247,1) 1px, transparent 1px)', backgroundSize: '28px 28px' }} />
+          </div>
+        )}
+        {/* bottom fade */}
         <div className="absolute bottom-0 left-0 right-0 h-24"
-          style={{ background: 'linear-gradient(to top, #08090e, transparent)' }} />
-        {/* Grid pattern */}
-        <div className="absolute inset-0 opacity-[0.03]"
-          style={{ backgroundImage: 'radial-gradient(circle, rgba(0,255,247,1) 1px, transparent 1px)', backgroundSize: '28px 28px' }} />
+          style={{ background: 'linear-gradient(to top, #0D0F1A, transparent)' }} />
       </div>
 
       <div className="max-w-4xl mx-auto px-4 sm:px-6">
 
-        {/* ── Profile header ───────────────────────────────────────────────── */}
+        {/* ── Profile header ─────────────────────────────────────────── */}
         <div className="relative -mt-16 sm:-mt-20 mb-8">
           <div className="flex flex-col sm:flex-row sm:items-end gap-4">
 
             {/* Avatar */}
             <div
-              className="w-24 h-24 sm:w-28 sm:h-28 rounded-2xl flex items-center justify-center font-orbitron text-3xl font-black flex-shrink-0 ring-4"
+              className="relative w-24 h-24 sm:w-28 sm:h-28 rounded-2xl flex items-center justify-center font-orbitron text-3xl font-black flex-shrink-0"
               style={{
-                background: 'linear-gradient(135deg, rgba(0,255,247,0.2) 0%, rgba(183,36,255,0.2) 100%)',
+                background: profile?.avatar_url ? 'transparent' : 'linear-gradient(135deg, rgba(0,255,247,0.2) 0%, rgba(183,36,255,0.2) 100%)',
                 border: '2px solid rgba(0,255,247,0.3)',
-                outline: '4px solid #08090e',
+                outline: '4px solid #0D0F1A',
                 color: '#00fff7',
                 boxShadow: '0 0 40px rgba(0,255,247,0.15), 0 0 80px rgba(183,36,255,0.08)',
               }}
@@ -97,7 +119,6 @@ export default async function ProfilePage({
                 <p className="font-mono text-sm text-gray-500 max-w-lg leading-relaxed">{profile.bio}</p>
               )}
 
-              {/* Sosyal linkler */}
               {socialLinks.length > 0 && (
                 <div className="flex flex-wrap gap-2 mt-3">
                   {socialLinks.map(([key, s]) => {
@@ -109,11 +130,7 @@ export default async function ProfilePage({
                         target="_blank"
                         rel="noopener noreferrer nofollow"
                         className="flex items-center gap-1.5 font-mono text-[10px] px-3 py-1 rounded-full transition-all hover:opacity-80"
-                        style={{
-                          border: `1px solid ${s.color}30`,
-                          background: `${s.color}10`,
-                          color: s.color,
-                        }}
+                        style={{ border: `1px solid ${s.color}30`, background: `${s.color}10`, color: s.color }}
                       >
                         <span className="text-[11px]">{s.icon}</span>
                         <span>{val.replace('@', '')}</span>
@@ -137,9 +154,9 @@ export default async function ProfilePage({
           {/* Stats row */}
           <div className="flex gap-6 mt-5 pt-5 border-t border-[rgba(255,255,255,0.04)]">
             {[
-              { label: 'Favori',      value: favorites.length, color: '#00fff7' },
-              { label: 'Fiyat Alarmı', value: alerts.length,  color: '#C49A3C' },
-              { label: 'Yorum',       value: commentCount,    color: '#b724ff' },
+              { label: 'Favori',       value: favorites.length, color: '#00fff7' },
+              { label: 'Fiyat Alarmı', value: alerts.length,   color: '#C49A3C' },
+              { label: 'Yorum',        value: commentCount,     color: '#b724ff' },
             ].map(s => (
               <div key={s.label} className="text-center">
                 <p className="font-orbitron text-xl font-black" style={{ color: s.color }}>{s.value}</p>
@@ -149,17 +166,18 @@ export default async function ProfilePage({
           </div>
         </div>
 
-        {/* ── Tabs ────────────────────────────────────────────────────────── */}
-        <div className="flex gap-0 mb-8 border-b border-[rgba(0,255,247,0.06)]">
+        {/* ── Tabs ────────────────────────────────────────────────────── */}
+        <div className="flex gap-0 mb-8 border-b border-[rgba(0,255,247,0.06)] overflow-x-auto">
           {[
-            { key: 'favoriler',  label: 'Favoriler',     count: favorites.length },
-            { key: 'alarmlar',   label: 'Fiyat Alarmları', count: alerts.length },
-            { key: 'duzenle',    label: 'Profili Düzenle', count: null },
+            { key: 'favoriler', label: 'Favoriler',      count: favorites.length },
+            { key: 'alarmlar',  label: 'Fiyat Alarmları', count: alerts.length },
+            { key: 'yorumlar',  label: 'Yorumlar',        count: commentCount },
+            { key: 'duzenle',   label: 'Profili Düzenle', count: null },
           ].map(t => (
             <Link
               key={t.key}
               href={`/profil?tab=${t.key}`}
-              className={`flex items-center gap-1.5 px-4 py-2.5 font-mono text-[11px] uppercase tracking-wider border-b-2 transition-colors -mb-px ${
+              className={`flex items-center gap-1.5 px-4 py-2.5 font-mono text-[11px] uppercase tracking-wider border-b-2 transition-colors -mb-px whitespace-nowrap ${
                 tab === t.key
                   ? 'border-neon-cyan text-neon-cyan'
                   : 'border-transparent text-gray-600 hover:text-gray-400'
@@ -179,14 +197,11 @@ export default async function ProfilePage({
           ))}
         </div>
 
-        {/* ── Tab: Favoriler ──────────────────────────────────────────────── */}
+        {/* ── Tab: Favoriler ─────────────────────────────────────────── */}
         {tab === 'favoriler' && (
           favorites.length === 0 ? (
-            <EmptyState
-              icon="♡"
-              text="Henüz favori ürün eklemedin."
-              cta={{ href: '/products', label: 'Ürünlere Göz At →' }}
-            />
+            <EmptyState icon="♡" text="Henüz favori ürün eklemedin."
+              cta={{ href: '/products', label: 'Ürünlere Göz At →' }} />
           ) : (
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
               {favorites.map(product => (
@@ -222,14 +237,11 @@ export default async function ProfilePage({
           )
         )}
 
-        {/* ── Tab: Fiyat Alarmları ─────────────────────────────────────────── */}
+        {/* ── Tab: Fiyat Alarmları ───────────────────────────────────── */}
         {tab === 'alarmlar' && (
           alerts.length === 0 ? (
-            <EmptyState
-              icon="🔔"
-              text="Aktif fiyat alarmın yok."
-              cta={{ href: '/products', label: 'Ürün Bak ve Alarm Kur →' }}
-            />
+            <EmptyState icon="🔔" text="Aktif fiyat alarmın yok."
+              cta={{ href: '/products', label: 'Ürün Bak ve Alarm Kur →' }} />
           ) : (
             <div className="space-y-3">
               {alerts.map((alert: {
@@ -277,7 +289,52 @@ export default async function ProfilePage({
           )
         )}
 
-        {/* ── Tab: Profili Düzenle ─────────────────────────────────────────── */}
+        {/* ── Tab: Yorumlar ──────────────────────────────────────────── */}
+        {tab === 'yorumlar' && (
+          comments.length === 0 ? (
+            <EmptyState icon="💬" text="Henüz yorum yapmadın."
+              cta={{ href: '/products', label: 'Ürünlere Göz At ve Yorum Yap →' }} />
+          ) : (
+            <div className="space-y-3">
+              {comments.map(c => (
+                <div key={c.id}
+                  className="p-4 rounded-xl border border-[rgba(183,36,255,0.1)] bg-[rgba(255,255,255,0.02)]">
+                  {/* product ref */}
+                  {c.product_slug && (
+                    <Link
+                      href={`/products/${c.product_slug}`}
+                      className="font-mono text-[9px] uppercase tracking-widest text-neon-purple opacity-60 hover:opacity-100 transition-opacity mb-2 block"
+                    >
+                      ◈ {c.product_name ?? c.entity_id}
+                    </Link>
+                  )}
+                  <p className="font-mono text-sm text-gray-300 leading-relaxed">{c.content}</p>
+                  <div className="flex items-center gap-4 mt-3">
+                    <span className="font-mono text-[9px] text-gray-700">
+                      {new Date(c.created_at).toLocaleDateString('tr-TR', { day: 'numeric', month: 'long', year: 'numeric' })}
+                    </span>
+                    <span className="font-mono text-[9px] px-2 py-0.5 rounded-full border"
+                      style={
+                        c.status === 'approved'
+                          ? { borderColor: 'rgba(34,197,94,0.3)', color: '#22c55e', background: 'rgba(34,197,94,0.05)' }
+                          : c.status === 'pending'
+                          ? { borderColor: 'rgba(196,154,60,0.3)', color: '#C49A3C', background: 'rgba(196,154,60,0.05)' }
+                          : { borderColor: 'rgba(220,38,38,0.3)', color: '#dc2626', background: 'rgba(220,38,38,0.05)' }
+                      }
+                    >
+                      {c.status === 'approved' ? '✓ Onaylandı' : c.status === 'pending' ? '⏳ Bekliyor' : '✕ Reddedildi'}
+                    </span>
+                    {c.helpful_count > 0 && (
+                      <span className="font-mono text-[9px] text-gray-700">▲ {c.helpful_count} faydalı</span>
+                    )}
+                  </div>
+                </div>
+              ))}
+            </div>
+          )
+        )}
+
+        {/* ── Tab: Profili Düzenle ───────────────────────────────────── */}
         {tab === 'duzenle' && (
           <ProfileEditForm userId={user.id} profile={profile} email={user.email} />
         )}

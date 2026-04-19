@@ -54,6 +54,35 @@ export async function getUserCommentCount(userId: string): Promise<number> {
   return count ?? 0;
 }
 
+export async function getUserComments(userId: string): Promise<(Comment & { product_name?: string; product_slug?: string })[]> {
+  const admin = createAdminClient();
+  const { data, error } = await admin
+    .from('comments')
+    .select('*')
+    .eq('user_id', userId)
+    .order('created_at', { ascending: false })
+    .limit(50);
+
+  if (error) throw error;
+
+  const comments = data ?? [];
+  const productIds = comments.filter(c => c.entity_type === 'product').map(c => c.entity_id);
+
+  if (!productIds.length) return comments;
+
+  const { data: products } = await admin
+    .from('products')
+    .select('id, name, slug')
+    .in('id', productIds);
+
+  const productMap = new Map((products ?? []).map(p => [p.id, p]));
+  return comments.map(c => ({
+    ...c,
+    product_name: productMap.get(c.entity_id)?.name,
+    product_slug: productMap.get(c.entity_id)?.slug,
+  }));
+}
+
 export async function createComment(data: {
   entity_type: string;
   entity_id: string;

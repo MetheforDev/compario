@@ -138,6 +138,7 @@ export {
   getComments,
   getCommentCount,
   getUserCommentCount,
+  getUserComments,
   createComment,
   incrementCommentHelpful,
   getCommentsAdmin,
