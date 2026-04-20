@@ -7,6 +7,12 @@ const NAV_LINKS = [
   { href: '/products', label: 'Ürünler' },
   { href: '/news', label: 'Haberler' },
   { href: '/search', label: 'Arama' },
+  { href: '/trending', label: 'Trend' },
+];
+
+const LEGAL_LINKS = [
+  { href: '/about', label: 'Hakkında' },
+  { href: '/privacy', label: 'Gizlilik Politikası' },
 ];
 
 const SOCIAL_LINKS = [
@@ -164,11 +170,16 @@ export function Footer() {
           <p className="font-mono text-[10px] text-gray-700">
             © {currentYear} Compario. Tüm hakları saklıdır.
           </p>
-          <div className="flex items-center gap-1.5">
+          <div className="flex items-center gap-4">
+            {LEGAL_LINKS.map((l) => (
+              <Link key={l.href} href={l.href} className="font-mono text-[10px] text-gray-700 hover:text-gray-500 transition-colors">
+                {l.label}
+              </Link>
+            ))}
+            <span style={{ color: 'rgba(196,154,60,0.15)', fontSize: '8px' }}>◆</span>
             <span className="font-mono text-[9px] uppercase tracking-[0.3em]" style={{ color: 'rgba(196,154,60,0.2)' }}>
               compario.tech
             </span>
-            <span style={{ color: 'rgba(196,154,60,0.15)', fontSize: '8px' }}>◆</span>
           </div>
         </div>
       </div>
