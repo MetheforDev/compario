@@ -3,6 +3,7 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
+import Image from 'next/image';
 
 interface SuggestionProduct {
   id: string;
@@ -218,8 +219,7 @@ export function SearchInput({
                   {/* Thumbnail */}
                   <div className="w-9 h-9 rounded border border-[rgba(0,255,247,0.08)] bg-[#0a0a14] flex-shrink-0 overflow-hidden">
                     {p.image_url ? (
-                      // eslint-disable-next-line @next/next/no-img-element
-                      <img src={p.image_url} alt={p.name} className="w-full h-full object-cover" />
+                      <Image src={p.image_url} alt={p.name} width={36} height={36} className="w-full h-full object-cover" unoptimized />
                     ) : (
                       <span className="w-full h-full flex items-center justify-center text-gray-700 font-mono text-xs">◈</span>
                     )}
@@ -261,8 +261,7 @@ export function SearchInput({
                   >
                     <div className="w-9 h-9 rounded border border-[rgba(183,36,255,0.1)] bg-[#0a0a14] flex-shrink-0 overflow-hidden">
                       {a.cover_image ? (
-                        // eslint-disable-next-line @next/next/no-img-element
-                        <img src={a.cover_image} alt={a.title} className="w-full h-full object-cover" />
+                        <Image src={a.cover_image} alt={a.title} width={36} height={36} className="w-full h-full object-cover" unoptimized />
                       ) : (
                         <span className="w-full h-full flex items-center justify-center text-gray-700 font-mono text-xs">◇</span>
                       )}

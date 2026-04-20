@@ -10,7 +10,17 @@ import {
   getProductsByIds,
   incrementNewsView,
   getComments,
+  getTopNewsByViews,
 } from '@compario/database';
+
+export async function generateStaticParams() {
+  try {
+    const articles = await getTopNewsByViews(100);
+    return articles.map((a) => ({ slug: a.slug }));
+  } catch {
+    return [];
+  }
+}
 import type { Product } from '@compario/database';
 import { MarkdownContent } from '@/components/MarkdownContent';
 import { NewsCard } from '@/components/NewsCard';
@@ -324,12 +334,11 @@ export default async function NewsDetailPage({ params }: PageProps) {
                   className="group flex flex-col rounded-xl overflow-hidden border transition-all"
                   style={{ background: '#0f0f1a', borderColor: 'rgba(196,154,60,0.08)' }}
                 >
-                  <div className="aspect-video w-full bg-[#0c0c16] flex items-center justify-center overflow-hidden">
+                  <div className="relative aspect-video w-full bg-[#0c0c16] overflow-hidden">
                     {p.image_url ? (
-                      // eslint-disable-next-line @next/next/no-img-element
-                      <img src={p.image_url} alt={p.name} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
+                      <Image src={p.image_url} alt={p.name} fill className="object-cover group-hover:scale-105 transition-transform duration-500" sizes="(max-width:640px) 100vw, 33vw" />
                     ) : (
-                      <span className="text-3xl opacity-10">◈</span>
+                      <span className="absolute inset-0 flex items-center justify-center text-3xl opacity-10">◈</span>
                     )}
                   </div>
                   <div className="px-4 py-4 flex flex-col gap-1.5">

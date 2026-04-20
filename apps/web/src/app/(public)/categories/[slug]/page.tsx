@@ -12,7 +12,17 @@ import {
   getProducts,
   getSegmentsByCategory,
   getBrandsByCategory,
+  getCategories,
 } from '@compario/database';
+
+export async function generateStaticParams() {
+  try {
+    const cats = await getCategories();
+    return cats.map((c) => ({ slug: c.slug }));
+  } catch {
+    return [];
+  }
+}
 import { ProductCard } from '@/components/ProductCard';
 import { CategorySidebar } from '@/components/CategorySidebar';
 import { SidebarDrawer } from '@/components/SidebarDrawer';

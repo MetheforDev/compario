@@ -5,6 +5,15 @@ import { notFound } from 'next/navigation';
 
 export const revalidate = 3600;
 import { getProductBySlug, getProducts, getNewsForProduct, incrementViewCount, getApprovedReviews, getRatingSummary, getCategoryById } from '@compario/database';
+
+export async function generateStaticParams() {
+  try {
+    const products = await getProducts({ status: 'active', limit: 100 });
+    return products.map((p) => ({ slug: p.slug }));
+  } catch {
+    return [];
+  }
+}
 import { getPublicUser } from '@/lib/auth';
 import type { Json, Product, NewsArticle } from '@compario/database';
 import dynamic from 'next/dynamic';

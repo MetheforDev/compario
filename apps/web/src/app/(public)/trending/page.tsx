@@ -9,6 +9,14 @@ export const revalidate = 3600;
 export const metadata: Metadata = {
   title: 'Trend Ürünler | Compario',
   description: 'En çok karşılaştırılan ve en çok görüntülenen ürünler. Compario trend listesi.',
+  alternates: { canonical: 'https://compario.tech/trending' },
+  openGraph: {
+    title: 'Trend Ürünler | Compario',
+    description: 'En çok karşılaştırılan ve en çok görüntülenen ürünler.',
+    url: 'https://compario.tech/trending',
+    siteName: 'Compario',
+    locale: 'tr_TR',
+  },
 };
 
 function ProductRow({ product, rank, metric, metricLabel, color }: {
