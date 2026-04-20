@@ -526,6 +526,7 @@ function UserMenuButton() {
   const supabase = createClientComponentClient();
   const [email, setEmail] = useState<string | null>(null);
   const [displayName, setDisplayName] = useState<string | null>(null);
+  const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
   const [open, setOpen] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
 
@@ -534,16 +535,17 @@ function UserMenuButton() {
       const user = data.session?.user;
       if (!user) return;
       setEmail(user.email ?? null);
-      // Profil adını çek
       const { data: profile } = await supabase
         .from('user_profiles')
-        .select('display_name')
+        .select('display_name, avatar_url')
         .eq('user_id', user.id)
         .maybeSingle();
       setDisplayName(profile?.display_name ?? user.user_metadata?.name ?? null);
+      setAvatarUrl(profile?.avatar_url ?? null);
     });
     const { data: { subscription } } = supabase.auth.onAuthStateChange((_e, session) => {
       setEmail(session?.user.email ?? null);
+      if (!session?.user) setAvatarUrl(null);
     });
     return () => subscription.unsubscribe();
   }, [supabase]);
@@ -583,9 +585,13 @@ function UserMenuButton() {
         className="flex items-center gap-2 font-mono text-[10px] px-3 py-1.5 rounded-lg transition-all"
         style={{ border: '1px solid rgba(0,255,247,0.2)', color: '#00fff7', background: 'rgba(0,255,247,0.05)' }}
       >
-        <span className="w-6 h-6 rounded-full flex items-center justify-center text-[10px] font-black font-orbitron"
+        <span className="relative w-6 h-6 rounded-full flex items-center justify-center text-[10px] font-black font-orbitron overflow-hidden flex-shrink-0"
           style={{ background: 'linear-gradient(135deg, rgba(0,255,247,0.3), rgba(183,36,255,0.3))', color: '#00fff7', border: '1px solid rgba(0,255,247,0.3)' }}>
-          {(displayName ?? email)[0]?.toUpperCase()}
+          {avatarUrl ? (
+            <Image src={avatarUrl} alt="" fill className="object-cover" sizes="24px" unoptimized={avatarUrl.endsWith('.gif')} />
+          ) : (
+            (displayName ?? email)[0]?.toUpperCase()
+          )}
         </span>
         <span className="max-w-[90px] truncate">{displayName ?? email.split('@')[0]}</span>
       </button>
