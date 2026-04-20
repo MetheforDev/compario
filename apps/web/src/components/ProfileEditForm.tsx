@@ -85,6 +85,7 @@ export function ProfileEditForm({ userId, profile, email }: Props) {
     try {
       const { error: sbError } = await supabase.from('user_profiles').upsert(
         {
+          id: userId,
           user_id: userId,
           display_name: displayName.trim() || null,
           bio: bio.trim() || null,

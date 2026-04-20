@@ -57,7 +57,7 @@ export function ProfileHeroEdit({ userId, profile, displayName, initials, bio, s
       const { data } = supabase.storage.from('user-media').getPublicUrl(path);
       setUrl(data.publicUrl);
       await supabase.from('user_profiles').upsert(
-        { user_id: userId, [field]: data.publicUrl, updated_at: new Date().toISOString() },
+        { id: userId, user_id: userId, [field]: data.publicUrl, updated_at: new Date().toISOString() },
         { onConflict: 'user_id' },
       );
       router.refresh();
