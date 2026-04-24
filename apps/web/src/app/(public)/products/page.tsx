@@ -2,7 +2,6 @@ import type { Metadata } from 'next';
 import Link from 'next/link';
 import { getProducts, getCategories } from '@compario/database';
 import { ProductCard } from '@/components/ProductCard';
-import { AdSenseUnit } from '@/components/AdSenseUnit';
 
 export const revalidate = 3600;
 
@@ -200,11 +199,6 @@ export default async function ProductsPage({ searchParams }: PageProps) {
                 <ProductCard key={product.id} product={product} />
               ))}
             </div>
-            <AdSenseUnit
-              slot={process.env.NEXT_PUBLIC_ADSENSE_SLOT_PRODUCTS ?? ''}
-              format="horizontal"
-              className="mt-8"
-            />
           </>
         ) : (
           <div className="text-center py-24">
