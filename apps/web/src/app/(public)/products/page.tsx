@@ -2,6 +2,7 @@ import type { Metadata } from 'next';
 import Link from 'next/link';
 import { getProducts, getCategories } from '@compario/database';
 import { ProductCard } from '@/components/ProductCard';
+import { AdSenseUnit } from '@/components/AdSenseUnit';
 
 export const revalidate = 3600;
 
@@ -193,11 +194,18 @@ export default async function ProductsPage({ searchParams }: PageProps) {
 
         {/* Products grid */}
         {products.length > 0 ? (
-          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
-            {products.map((product) => (
-              <ProductCard key={product.id} product={product} />
-            ))}
-          </div>
+          <>
+            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
+              {products.map((product) => (
+                <ProductCard key={product.id} product={product} />
+              ))}
+            </div>
+            <AdSenseUnit
+              slot={process.env.NEXT_PUBLIC_ADSENSE_SLOT_PRODUCTS ?? ''}
+              format="horizontal"
+              className="mt-8"
+            />
+          </>
         ) : (
           <div className="text-center py-24">
             <p className="font-orbitron text-sm text-gray-600 uppercase tracking-wider">

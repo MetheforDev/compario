@@ -5,6 +5,7 @@ import { getNewsArticles } from '@compario/database';
 export const revalidate = 3600;
 import type { NewsArticle } from '@compario/database';
 import { NewsCard } from '@/components/NewsCard';
+import { AdSenseUnit } from '@/components/AdSenseUnit';
 
 const CATEGORIES = [
   { value: '', label: 'Tümü' },
@@ -249,6 +250,12 @@ export default async function NewsPage({ searchParams }: PageProps) {
                 <NewsCard key={article.id} article={article} />
               ))}
             </div>
+
+            <AdSenseUnit
+              slot={process.env.NEXT_PUBLIC_ADSENSE_SLOT_NEWS ?? ''}
+              format="horizontal"
+              className="mt-8"
+            />
 
             {/* Pagination */}
             {totalPages > 1 && (

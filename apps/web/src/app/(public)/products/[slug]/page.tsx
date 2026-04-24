@@ -178,6 +178,10 @@ function SpecsTable({ specs }: { specs: Json }) {
   );
 }
 
+const TY_TAG = process.env.NEXT_PUBLIC_TRENDYOL_AFFILIATE_ID ?? '';
+const HB_TAG = process.env.NEXT_PUBLIC_HEPSIBURADA_AFFILIATE_ID ?? '';
+const AMZ_TAG = process.env.NEXT_PUBLIC_AMAZON_AFFILIATE_TAG ?? '';
+
 const SELLERS = [
   {
     key: 'trendyol',
@@ -185,7 +189,10 @@ const SELLERS = [
     color: '#F27A1A',
     border: 'rgba(242,122,26,0.35)',
     bg: 'rgba(242,122,26,0.08)',
-    buildUrl: (q: string) => `https://www.trendyol.com/sr?q=${encodeURIComponent(q)}`,
+    buildUrl: (q: string) => {
+      const base = `https://www.trendyol.com/sr?q=${encodeURIComponent(q)}`;
+      return TY_TAG ? `${base}&utm_source=compario&utm_medium=affiliate&partnerId=${TY_TAG}` : base;
+    },
   },
   {
     key: 'hepsiburada',
@@ -193,7 +200,10 @@ const SELLERS = [
     color: '#FF6000',
     border: 'rgba(255,96,0,0.35)',
     bg: 'rgba(255,96,0,0.08)',
-    buildUrl: (q: string) => `https://www.hepsiburada.com/ara?q=${encodeURIComponent(q)}`,
+    buildUrl: (q: string) => {
+      const base = `https://www.hepsiburada.com/ara?q=${encodeURIComponent(q)}`;
+      return HB_TAG ? `${base}&utm_source=compario&utm_medium=affiliate&wt_mkt=${HB_TAG}` : base;
+    },
   },
   {
     key: 'amazon',
@@ -201,15 +211,26 @@ const SELLERS = [
     color: '#FF9900',
     border: 'rgba(255,153,0,0.35)',
     bg: 'rgba(255,153,0,0.08)',
-    buildUrl: (q: string) => `https://www.amazon.com.tr/s?k=${encodeURIComponent(q)}`,
+    buildUrl: (q: string) => {
+      const base = `https://www.amazon.com.tr/s?k=${encodeURIComponent(q)}`;
+      return AMZ_TAG ? `${base}&tag=${AMZ_TAG}` : base;
+    },
   },
 ];
 
-function BuyButton({ sourceUrl, productName }: { sourceUrl?: string | null; productName: string }) {
+const CAR_CATEGORY_SLUGS = ['otomobil', 'suv', 'araba', 'arac', 'elektrikli-arac', 'hafif-ticari'];
+
+function BuyButton({ sourceUrl, productName, categorySlug }: {
+  sourceUrl?: string | null;
+  productName: string;
+  categorySlug?: string | null;
+}) {
+  const isCar = categorySlug ? CAR_CATEGORY_SLUGS.some((s) => categorySlug.includes(s)) : false;
+
   return (
     <div className="w-full mt-6 pt-6 border-t" style={{ borderColor: 'rgba(196,154,60,0.08)' }}>
       <p className="font-mono text-[9px] uppercase tracking-[0.3em] text-gray-700 mb-3">
-        Satın Al
+        {isCar ? 'Bağlantılar' : 'Satın Al'}
       </p>
       <div className="flex flex-wrap gap-2">
         {sourceUrl && (
@@ -223,18 +244,42 @@ function BuyButton({ sourceUrl, productName }: { sourceUrl?: string | null; prod
             🛒 Resmi Site
           </a>
         )}
-        {SELLERS.map((s) => (
-          <a
-            key={s.key}
-            href={s.buildUrl(productName)}
-            target="_blank"
-            rel="noopener noreferrer nofollow"
-            className="inline-flex items-center gap-2 font-mono text-xs uppercase tracking-wider px-4 py-2.5 rounded-lg transition-all hover:opacity-80"
-            style={{ background: s.bg, border: `1px solid ${s.border}`, color: s.color }}
-          >
-            {s.label}
-          </a>
-        ))}
+
+        {isCar ? (
+          <>
+            <a
+              href={`https://www.sigortayeri.com/?utm_source=compario&utm_medium=affiliate&q=${encodeURIComponent(productName)}`}
+              target="_blank"
+              rel="noopener noreferrer nofollow"
+              className="inline-flex items-center gap-2 font-mono text-xs uppercase tracking-wider px-4 py-2.5 rounded-lg transition-all hover:opacity-80"
+              style={{ background: 'rgba(0,200,100,0.08)', border: '1px solid rgba(0,200,100,0.35)', color: '#00c864' }}
+            >
+              🛡 Sigorta Hesapla
+            </a>
+            <a
+              href={`https://www.arabam.com/ikinci-el?q=${encodeURIComponent(productName)}&utm_source=compario&utm_medium=affiliate`}
+              target="_blank"
+              rel="noopener noreferrer nofollow"
+              className="inline-flex items-center gap-2 font-mono text-xs uppercase tracking-wider px-4 py-2.5 rounded-lg transition-all hover:opacity-80"
+              style={{ background: 'rgba(196,154,60,0.08)', border: '1px solid rgba(196,154,60,0.35)', color: '#C49A3C' }}
+            >
+              🚗 İkinci El Bak
+            </a>
+          </>
+        ) : (
+          SELLERS.map((s) => (
+            <a
+              key={s.key}
+              href={s.buildUrl(productName)}
+              target="_blank"
+              rel="noopener noreferrer nofollow"
+              className="inline-flex items-center gap-2 font-mono text-xs uppercase tracking-wider px-4 py-2.5 rounded-lg transition-all hover:opacity-80"
+              style={{ background: s.bg, border: `1px solid ${s.border}`, color: s.color }}
+            >
+              {s.label}
+            </a>
+          ))
+        )}
       </div>
     </div>
   );
@@ -496,6 +541,7 @@ export default async function ProductPage({ params }: PageProps) {
           <BuyButton
             sourceUrl={product.source_url}
             productName={`${product.brand ?? ''} ${product.name}`.trim()}
+            categorySlug={category?.slug ?? null}
           />
         </div>
 

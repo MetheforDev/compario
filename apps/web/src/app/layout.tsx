@@ -1,5 +1,6 @@
 import type { Metadata, Viewport } from 'next';
 import { Orbitron, JetBrains_Mono } from 'next/font/google';
+import Script from 'next/script';
 import './globals.css';
 import { CompareProvider } from '@/lib/compare-store';
 import { Analytics } from '@vercel/analytics/react';
@@ -131,6 +132,14 @@ export default function RootLayout({
         <Analytics />
         {process.env.NEXT_PUBLIC_GA_ID && (
           <GoogleAnalytics gaId={process.env.NEXT_PUBLIC_GA_ID} />
+        )}
+        {process.env.NEXT_PUBLIC_ADSENSE_PUBLISHER_ID && (
+          <Script
+            async
+            src={`https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=${process.env.NEXT_PUBLIC_ADSENSE_PUBLISHER_ID}`}
+            crossOrigin="anonymous"
+            strategy="afterInteractive"
+          />
         )}
       </body>
     </html>
